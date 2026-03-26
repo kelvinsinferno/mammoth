@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { validateTokenName, estimateCycleTokens } from '../lib/utils';
+// lib/utils imports: add here when validation helpers are needed
 
 export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) {
   const [step, setStep] = useState(1);
