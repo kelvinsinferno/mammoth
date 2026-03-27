@@ -1,31 +1,49 @@
 'use client';
-import { useState } from 'react';
-import { shortAddr, mockAddress } from '../../lib/utils';
+import { useState, useEffect } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
 
-const MOCK_WALLETS = [
-  { id:'phantom',  label:'Phantom',  icon:'👻' },
-  { id:'backpack', label:'Backpack', icon:'🎒' },
-  { id:'solflare', label:'Solflare', icon:'☀️' },
-  { id:'ledger',   label:'Ledger',   icon:'🔒' },
+const SUPPORTED_WALLETS = [
+  { id: 'Phantom',  label: 'Phantom',  icon: '👻' },
+  { id: 'Solflare', label: 'Solflare', icon: '☀️' },
 ];
 
 export default function WalletModal({ onClose, onConnected }) {
+  const { select, connect, disconnect, connecting, connected, publicKey, wallet, wallets } = useWallet();
   const [phase, setPhase] = useState('select');
   const [chosen, setChosen] = useState(null);
   const [errMsg, setErrMsg] = useState('');
 
+  // When wallet connects successfully, notify parent
+  useEffect(() => {
+    if (connected && publicKey) {
+      const addr = publicKey.toBase58();
+      const short = addr.slice(0, 4) + '...' + addr.slice(-4);
+      onConnected({
+        status: 'connected',
+        address: addr,
+        short,
+        balance: 0, // fetched separately in MammothApp
+        adapter: wallet?.adapter?.name || 'Unknown',
+        error: null,
+      });
+      onClose();
+    }
+  }, [connected, publicKey]);
+
   const handlePick = async (w) => {
     setChosen(w);
     setPhase('connecting');
-    await new Promise(r => setTimeout(r, 1200));
-    if (Math.random() < 0.10) {
-      setErrMsg('Wallet not found or rejected connection.');
+    try {
+      select(w.id);
+      await connect();
+    } catch (err) {
+      // If wallet not installed, show helpful error
+      const msg = err?.message?.includes('not found') || err?.name === 'WalletNotReadyError'
+        ? `${w.label} not installed. Install it from the browser extension store.`
+        : (err?.message || 'Wallet rejected the connection.');
+      setErrMsg(msg);
       setPhase('error');
-      return;
     }
-    const address = mockAddress();
-    onConnected({ status:'connected', address, short:shortAddr(address), balance:+(Math.random()*12+0.5).toFixed(3), adapter:w.label, error:null });
-    onClose();
   };
 
   return (
@@ -41,7 +59,7 @@ export default function WalletModal({ onClose, onConnected }) {
 
         {phase === 'select' && (
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-            {MOCK_WALLETS.map(w => (
+            {SUPPORTED_WALLETS.map(w => (
               <button key={w.id} onClick={() => handlePick(w)}
                 style={{ display:'flex', alignItems:'center', gap:12, background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:8, padding:'13px 14px', cursor:'pointer', transition:'border-color 0.12s', width:'100%', textAlign:'left' }}
                 onMouseEnter={e => e.currentTarget.style.borderColor='#7C3AED'}

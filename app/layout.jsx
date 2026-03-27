@@ -1,4 +1,5 @@
 import './globals.css';
+import WalletContextProvider from '../components/wallet/WalletProvider';
 
 export const metadata = {
   title: 'Mammoth',
@@ -8,7 +9,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <WalletContextProvider>
+          {children}
+        </WalletContextProvider>
+      </body>
     </html>
   );
 }

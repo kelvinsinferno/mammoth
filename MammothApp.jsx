@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import Homepage from './views/Homepage';
 import ProjectDetail from './views/ProjectDetail';
 import LaunchWizard from './views/LaunchWizard';
@@ -8,6 +9,8 @@ import WalletModal from './components/wallet/WalletModal';
 import { MOCK_PROJECTS } from './lib/data';
 
 export default function MammothApp() {
+  const { disconnect, connected, publicKey, wallet } = useWallet();
+  const { connection } = useConnection();
   const [view, setView] = useState('home');
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState(MOCK_PROJECTS);
@@ -16,6 +19,28 @@ export default function MammothApp() {
   const [showLaunchModal, setShowLaunchModal] = useState(false);
   const [showCycleDashboard, setShowCycleDashboard] = useState(false);
   const [walletState, setWalletState] = useState({ status:'disconnected', address:null, short:null, balance:0, adapter:null, error:null });
+
+  // Sync real wallet state — fetch SOL balance when connected
+  useEffect(() => {
+    if (connected && publicKey) {
+      const addr = publicKey.toBase58();
+      const short = addr.slice(0, 4) + '...' + addr.slice(-4);
+      connection.getBalance(publicKey).then(lamports => {
+        setWalletState({
+          status: 'connected',
+          address: addr,
+          short,
+          balance: +(lamports / 1e9).toFixed(4),
+          adapter: wallet?.adapter?.name || 'Unknown',
+          error: null,
+        });
+      }).catch(() => {
+        setWalletState(s => ({ ...s, balance: 0 }));
+      });
+    } else if (!connected) {
+      setWalletState({ status:'disconnected', address:null, short:null, balance:0, adapter:null, error:null });
+    }
+  }, [connected, publicKey]);
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('mammoth-theme');
@@ -78,7 +103,7 @@ export default function MammothApp() {
     <>
       <Homepage projects={projects} onSelectProject={handleSelectProject}
         wallet={walletState.status === 'connected'} walletState={walletState}
-        onOpenModal={() => setShowWalletModal(true)} onDisconnect={() => setWalletState({status:'disconnected',address:null,short:null,balance:0,adapter:null,error:null})}
+        onOpenModal={() => setShowWalletModal(true)} onDisconnect={() => disconnect()}
         onLaunch={() => setShowLaunchModal(true)} theme={theme} onToggleTheme={handleToggleTheme}/>
       {showWalletModal && <WalletModal onClose={() => setShowWalletModal(false)} onConnected={handleWalletConnect}/>}
       {showLaunchModal && <LaunchWizard onClose={() => setShowLaunchModal(false)} onLaunch={handleLaunchToken} walletState={walletState} theme={theme}/>}
@@ -89,7 +114,7 @@ export default function MammothApp() {
     <>
       <ProjectDetail project={selectedProject} onBack={() => setView('home')}
         wallet={walletState.status === 'connected'} walletState={walletState}
-        onOpenModal={() => setShowWalletModal(true)} onDisconnect={() => setWalletState({status:'disconnected',address:null,short:null,balance:0,adapter:null,error:null})}
+        onOpenModal={() => setShowWalletModal(true)} onDisconnect={() => disconnect()}
         onConnect={() => setShowWalletModal(true)} onPurchase={() => {}} onManageCycles={() => setShowCycleDashboard(true)}
         theme={theme} onToggleTheme={handleToggleTheme}/>
       {showWalletModal && <WalletModal onClose={() => setShowWalletModal(false)} onConnected={handleWalletConnect}/>}
