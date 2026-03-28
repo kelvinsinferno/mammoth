@@ -8,7 +8,7 @@ import { useApp } from '../lib/AppContext';
 
 export default function Page() {
   const router = useRouter();
-  const { projects, walletState, setWalletState, theme, toggleTheme, handleLaunchToken, disconnect } = useApp();
+  const { projects, walletState, setWalletState, theme, toggleTheme, handleLaunchToken, disconnect, projectsLoading, rpcError } = useApp();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showLaunchModal, setShowLaunchModal] = useState(false);
 
@@ -33,6 +33,8 @@ export default function Page() {
         onLaunch={() => setShowLaunchModal(true)}
         theme={theme}
         onToggleTheme={toggleTheme}
+        loading={projectsLoading}
+        rpcError={rpcError}
       />
       {showWalletModal && (
         <WalletModal

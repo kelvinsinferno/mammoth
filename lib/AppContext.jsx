@@ -116,13 +116,15 @@ export function AppProvider({ children }) {
   const { disconnect, connected, publicKey, wallet, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
 
-  const [projects, setProjects] = useState(MOCK_PROJECTS);
+  const [projects, setProjects] = useState([]);
   const [myProjects, setMyProjects] = useState([]);
   const [walletState, setWalletState] = useState({
     status: 'disconnected', address: null, short: null, balance: 0, adapter: null, error: null
   });
   const [theme, setTheme] = useState('dark');
   const [onChainLoaded, setOnChainLoaded] = useState(false);
+  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [rpcError, setRpcError] = useState(null);
 
   // Init theme from localStorage
   useEffect(() => {
@@ -169,6 +171,7 @@ export function AppProvider({ children }) {
 
   // Load on-chain projects
   const loadOnChainProjects = useCallback(async () => {
+    setProjectsLoading(true);
     try {
       const walletAdapter = getWalletAdapter() || {
         publicKey: publicKey || { toBase58: () => '' },
@@ -179,7 +182,10 @@ export function AppProvider({ children }) {
       const rawProjects = await fetchAllProjects(program);
 
       if (rawProjects.length === 0) {
-        // Keep mock data if no on-chain projects exist
+        // No on-chain projects — show mock data for demo
+        setProjects(MOCK_PROJECTS);
+        setRpcError(null);
+        setProjectsLoading(false);
         return;
       }
 
@@ -208,10 +214,15 @@ export function AppProvider({ children }) {
         setMyProjects(mine);
       }
 
+      setRpcError(null);
       setOnChainLoaded(true);
     } catch (e) {
       console.warn('[mammoth] loadOnChainProjects failed:', e.message);
-      // Silently fall back to mock data
+      // Fall back to mock data, surface RPC warning
+      setProjects(MOCK_PROJECTS);
+      setRpcError('Connection issue — showing cached data');
+    } finally {
+      setProjectsLoading(false);
     }
   }, [connection, publicKey, getWalletAdapter]);
 
@@ -282,6 +293,8 @@ export function AppProvider({ children }) {
       connection,
       getWalletAdapter,
       loadOnChainProjects,
+      projectsLoading,
+      rpcError,
     }}>
       {children}
     </AppContext.Provider>

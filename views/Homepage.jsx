@@ -4,8 +4,9 @@ import ProjectCard from '../components/ui/ProjectCard';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
 import { getTokenPalette } from '../components/ui/TokenLogo';
+import { SkeletonCardGrid } from '../components/ui/Skeleton';
 
-export default function Homepage({ projects, onSelectProject, wallet, walletState, onOpenModal, onDisconnect, onLaunch, theme, onToggleTheme }) {
+export default function Homepage({ projects, onSelectProject, wallet, walletState, onOpenModal, onDisconnect, onLaunch, theme, onToggleTheme, loading, rpcError }) {
   const [tab, setTab] = useState('new');
   const [search, setSearch] = useState('');
   const TABS = [{key:'new',label:'New'},{key:'trending',label:'Trending ⚡'},{key:'raised',label:'Most Raised'},{key:'ending',label:'Ending Soon'}];
@@ -108,17 +109,43 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:15, pointerEvents:'none' }}>⌕</span>
         </div>
 
-        <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:12 }}>{filtered.length} project{filtered.length!==1?'s':''}</div>
+        {/* RPC error banner */}
+        {rpcError && (
+          <div style={{ background:'rgba(251,146,60,0.08)', border:'1px solid rgba(251,146,60,0.22)', borderRadius:7, padding:'9px 14px', marginBottom:12, display:'flex', alignItems:'center', gap:8, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#FB923C' }}>
+            <span>⚠️</span>
+            <span>{rpcError}</span>
+          </div>
+        )}
 
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))', gap:8 }}>
-          {filtered.map((p,i) => (
-            <div key={p.id} style={{ animation:'fadeUp 0.2s ease both', animationDelay:`${i*0.033}s` }}>
-              <ProjectCard p={p} onClick={() => onSelectProject(p)} theme={theme}/>
+        {!loading && <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:12 }}>{filtered.length} project{filtered.length!==1?'s':''}</div>}
+
+        {loading ? (
+          <SkeletonCardGrid count={6} />
+        ) : filtered.length > 0 ? (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))', gap:8 }}>
+            {filtered.map((p,i) => (
+              <div key={p.id} style={{ animation:'fadeUp 0.2s ease both', animationDelay:`${i*0.033}s` }}>
+                <ProjectCard p={p} onClick={() => onSelectProject(p)} theme={theme}/>
+              </div>
+            ))}
+          </div>
+        ) : search ? (
+          <div style={{ textAlign:'center', padding:'56px 0', color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontSize:12 }}>no tokens found</div>
+        ) : (
+          /* Empty state — no projects at all */
+          <div style={{ textAlign:'center', padding:'64px 0', animation:'fadeUp 0.25s ease' }}>
+            <div style={{ fontSize:40, marginBottom:16 }}>🦣</div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:8 }}>
+              No active cycles right now.
             </div>
-          ))}
-        </div>
-
-        {filtered.length === 0 && <div style={{ textAlign:'center', padding:'56px 0', color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontSize:12 }}>no tokens found</div>}
+            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-muted)', marginBottom:24 }}>
+              Be the first to launch.
+            </div>
+            <button onClick={onLaunch} style={{ background:'#FF9F1C', color:'#000', border:'none', borderRadius:7, padding:'11px 24px', fontFamily:"'IBM Plex Mono',monospace", fontSize:13, fontWeight:700, cursor:'pointer', letterSpacing:'0.05em' }}>
+              LAUNCH TOKEN →
+            </button>
+          </div>
+        )}
 
         <div style={{ marginTop:44, paddingTop:20, borderTop:'1px solid #1a2438', textAlign:'center' }}>
           <div style={{ fontSize:11, color:'var(--bar-empty)', fontFamily:"'IBM Plex Mono',monospace", lineHeight:1.9 }}>

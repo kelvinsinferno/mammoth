@@ -48,7 +48,7 @@ function CyclePanelDetail({ cycle }) {
   );
 }
 
-function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, onConnect, onPurchaseComplete }) {
+function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBalance, walletLoading, onConnect, onPurchaseComplete }) {
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
   const [txState, setTxState] = useState('idle');
@@ -165,7 +165,10 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, onConnec
           </button>
         </a>
         <div style={{ marginTop:10, fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center', lineHeight:1.5 }}>
-          2% fee applies to trades via Mammoth interface
+          2% fee on trades routed via Mammoth interface
+        </div>
+        <div style={{ marginTop:10, background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>No active cycle · trade freely on secondary</span>
         </div>
       </div>
     );
@@ -191,10 +194,18 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, onConnec
 
   return (
     <div style={{ background:'var(--panel)', border:`1px solid ${txState==='error'?'rgba(248,113,113,0.3)':'var(--border)'}`, borderRadius:10, padding:'18px 16px', transition:'border-color 0.2s' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:walletConnected?8:14 }}>
         <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>Buy ${ticker}</span>
         <button onClick={() => setShowSlippage(s => !s)} style={{ background:'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)' }}>⚙ {slippage}% slip</button>
       </div>
+      {walletConnected && (
+        <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:10 }}>
+          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>
+            Balance: <span style={{ color:'#22D3EE', fontWeight:600 }}>{walletLoading ? '—' : `${walletBalance ?? 0} SOL`}</span>
+          </span>
+        </div>
+      )}
+
       {showSlippage && (
         <div style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:7, padding:'10px 12px', marginBottom:12, animation:'fadeUp 0.15s ease' }}>
           <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:8 }}>slippage tolerance</div>
@@ -253,7 +264,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, onConnec
   );
 }
 
-export default function ProjectDetail({ project: p, onBack, wallet, walletState, onOpenModal, onDisconnect, onConnect, onPurchase, onManageCycles, theme, onToggleTheme }) {
+export default function ProjectDetail({ project: p, onBack, wallet, walletState, onOpenModal, onDisconnect, onConnect, onPurchase, onManageCycles, theme, onToggleTheme, rpcError }) {
   const [tab, setTab] = useState('About');
   const up = p.change >= 0;
   const TABS = ['About','Tokenomics','Cycles','Treasury'];
@@ -269,12 +280,20 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
               <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'2px 7px' }}>${p.ticker}</span>
               {p.status==='ACTIVE' && <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:10, fontWeight:600, fontFamily:"'IBM Plex Mono',monospace", padding:'2px 8px', borderRadius:4, background:'rgba(139,92,246,0.13)', color:'#22D3EE', border:'1px solid rgba(139,92,246,0.28)' }}>
                 <span style={{ width:4, height:4, borderRadius:'50%', background:'#8B5CF6', display:'inline-block', animation:'blink 2s ease-in-out infinite' }}/>OPEN</span>}
+              {(p.status==='BETWEEN' || p.status==='CLOSED') && <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:10, fontWeight:600, fontFamily:"'IBM Plex Mono',monospace", padding:'2px 8px', borderRadius:4, background:'rgba(255,159,28,0.10)', color:'#FF9F1C', border:'1px solid rgba(255,159,28,0.28)' }}>BETWEEN</span>}
             </div>
           </div>
           <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
           <WalletButton walletState={walletState} onOpenModal={onOpenModal} onDisconnect={onDisconnect}/>
         </div>
       </header>
+
+      {rpcError && (
+        <div style={{ background:'rgba(251,146,60,0.08)', borderBottom:'1px solid rgba(251,146,60,0.22)', padding:'8px 16px', display:'flex', alignItems:'center', gap:8, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#FB923C' }}>
+          <span>⚠️</span>
+          <span>{rpcError}</span>
+        </div>
+      )}
 
       <div style={{ maxWidth:960, margin:'0 auto', padding:'0 16px 64px' }}>
         <div style={{ display:'grid', gridTemplateColumns:'minmax(0,1fr) 310px', gap:16, alignItems:'start', paddingTop:20 }} className="detail-grid">
@@ -300,7 +319,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
 
           <div style={{ position:'sticky', top:68 }}>
             <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={p.cycleData}/></div>
-            <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
+            <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} walletBalance={walletState?.balance} walletLoading={walletState?.status === 'connecting'} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
             {p._mine && onManageCycles && (
               <button onClick={onManageCycles} style={{ marginTop:8, width:'100%', padding:'9px 0', background:'transparent', border:'1px solid #252848', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer', fontWeight:500, letterSpacing:'0.04em', transition:'all 0.13s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor='#8B5CF6'; e.currentTarget.style.color='#22D3EE'; }}

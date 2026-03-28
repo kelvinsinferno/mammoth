@@ -5,6 +5,7 @@ import { closeCycleOnChain } from '../lib/curves';
 import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
+import { SkeletonList } from '../components/ui/Skeleton';
 
 function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate }) {
   const { connection, getWalletAdapter } = useApp();
@@ -144,18 +145,42 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
   );
 }
 
-export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme }) {
+export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme, loading, onLaunchNew }) {
   const [expandedId, setExpandedId] = useState(null);
   const [manageModal, setManageModal] = useState(null);
 
+  // Loading state
+  if (loading) return (
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:600, padding:'24px 20px', animation:'slideUp 0.18s ease' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+          <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Your tokens</div>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:18, lineHeight:1 }}>✕</button>
+        </div>
+        <SkeletonList count={3} />
+      </div>
+    </div>
+  );
+
+  // Empty state — no tokens launched
   if (myProjects.length === 0) return (
     <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, padding:'32px 24px', textAlign:'center', maxWidth:400, animation:'slideUp 0.18s ease' }}>
-        <div style={{ fontSize:24, marginBottom:12 }}>📭</div>
-        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--text)', marginBottom:4 }}>No tokens yet</div>
-        <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:16 }}>Launch your first token to manage cycles</div>
-        <button onClick={onClose}
-          style={{ background:'#8B5CF6', border:'none', borderRadius:6, padding:'10px 18px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#fff', cursor:'pointer', letterSpacing:'0.04em' }}>CLOSE</button>
+      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, padding:'40px 28px', textAlign:'center', maxWidth:400, animation:'slideUp 0.18s ease' }}>
+        <div style={{ fontSize:36, marginBottom:14 }}>📭</div>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:8 }}>You haven&apos;t launched a token yet.</div>
+        <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:24, lineHeight:1.6 }}>Create your first token to start managing cycles and raising capital.</div>
+        <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
+          {onLaunchNew && (
+            <button onClick={() => { onClose(); onLaunchNew(); }}
+              style={{ background:'#FF9F1C', border:'none', borderRadius:6, padding:'10px 18px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#000', cursor:'pointer', letterSpacing:'0.04em' }}>
+              LAUNCH YOUR FIRST TOKEN →
+            </button>
+          )}
+          <button onClick={onClose}
+            style={{ background:'transparent', border:'1px solid #252848', borderRadius:6, padding:'10px 18px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'var(--text-dim)', cursor:'pointer', letterSpacing:'0.04em' }}>
+            CLOSE
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -187,6 +212,19 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
 
               {expandedId === p.id && (
                 <div style={{ marginTop:12, paddingTop:12, borderTop:'1px solid #1a2438', animation:'slideDown 0.15s ease' }}>
+                  {/* No active cycle state */}
+                  {(!p.cycleData || p.cycleData.status !== 'ACTIVE') && (
+                    <div style={{ background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.18)', borderRadius:7, padding:'12px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
+                      <div>
+                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', fontWeight:600 }}>No active cycle</div>
+                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>Open a new cycle to start raising.</div>
+                      </div>
+                      <button onClick={e => { e.stopPropagation(); setManageModal(p); }}
+                        style={{ background:'#FF9F1C', border:'none', borderRadius:5, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color:'#000', cursor:'pointer', letterSpacing:'0.04em', whiteSpace:'nowrap' }}>
+                        OPEN CYCLE →
+                      </button>
+                    </div>
+                  )}
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
                     {[
                       { k:'Current price', v:`${p.price.toFixed(5)} SOL`, c:'#22D3EE' },
