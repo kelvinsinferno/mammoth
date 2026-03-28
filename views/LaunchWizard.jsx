@@ -385,7 +385,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                 })()}
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
                   {[
-                    { name:'creatorAlloc', label:'Creator', color:'#A78BFA' },
+                    { name:'creatorAlloc', label:'Public Offer', color:'#A78BFA' },
                     { name:'treasuryAlloc', label:'Reserve', color:'#22D3EE' },
                     { name:'burnAlloc', label:'Burn', color:'#F43F5E' },
                   ].map(f => (
@@ -557,7 +557,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                           { label: 'Total raise (full sell)', value: fmtSOL(totalRaise), accent: '#FF9F1C' },
                           { label: 'Final price at sell-out', value: fmtSOL(finalPrice), accent: c.color },
                           { label: 'Avg price paid', value: fmtSOL(avgPrice), accent: 'var(--text)' },
-                          { label: `→ Creator (${(creatorPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * creatorPct), accent: '#A78BFA' },
+                          { label: `→ Public Offer (${(creatorPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * creatorPct), accent: '#A78BFA' },
                           { label: `→ Reserve (${(treasuryPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * treasuryPct), accent: '#22D3EE' },
                           { label: `→ Burn (${(burnPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * burnPct), accent: '#F43F5E' },
                           { label: '→ Protocol (2%)', value: fmtSOL(totalRaise * protocolPct), accent: 'var(--text-muted)' },
