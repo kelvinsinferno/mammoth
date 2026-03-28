@@ -9,36 +9,98 @@ import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
 import PriceChart from '../components/charts/PriceChart';
 
-// ── Curve type tooltip definitions ──────────────────────────────────────────
+// ── Curve type definitions ───────────────────────────────────────────────────
 const CURVE_DEFS = {
-  'Step':     { title:'Step Curve', color:'#22D3EE', desc:'Price increases in fixed jumps. Every N tokens sold, the price steps up by a set amount. Buyers know exactly when the next price increase hits — creating urgency without surprise. This cycle steps up every {stepSize} tokens.' },
-  'Linear':   { title:'Linear Curve', color:'#A78BFA', desc:'Price rises smoothly and continuously with every token sold. No sudden jumps — the more that\'s bought, the higher the price climbs at a steady rate. Predictable and gradual.' },
-  'Exp-Lite': { title:'Exp-Lite Curve', color:'#FF9F1C', desc:'An exponential-style curve using integer math for on-chain safety. Price rises slowly at first, then accelerates as more tokens are sold. Early buyers get the best entry; late buyers pay a significant premium.' },
+  'Step': {
+    title: 'Step Curve',
+    color: '#22D3EE',
+    icon: '📊',
+    desc: 'Price increases in fixed jumps. Every {stepSize} tokens sold, the price steps up by a set amount. You always know exactly when the next price increase hits — creating urgency without surprise.',
+    detail: 'This is the most common curve on Mammoth. Great for projects that want predictable, milestone-driven price action.',
+  },
+  'Linear': {
+    title: 'Linear Curve',
+    color: '#A78BFA',
+    icon: '📈',
+    desc: 'Price rises smoothly and continuously with every token sold. No sudden jumps — the more that\'s bought, the higher the price climbs at a steady, consistent rate.',
+    detail: 'Good for projects that want gradual, predictable appreciation without sharp step-up moments.',
+  },
+  'Exp-Lite': {
+    title: 'Exp-Lite Curve',
+    color: '#FF9F1C',
+    icon: '🚀',
+    desc: 'Price rises slowly at first, then accelerates as more tokens are sold. Early buyers get the best entry — late buyers pay a significant premium.',
+    detail: 'Uses integer math for on-chain safety. High asymmetry for early buyers. Best for projects with strong early community.',
+  },
 };
 
-function CurveTooltip({ curveType, stepSize }) {
-  const [open, setOpen] = useState(false);
+function CurveModal({ curveType, stepSize, stepIncrement, onClose }) {
   const def = CURVE_DEFS[curveType] || CURVE_DEFS['Step'];
   const desc = def.desc.replace('{stepSize}', stepSize ? stepSize.toLocaleString() : '5,000');
   return (
-    <span style={{ position:'relative', display:'inline-flex', alignItems:'center' }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{ background:'none', border:`1px solid ${def.color}44`, borderRadius:4, padding:'1px 6px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:def.color, cursor:'pointer', fontWeight:600, letterSpacing:'0.03em', display:'inline-flex', alignItems:'center', gap:4 }}
-      >
-        {curveType} 🔥 <span style={{ fontSize:10, opacity:0.7 }}>ⓘ</span>
-      </button>
-      {open && (
-        <>
-          <div onClick={() => setOpen(false)} style={{ position:'fixed', inset:0, zIndex:200 }}/>
-          <div style={{ position:'absolute', top:'calc(100% + 6px)', left:0, zIndex:201, background:'var(--panel)', border:`1px solid ${def.color}44`, borderRadius:8, padding:'12px 14px', width:260, boxShadow:'0 8px 32px rgba(0,0,0,0.5)', animation:'fadeUp 0.15s ease' }}>
-            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:def.color, marginBottom:6 }}>{def.title}</div>
-            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-secondary)', lineHeight:1.65 }}>{desc}</div>
-            <button onClick={() => setOpen(false)} style={{ marginTop:10, background:'none', border:'none', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', cursor:'pointer', padding:0 }}>got it ✕</button>
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:20, backdropFilter:'blur(4px)' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:`1px solid ${def.color}55`, borderRadius:14, padding:'24px 20px', width:'100%', maxWidth:380, boxShadow:'0 16px 48px rgba(0,0,0,0.6)', animation:'fadeUp 0.18s ease' }}>
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <span style={{ fontSize:28 }}>{def.icon}</span>
+            <div>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:def.color }}>{def.title}</div>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>how this cycle's pricing works</div>
+            </div>
           </div>
-        </>
-      )}
-    </span>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:18, lineHeight:1, padding:'0 0 0 8px' }}>✕</button>
+        </div>
+
+        {/* Description */}
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-secondary)', lineHeight:1.75, marginBottom:16 }}>
+          {desc}
+        </div>
+
+        {/* This cycle's specific params */}
+        {(stepSize || stepIncrement) && (
+          <div style={{ background:'var(--panel-alt)', border:`1px solid ${def.color}22`, borderRadius:8, padding:'12px 14px', marginBottom:16 }}>
+            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>This cycle's parameters</div>
+            {stepSize && (
+              <div style={{ display:'flex', justifyContent:'space-between', padding:'4px 0', borderBottom:'1px solid var(--border)' }}>
+                <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>Step size</span>
+                <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text)', fontWeight:600 }}>{stepSize.toLocaleString()} tokens</span>
+              </div>
+            )}
+            {stepIncrement && (
+              <div style={{ display:'flex', justifyContent:'space-between', padding:'4px 0' }}>
+                <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>Price increase per step</span>
+                <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:def.color, fontWeight:600 }}>+{stepIncrement.toFixed(5)} SOL</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)', lineHeight:1.65, marginBottom:20 }}>
+          {def.detail}
+        </div>
+
+        <button onClick={onClose} style={{ width:'100%', padding:'11px 0', background:def.color, border:'none', borderRadius:8, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#000', cursor:'pointer', letterSpacing:'0.04em' }}>
+          GOT IT
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CurveTooltip({ curveType, stepSize, stepIncrement }) {
+  const [open, setOpen] = useState(false);
+  const def = CURVE_DEFS[curveType] || CURVE_DEFS['Step'];
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        style={{ background:'none', border:`1px solid ${def.color}55`, borderRadius:4, padding:'2px 8px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:def.color, cursor:'pointer', fontWeight:600, display:'inline-flex', alignItems:'center', gap:4 }}
+      >
+        {curveType} 🔥 <span style={{ fontSize:10, opacity:0.8 }}>ⓘ</span>
+      </button>
+      {open && <CurveModal curveType={curveType} stepSize={stepSize} stepIncrement={stepIncrement} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 
@@ -68,7 +130,7 @@ function CyclePanelDetail({ cycle }) {
         {/* Curve — clickable tooltip */}
         <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
           <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Curve</div>
-          <CurveTooltip curveType={cycle.curveType} stepSize={cycle.stepSize}/>
+          <CurveTooltip curveType={cycle.curveType} stepSize={cycle.stepSize} stepIncrement={cycle.stepIncrement}/>
         </div>
         {/* Launch price */}
         <div style={{ background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:6, padding:'9px 11px' }}>
