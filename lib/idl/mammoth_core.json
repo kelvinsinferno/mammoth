@@ -980,6 +980,12 @@
         {
           "name": "sink_bps",
           "type": "u16"
+        },
+        {
+          "name": "launch_at",
+          "type": {
+            "option": "i64"
+          }
         }
       ]
     },
@@ -1641,6 +1647,11 @@
       "code": 6014,
       "name": "RightsWindowStillOpen",
       "msg": "Rights window is still open — cannot activate yet"
+    },
+    {
+      "code": 6015,
+      "name": "LaunchTimeNotReached",
+      "msg": "Scheduled launch time has not been reached yet"
     }
   ],
   "types": [
@@ -1851,6 +1862,12 @@
           {
             "name": "sink_bps",
             "type": "u16"
+          },
+          {
+            "name": "launch_at",
+            "type": {
+              "option": "i64"
+            }
           },
           {
             "name": "bump",
