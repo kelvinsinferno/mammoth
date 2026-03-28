@@ -319,22 +319,98 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
         {step === 2 && (
           <div style={{ animation:'fadeUp 0.2s ease' }}>
-            <div style={{ marginBottom:16 }}>
-              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:8, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Supply mode</label>
-              {['elastic','fixed'].map(m => (
-                <div key={m} onClick={() => handleChange({ target:{ name:'supplyMode', value:m } })} style={{ display:'flex', alignItems:'center', padding:'10px 12px', background:formData.supplyMode===m?'rgba(139,92,246,0.15)':'var(--panel-alt)', border:formData.supplyMode===m?'1px solid #8B5CF6':'1px solid var(--border)', borderRadius:6, cursor:'pointer', marginBottom:6, transition:'all 0.12s' }}>
-                  <div style={{ width:16, height:16, borderRadius:'50%', border:formData.supplyMode===m?'4px solid #8B5CF6':'2px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', marginRight:10, flexShrink:0 }}>
-                    {formData.supplyMode===m && <div style={{ width:6, height:6, borderRadius:'50%', background:'#8B5CF6' }}/>}
-                  </div>
-                  <div>
-                    <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'var(--text)' }}>{m.charAt(0).toUpperCase()+m.slice(1)}</div>
-                    <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:2 }}>{m==='elastic'?'Cycles can mint more':'Hard cap after final cycle'}</div>
-                  </div>
+
+            {/* ── Section 1: Cycle Setup ── */}
+            <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:9, padding:'14px', marginBottom:14 }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-dim)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:12 }}>Cycle Setup</div>
+
+              {/* Supply mode */}
+              <div style={{ marginBottom:12 }}>
+                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:6, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Supply mode</label>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                  {['elastic','fixed'].map(m => (
+                    <div key={m} onClick={() => handleChange({ target:{ name:'supplyMode', value:m } })} style={{ display:'flex', alignItems:'center', padding:'9px 11px', background:formData.supplyMode===m?'rgba(139,92,246,0.15)':'var(--panel)', border:formData.supplyMode===m?'1px solid #8B5CF6':'1px solid var(--border)', borderRadius:6, cursor:'pointer', transition:'all 0.12s', gap:8 }}>
+                      <div style={{ width:14, height:14, borderRadius:'50%', border:formData.supplyMode===m?'4px solid #8B5CF6':'2px solid var(--border)', flexShrink:0 }}/>
+                      <div>
+                        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color: formData.supplyMode===m ? '#A78BFA' : 'var(--text)' }}>{m.charAt(0).toUpperCase()+m.slice(1)}</div>
+                        <div style={{ fontSize:9, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:1 }}>{m==='elastic'?'Cycles can mint more':'One-time hard cap'}</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Cycle allocation */}
+              <div style={{ marginBottom:12 }}>
+                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Cycle allocation</label>
+                <div style={{ position:'relative' }}>
+                  <input type="number" name="initialAllocation" value={formData.initialAllocation} onChange={handleChange} step={1000} min={1}
+                    style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 52px 8px 10px', color:'var(--text)', fontSize:13, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                    onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                    onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                  <span style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>tokens</span>
+                </div>
+              </div>
+
+              {/* Treasury routing */}
+              <div>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+                  <label style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Treasury routing</label>
+                  {(() => {
+                    const used = Number(formData.creatorAlloc) + Number(formData.treasuryAlloc) + Number(formData.burnAlloc) + 2;
+                    const over = used > 100;
+                    return <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color: over ? '#F43F5E' : used === 100 ? '#10B981' : 'var(--text-muted)' }}>{used}% {over ? '⚠ over' : used === 100 ? '✓' : 'used'}</span>;
+                  })()}
+                </div>
+                {/* Progress bar */}
+                {(() => {
+                  const c = Number(formData.creatorAlloc);
+                  const r = Number(formData.treasuryAlloc);
+                  const b = Number(formData.burnAlloc);
+                  const p = 2;
+                  const total = c + r + b + p;
+                  const over = total > 100;
+                  return (
+                    <div style={{ height:6, background:'var(--border)', borderRadius:3, overflow:'hidden', marginBottom:10, display:'flex' }}>
+                      {[
+                        { pct: c, color: '#A78BFA' },
+                        { pct: r, color: '#22D3EE' },
+                        { pct: b, color: '#F43F5E' },
+                        { pct: p, color: 'rgba(255,255,255,0.2)' },
+                      ].map((seg, i) => (
+                        <div key={i} style={{ width:`${Math.min(seg.pct, Math.max(0, 100 - [c,r,b,p].slice(0,i).reduce((a,x)=>a+x,0)))}%`, background: over ? '#F43F5E' : seg.color, transition:'width 0.2s' }}/>
+                      ))}
+                    </div>
+                  );
+                })()}
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
+                  {[
+                    { name:'creatorAlloc', label:'Creator', color:'#A78BFA' },
+                    { name:'treasuryAlloc', label:'Reserve', color:'#22D3EE' },
+                    { name:'burnAlloc', label:'Burn', color:'#F43F5E' },
+                  ].map(f => (
+                    <div key={f.name}>
+                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:f.color, marginBottom:3, fontWeight:700, textTransform:'uppercase' }}>{f.label}</label>
+                      <div style={{ position:'relative' }}>
+                        <input type="number" name={f.name} value={formData[f.name]} onChange={handleChange} step={1} min={0} max={98}
+                          style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 22px 7px 8px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                          onFocus={e => e.currentTarget.style.borderColor=f.color}
+                          onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                        <span style={{ position:'absolute', right:6, top:'50%', transform:'translateY(-50%)', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop:6, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.6 }}>
+                  Protocol takes 2% · Remaining {Math.max(0, 98 - Number(formData.creatorAlloc) - Number(formData.treasuryAlloc) - Number(formData.burnAlloc))}% unallocated
+                </div>
+              </div>
             </div>
-            <div style={{ marginBottom:16 }}>
-              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:8, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Bonding curve</label>
+
+            {/* ── Section 2: Bonding Curve ── */}
+            <div style={{ marginBottom:4 }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-dim)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:8 }}>Bonding Curve</div>
+
               {[
                 { key:'linear', label:'Linear', color:'#A78BFA', desc:'Price rises smoothly with every token sold. Predictable, no surprises.' },
                 { key:'step',   label:'Step',   color:'#22D3EE', desc:'Price jumps at fixed intervals. Creates urgency — buyers see the next price cliff.' },
@@ -358,14 +434,6 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                     <div style={{ background:'var(--panel-alt)', border:`1px solid ${c.color}`, borderTop:'none', borderBottomLeftRadius:6, borderBottomRightRadius:6, padding:'12px 12px 14px', marginBottom:6, animation:'fadeUp 0.15s ease' }}>
                       <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:c.color, fontWeight:700, letterSpacing:'0.06em', marginBottom:10, textTransform:'uppercase' }}>Configure {c.label}</div>
                       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                        {/* Cycle allocation — always first */}
-                        <div style={{ gridColumn:'1/-1' }}>
-                          <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Cycle allocation (tokens)</label>
-                          <input type="number" name="initialAllocation" value={formData.initialAllocation} onChange={handleChange} step={1000} min={1}
-                            style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
-                            onFocus={e => e.currentTarget.style.borderColor=c.color}
-                            onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
-                        </div>
                         {/* Start price — always shown */}
                         <div>
                           <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Start price (SOL)</label>
@@ -479,7 +547,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
                         if (alloc === 0 || sp === 0) return (
                           <div style={{ marginTop:12, background:'rgba(255,159,28,0.06)', border:'1px solid rgba(255,159,28,0.15)', borderRadius:6, padding:'10px 12px', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>
-                            Set cycle allocation and start price above to see raise projection.
+                            Set a start price above to see raise projection.
                           </div>
                         );
 
@@ -527,28 +595,8 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
         {step === 3 && (
           <div style={{ animation:'fadeUp 0.2s ease' }}>
-            <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px', marginBottom:14 }}>
-              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginBottom:10, lineHeight:1.7 }}>
-                Protocol takes a fixed <span style={{ color:'var(--text)', fontWeight:600 }}>2%</span>. The remaining <span style={{ color:'var(--text)', fontWeight:600 }}>98%</span> is yours to split between creator, reserve, and burn. They must add up to 98% or less.
-              </div>
-              {(() => {
-                const used = Number(formData.creatorAlloc) + Number(formData.treasuryAlloc) + Number(formData.burnAlloc) + 2;
-                const over = used > 100;
-                return (
-                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <div style={{ flex:1, height:6, background:'var(--border)', borderRadius:3, overflow:'hidden' }}>
-                      <div style={{ height:'100%', width:`${Math.min(100, used)}%`, background: over ? '#F43F5E' : 'linear-gradient(90deg,#8B5CF6,#22D3EE)', borderRadius:3, transition:'width 0.2s' }}/>
-                    </div>
-                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color: over ? '#F43F5E' : 'var(--text-muted)', fontWeight:600, flexShrink:0 }}>{used}%</span>
-                  </div>
-                );
-              })()}
-            </div>
             {[
-              formData.supplyMode==='fixed' && { name:'hardCapSupply', label:'Hard cap supply', suffix:'tokens' },
-              { name:'creatorAlloc', label:'Creator', suffix:'%', hint:'Your share of cycle proceeds.' },
-              { name:'treasuryAlloc', label:'Reserve', suffix:'%', hint:'Held on-chain as project reserve.' },
-              { name:'burnAlloc', label:'Burn', suffix:'%', hint:'Permanently removed from circulation.' },
+              formData.supplyMode==='fixed' && { name:'hardCapSupply', label:'Hard cap supply', suffix:'tokens', hint:'Total tokens that can ever exist.' },
             ].filter(Boolean).map(f => (
               <div key={f.name} style={{ marginBottom:14 }}>
                 <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>{f.label}</label>
