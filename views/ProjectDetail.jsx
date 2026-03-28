@@ -442,11 +442,11 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
           <div className="detail-header-left" style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flex:1, overflow:'hidden' }}>
             <button onClick={onBack} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer', fontSize:18, lineHeight:1, padding:'4px 6px 4px 0', flexShrink:0, minWidth:28, minHeight:44, display:'flex', alignItems:'center' }}>←</button>
             <img
-              src="/mammoth-logo.jpg"
+              src="/mammoth-logo-dark.gif"
               alt="Mammoth"
               width={28}
               height={28}
-              style={{ borderRadius:6, objectFit:'cover', flexShrink:0, filter: theme==='dark' ? 'hue-rotate(200deg) saturate(1.4) brightness(0.85) contrast(1.1)' : 'none', transition:'filter 0.25s' }}
+              style={{ borderRadius:6, objectFit:'cover', flexShrink:0 }}
             />
             <div className="detail-header-name-row" style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'nowrap', overflow:'hidden', minWidth:0 }}>
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</span>

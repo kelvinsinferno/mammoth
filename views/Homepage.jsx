@@ -40,19 +40,11 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         <div className="header-inner" style={{ maxWidth:860, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div style={{ display:'flex', alignItems:'center', gap:9 }}>
             <img
-              src="/mammoth-logo.jpg"
+              src="/mammoth-logo-dark.gif"
               alt="Mammoth"
               width={36}
               height={36}
-              style={{
-                borderRadius: 8,
-                objectFit: 'cover',
-                // Dark mode: shift warm browns → purple/cyan palette
-                filter: theme === 'dark'
-                  ? 'hue-rotate(200deg) saturate(1.4) brightness(0.85) contrast(1.1)'
-                  : 'none',
-                transition: 'filter 0.25s',
-              }}
+              style={{ borderRadius: 8, objectFit: 'cover' }}
             />
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, letterSpacing:'-0.02em', background:'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Mammoth</span>
           </div>
