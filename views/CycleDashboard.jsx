@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { fmtTokens } from '../lib/utils';
 import { closeCycleOnChain } from '../lib/curves';
-import { parseTransactionError } from '../lib/anchorClient';
+import { parseTransactionError, activateCycle } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
 import { SkeletonList } from '../components/ui/Skeleton';
@@ -22,6 +22,32 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
       onClose();
     } catch(e) {
       console.error(e);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    setSubmitting(true);
+    try {
+      const walletAdapter = getWalletAdapter();
+      const mintAddress = project?.mint || project?.id;
+      const isRealMint = mintAddress && mintAddress.length >= 32 && !mintAddress.includes('...');
+
+      if (walletAdapter && isRealMint) {
+        const { getProgram } = await import('../lib/anchorClient');
+        const program = getProgram(walletAdapter, connection);
+        await activateCycle(program, mintAddress, cycle.id);
+        toast.success('Cycle activated — public buying is now open!');
+      } else {
+        await new Promise(r => setTimeout(r, 800));
+        toast.success('Cycle activated (demo)');
+      }
+      onClose();
+    } catch(e) {
+      const userMsg = parseTransactionError(e);
+      if (userMsg === null) { setSubmitting(false); return; }
+      toast.error(userMsg || 'Failed to activate cycle');
     } finally {
       setSubmitting(false);
     }
@@ -65,6 +91,53 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
 
         {!action ? (
           <div style={{ display:'flex', flexDirection:'column', gap:8, animation:'fadeUp 0.15s ease' }}>
+
+            {/* RIGHTS_WINDOW status — show countdown + activate button */}
+            {(cycle.status==='RIGHTS_WINDOW' || cycle.status==='rightsWindow') && (() => {
+              const now = Math.floor(Date.now() / 1000);
+              const expired = cycle.rightsWindowEnd && now >= cycle.rightsWindowEnd;
+              const remaining = cycle.rightsWindowEnd ? Math.max(0, cycle.rightsWindowEnd - now) : null;
+              const hrs = remaining !== null ? Math.floor(remaining / 3600) : null;
+              const mins = remaining !== null ? Math.floor((remaining % 3600) / 60) : null;
+              return (
+                <>
+                  <div style={{ background:'rgba(34,211,238,0.06)', border:'1px solid rgba(34,211,238,0.2)', borderRadius:8, padding:'12px 14px' }}>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#22D3EE', fontWeight:600, marginBottom:4 }}>
+                      🛡️ Rights Window {expired ? 'EXPIRED' : 'ACTIVE'}
+                    </div>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', lineHeight:1.6 }}>
+                      {expired
+                        ? 'Rights window has ended. You can now activate the cycle to open public buying.'
+                        : remaining !== null
+                          ? `Holders can exercise rights for ${hrs}h ${mins}m. Activate after window closes.`
+                          : 'Existing holders may exercise their pro-rata rights at launch price.'}
+                    </div>
+                  </div>
+                  {expired && (
+                    <button
+                      onClick={handleActivate}
+                      disabled={submitting}
+                      style={{ display:'flex', alignItems:'center', gap:12, background:'linear-gradient(135deg,rgba(34,211,238,0.12),rgba(139,92,246,0.12))', border:'1px solid rgba(34,211,238,0.35)', borderRadius:8, padding:'12px 14px', cursor:submitting?'not-allowed':'pointer', transition:'all 0.12s', width:'100%', minHeight:52, opacity:submitting?0.6:1 }}
+                      onMouseEnter={e => { if(!submitting) e.currentTarget.style.borderColor='#22D3EE'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(34,211,238,0.35)'; }}>
+                      {submitting
+                        ? <div style={{ width:16, height:16, borderRadius:'50%', border:'2px solid #1a2438', borderTopColor:'#22D3EE', animation:'spin 0.7s linear infinite' }}/>
+                        : <span style={{ fontSize:16, lineHeight:1 }}>⚡</span>
+                      }
+                      <div style={{ textAlign:'left' }}>
+                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'#22D3EE', fontWeight:700 }}>
+                          {submitting ? 'Activating...' : 'Activate cycle'}
+                        </div>
+                        <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:1 }}>
+                          Open public buying — rights window is closed
+                        </div>
+                      </div>
+                    </button>
+                  )}
+                </>
+              );
+            })()}
+
             {cycle.status==='ACTIVE' && (
               <>
                 <button onClick={() => setAction('launch')}
@@ -205,7 +278,20 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div>
                   <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:3 }}>{p.name} <span style={{ fontSize:11, color:'var(--text-dim)' }}>/ ${p.ticker}</span></div>
-                  <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>Cycle #{p.cycleData.id} · {p.cycleData.status} · {fmtTokens(p.cycleData.sold)} / {fmtTokens(p.cycleData.allocation)} sold</div>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
+                    <span style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>
+                      Cycle #{p.cycleData.id} · {fmtTokens(p.cycleData.sold)} / {fmtTokens(p.cycleData.allocation)} sold
+                    </span>
+                    {(p.cycleData.status==='RIGHTS_WINDOW'||p.cycleData.status==='rightsWindow') && (() => {
+                      const expired = p.cycleData.rightsWindowEnd && Math.floor(Date.now()/1000) >= p.cycleData.rightsWindowEnd;
+                      return (
+                        <span style={{ fontSize:9, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, padding:'2px 6px', borderRadius:3, background: expired ? 'rgba(255,159,28,0.15)' : 'rgba(34,211,238,0.1)', color: expired ? '#FF9F1C' : '#22D3EE', border: expired ? '1px solid rgba(255,159,28,0.3)' : '1px solid rgba(34,211,238,0.25)' }}>
+                          {expired ? '⚡ READY TO ACTIVATE' : '🛡 RIGHTS WINDOW'}
+                        </span>
+                      );
+                    })()}
+                    {p.cycleData.status==='ACTIVE' && <span style={{ fontSize:9, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, padding:'2px 6px', borderRadius:3, background:'rgba(139,92,246,0.13)', color:'#22D3EE', border:'1px solid rgba(139,92,246,0.28)' }}>● OPEN</span>}
+                  </div>
                 </div>
                 <span style={{ fontSize:14, opacity:expandedId===p.id?0.6:1 }}>{expandedId===p.id?'▼':'▶'}</span>
               </div>
