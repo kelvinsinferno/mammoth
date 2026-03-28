@@ -334,15 +334,21 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
   const up = p.change >= 0;
   const TABS = ['About','Tokenomics','Cycles','Treasury'];
 
-  // Scroll active tab into view on the tab bar
+  // Scroll active tab fully into view within the tab bar container
   const handleTabClick = (t) => {
     setTab(t);
-    // Find the button and scroll it into view within the scrollable tab container
     if (tabsRef.current) {
-      const btns = tabsRef.current.querySelectorAll('button');
+      const container = tabsRef.current;
+      const btns = container.querySelectorAll('button');
       const idx = TABS.indexOf(t);
-      if (btns[idx]) {
-        btns[idx].scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+      const btn = btns[idx];
+      if (btn) {
+        // Calculate scroll position to center the button in the container
+        const btnLeft = btn.offsetLeft;
+        const btnWidth = btn.offsetWidth;
+        const containerWidth = container.offsetWidth;
+        const targetScroll = btnLeft - (containerWidth / 2) + (btnWidth / 2);
+        container.scrollTo({ left: targetScroll, behavior: 'smooth' });
       }
     }
   };
