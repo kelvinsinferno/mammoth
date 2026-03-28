@@ -91,8 +91,8 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         <div style={{ marginBottom:20, padding:'16px 18px', background:'var(--hero-bg)', border:'1px solid var(--hero-border)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10, boxSizing:'border-box' }}>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:3 }}>
-              <span style={{ background:'linear-gradient(90deg,#8B5CF6,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>For projects that aren't done yet</span>
-              {' '}— launch, grow, and keep going.
+              For projects that aren't done yet —{' '}
+              <span style={{ background:'linear-gradient(90deg,#8B5CF6,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>launch, grow, and keep going.</span>
             </div>
             <div style={{ fontSize:11, color:theme==='light'?'rgba(255,255,255,0.85)':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>permissionless · cycle-based · no curation · no approvals</div>
           </div>
