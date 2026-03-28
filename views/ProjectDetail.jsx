@@ -126,11 +126,19 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
     : !slippageOk && solNum > 0 ? `Price impact ${((quote.effectivePrice - cycle.currentPrice) / cycle.currentPrice * 100).toFixed(2)}% exceeds slippage tolerance ${slippage}%`
     : null;
 
-  const canSubmit = walletConnected && solNum > 0 && !hasError && txState === 'idle';
-  const btnLabel = { idle:walletConnected?(solNum>0?'CONFIRM PURCHASE':'ENTER AMOUNT'):'CONNECT WALLET', awaiting:'AWAITING WALLET...', loading:'CONFIRMING ON-CHAIN...', success:'DONE', error:'TRY AGAIN' }[txState];
+  // Mock projects have a numeric id — allow buy without wallet for demo purposes
+  const isMockProject = mintAddress && /^\d+$/.test(String(mintAddress));
+  const canSubmit = (walletConnected || isMockProject) && solNum > 0 && !hasError && txState === 'idle';
+  const btnLabel = {
+    idle: solNum > 0 ? 'CONFIRM PURCHASE' : 'ENTER AMOUNT',
+    awaiting: 'AWAITING WALLET...',
+    loading: 'CONFIRMING...',
+    success: 'DONE',
+    error: 'TRY AGAIN',
+  }[txState];
 
   const handleBuy = async () => {
-    if (!walletConnected) { onConnect(); return; }
+    if (!walletConnected && !isMockProject) { onConnect(); return; }
     if (!canSubmit && txState !== 'error') return;
     setTxState('awaiting'); setErrMsg('');
 
@@ -319,8 +327,8 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
           <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#22D3EE', fontWeight:600 }}>{txState==='awaiting'?'Waiting for wallet signature...':'Confirming on-chain...'}</div>
         </div>
       )}
-      <button onClick={txState==='error'?handleReset:handleBuy} disabled={isProcessing||(txState==='idle'&&(!walletConnected?false:!canSubmit))}
-        style={{ width:'100%', padding:'13px 0', borderRadius:7, border:txState==='error'?'1px solid rgba(248,113,113,0.3)':'none', background:txState==='error'?'rgba(248,113,113,0.12)':isProcessing?'#2d1f7a':(!walletConnected||solNum>0)&&!hasError?'#8B5CF6':'var(--border)', color:txState==='error'?'#F43F5E':isProcessing?'var(--text-dim)':(!walletConnected||solNum>0)&&!hasError?'#fff':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:14, cursor:isProcessing?'not-allowed':'pointer', letterSpacing:'0.05em', transition:'all 0.15s', minHeight:48 }}>
+      <button onClick={txState==='error'?handleReset:handleBuy} disabled={isProcessing||(txState==='idle'&&!canSubmit)}
+        style={{ width:'100%', padding:'13px 0', borderRadius:7, border:txState==='error'?'1px solid rgba(248,113,113,0.3)':'none', background:txState==='error'?'rgba(248,113,113,0.12)':isProcessing?'#2d1f7a':canSubmit?'#8B5CF6':'var(--border)', color:txState==='error'?'#F43F5E':isProcessing?'var(--text-dim)':canSubmit?'#fff':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:14, cursor:isProcessing||(!canSubmit&&txState==='idle')?'not-allowed':'pointer', letterSpacing:'0.05em', transition:'all 0.15s', minHeight:48 }}>
         {btnLabel}
       </button>
       <div style={{ marginTop:10, fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center' }}>{slippage}% slippage · 2% Mammoth fee · no custody</div>
