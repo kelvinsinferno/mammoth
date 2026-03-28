@@ -37,7 +37,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
     name: '', ticker: '', description: '', website: '', twitter: '', discord: '', image: null, imagePreview: null,
     supplyMode: 'elastic', initialAllocation: 1000000, hardCapSupply: 0, curveType: 'linear', startPrice: 0.001,
     stepSize: 5000, stepIncrement: 0.00022, endPrice: 0.01, expMultiplier: 10,
-    creatorAlloc: 10, treasuryAlloc: 15, protocolFee: 2,
+    creatorAlloc: 70, treasuryAlloc: 20, burnAlloc: 8, protocolFee: 2,
     // Pre-fill from draft if provided
     ...(initialData ? {
       name: initialData.name || '',
@@ -120,7 +120,8 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
     if (formData.supplyMode==='fixed' && (!formData.hardCapSupply||formData.hardCapSupply<=0)) errs.hardCapSupply = 'Required for fixed mode';
     if (formData.startPrice <= 0) errs.startPrice = 'Must be > 0';
     if (formData.initialAllocation <= 0) errs.initialAllocation = 'Must be > 0';
-    if (formData.creatorAlloc + formData.treasuryAlloc >= 100) errs.alloc = 'Creator + treasury must be < 100%';
+    const totalAlloc = Number(formData.creatorAlloc) + Number(formData.treasuryAlloc) + Number(formData.burnAlloc) + 2;
+    if (totalAlloc > 100) errs.creatorAlloc = `Allocations total ${totalAlloc}% — must be ≤ 100%`;
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -431,8 +432,10 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                         const mult = Number(formData.expMultiplier) || 10;
                         const creatorPct = Number(formData.creatorAlloc) / 100;
                         const treasuryPct = Number(formData.treasuryAlloc) / 100;
+                        const burnPct = Number(formData.burnAlloc) / 100;
                         const protocolPct = 0.02;
-                        const sinkPct = Math.max(0, 1 - creatorPct - treasuryPct - protocolPct);
+                        const total = creatorPct + treasuryPct + burnPct + protocolPct;
+                        const overBudget = total > 1.0001;
 
                         let totalRaise = 0;
                         let finalPrice = sp;
@@ -487,9 +490,9 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                           { label: 'Final price at sell-out', value: fmtSOL(finalPrice), accent: c.color },
                           { label: 'Avg price paid', value: fmtSOL(avgPrice), accent: 'var(--text)' },
                           { label: `→ Creator (${(creatorPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * creatorPct), accent: '#A78BFA' },
-                          { label: `→ Treasury (${(treasuryPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * treasuryPct), accent: '#22D3EE' },
+                          { label: `→ Reserve (${(treasuryPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * treasuryPct), accent: '#22D3EE' },
+                          { label: `→ Burn (${(burnPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * burnPct), accent: '#F43F5E' },
                           { label: '→ Protocol (2%)', value: fmtSOL(totalRaise * protocolPct), accent: 'var(--text-muted)' },
-                          { label: `→ Burn/sink (${(sinkPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * sinkPct), accent: 'var(--text-muted)' },
                         ];
 
                         return (
@@ -506,8 +509,10 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                                 </div>
                               ))}
                             </div>
-                            <div style={{ padding:'6px 12px', borderTop:'1px solid rgba(255,159,28,0.1)', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.6 }}>
-                              Projection assumes 100% of cycle sold. Actual results vary.
+                            <div style={{ padding:'6px 12px', borderTop:'1px solid rgba(255,159,28,0.1)', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color: overBudget ? '#F43F5E' : 'var(--text-muted)', lineHeight:1.6 }}>
+                              {overBudget
+                                ? `⚠ Allocations exceed 100% (${(total*100).toFixed(0)}%) — adjust in step 3.`
+                                : `Allocation used: ${(total*100).toFixed(0)}% · Projection assumes 100% of cycle sold.`}
                             </div>
                           </div>
                         );
@@ -522,10 +527,28 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
         {step === 3 && (
           <div style={{ animation:'fadeUp 0.2s ease' }}>
+            <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px', marginBottom:14 }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginBottom:10, lineHeight:1.7 }}>
+                Protocol takes a fixed <span style={{ color:'var(--text)', fontWeight:600 }}>2%</span>. The remaining <span style={{ color:'var(--text)', fontWeight:600 }}>98%</span> is yours to split between creator, reserve, and burn. They must add up to 98% or less.
+              </div>
+              {(() => {
+                const used = Number(formData.creatorAlloc) + Number(formData.treasuryAlloc) + Number(formData.burnAlloc) + 2;
+                const over = used > 100;
+                return (
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <div style={{ flex:1, height:6, background:'var(--border)', borderRadius:3, overflow:'hidden' }}>
+                      <div style={{ height:'100%', width:`${Math.min(100, used)}%`, background: over ? '#F43F5E' : 'linear-gradient(90deg,#8B5CF6,#22D3EE)', borderRadius:3, transition:'width 0.2s' }}/>
+                    </div>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color: over ? '#F43F5E' : 'var(--text-muted)', fontWeight:600, flexShrink:0 }}>{used}%</span>
+                  </div>
+                );
+              })()}
+            </div>
             {[
               formData.supplyMode==='fixed' && { name:'hardCapSupply', label:'Hard cap supply', suffix:'tokens' },
-              { name:'creatorAlloc', label:'Creator share', suffix:'%' },
-              { name:'treasuryAlloc', label:'Treasury share', suffix:'%' },
+              { name:'creatorAlloc', label:'Creator', suffix:'%', hint:'Your share of cycle proceeds.' },
+              { name:'treasuryAlloc', label:'Reserve', suffix:'%', hint:'Held on-chain as project reserve.' },
+              { name:'burnAlloc', label:'Burn', suffix:'%', hint:'Permanently removed from circulation.' },
             ].filter(Boolean).map(f => (
               <div key={f.name} style={{ marginBottom:14 }}>
                 <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>{f.label}</label>
@@ -536,6 +559,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                     onBlur={e => e.currentTarget.style.borderColor=errors[f.name]?'#F43F5E':'var(--border)'}/>
                   {f.suffix && <span style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)' }}>{f.suffix}</span>}
                 </div>
+                {f.hint && !errors[f.name] && <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>{f.hint}</div>}
                 {errors[f.name] && <div style={{ fontSize:10, color:'#F43F5E', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>⚠ {errors[f.name]}</div>}
               </div>
             ))}
