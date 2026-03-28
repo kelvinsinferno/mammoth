@@ -286,14 +286,32 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
     setTickerLookupState('loading');
     tickerDebounce.current = setTimeout(async () => {
       try {
-        const res = await fetch(`https://api.jup.ag/tokens/v1/search?query=${encodeURIComponent(raw)}&limit=50`);
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(raw)}`);
         if (!res.ok) throw new Error();
         const data = await res.json();
-        const tokens = Array.isArray(data) ? data : (data.tokens || []);
-        const exact = tokens.filter(t => (t.symbol || '').toUpperCase() === raw);
-        // Sort by daily volume descending if available
-        exact.sort((a, b) => (b.daily_volume || 0) - (a.daily_volume || 0));
-        setTickerMatches(exact.slice(0, 4));
+        const pairs = Array.isArray(data.pairs) ? data.pairs : [];
+        // Filter: Solana only, exact symbol match on base token
+        const solanaPairs = pairs.filter(p => p.chainId === 'solana' && (p.baseToken?.symbol || '').toUpperCase() === raw);
+        // Dedupe by token address, keep highest volume entry
+        const seen = new Map();
+        for (const p of solanaPairs) {
+          const addr = p.baseToken.address;
+          const vol = p.volume?.h24 || 0;
+          if (!seen.has(addr) || vol > (seen.get(addr).volume?.h24 || 0)) seen.set(addr, p);
+        }
+        const unique = [...seen.values()].sort((a, b) => (b.volume?.h24 || 0) - (a.volume?.h24 || 0)).slice(0, 4);
+        // Map to display shape
+        const matches = unique.map(p => ({
+          address: p.baseToken.address,
+          name: p.baseToken.name,
+          symbol: p.baseToken.symbol,
+          logoURI: p.info?.imageUrl || null,
+          website: p.info?.websites?.[0]?.url || null,
+          daily_volume: p.volume?.h24 || 0,
+          mcap: p.marketCap || null,
+          dexUrl: p.url || null,
+        }));
+        setTickerMatches(matches);
         setTickerLookupState('done');
       } catch {
         setTickerLookupState('done');
@@ -380,15 +398,28 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                       <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:3, flexShrink:0 }}>
                         {t.daily_volume > 0 && (
                           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
-                            ${Number(t.daily_volume).toLocaleString(undefined,{maximumFractionDigits:0})} vol
+                            ${Number(t.daily_volume).toLocaleString(undefined,{maximumFractionDigits:0})} 24h vol
                           </span>
                         )}
-                        {(t.extensions?.website || t.website) && (
-                          <a href={t.extensions?.website || t.website} target="_blank" rel="noopener noreferrer"
-                            style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#22D3EE', textDecoration:'none' }}>
-                            website ↗
-                          </a>
+                        {t.mcap > 0 && (
+                          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
+                            ${Number(t.mcap).toLocaleString(undefined,{maximumFractionDigits:0})} mcap
+                          </span>
                         )}
+                        <div style={{ display:'flex', gap:6 }}>
+                          {t.website && (
+                            <a href={t.website} target="_blank" rel="noopener noreferrer"
+                              style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#22D3EE', textDecoration:'none' }}>
+                              site ↗
+                            </a>
+                          )}
+                          {t.dexUrl && (
+                            <a href={t.dexUrl} target="_blank" rel="noopener noreferrer"
+                              style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#A78BFA', textDecoration:'none' }}>
+                              dex ↗
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
