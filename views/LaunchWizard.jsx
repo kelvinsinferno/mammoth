@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { deployProject } from '../lib/curves';
 import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
@@ -34,7 +34,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
   }, []);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(() => ({
-    name: '', ticker: '', description: '', website: '', twitter: '', discord: '', image: null, imagePreview: null,
+    name: '', ticker: '', description: '', website: '', twitter: '', telegram: '', discord: '', github: '', farcaster: '', docs: '', image: null, imagePreview: null,
     supplyMode: 'elastic', initialAllocation: 1000000, hardCapSupply: 0, curveType: 'linear', startPrice: 0.001,
     stepSize: 5000, stepIncrement: 0.00022, endPrice: 0.01, expMultiplier: 10,
     creatorAlloc: 70, treasuryAlloc: 20, burnAlloc: 8, protocolFee: 2,
@@ -274,6 +274,35 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
   const isProcessing = txState === 'awaiting' || txState === 'loading';
 
+  // Ticker collision lookup
+  const [tickerMatches, setTickerMatches] = useState([]);
+  const [tickerLookupState, setTickerLookupState] = useState('idle'); // idle | loading | done
+  const tickerDebounce = useRef(null);
+
+  useEffect(() => {
+    const raw = (formData.ticker || '').trim().toUpperCase();
+    if (!raw || raw.length < 1) { setTickerMatches([]); setTickerLookupState('idle'); return; }
+    clearTimeout(tickerDebounce.current);
+    setTickerLookupState('loading');
+    tickerDebounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://api.jup.ag/tokens/v1/search?query=${encodeURIComponent(raw)}&limit=50`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const tokens = Array.isArray(data) ? data : (data.tokens || []);
+        const exact = tokens.filter(t => (t.symbol || '').toUpperCase() === raw);
+        // Sort by daily volume descending if available
+        exact.sort((a, b) => (b.daily_volume || 0) - (a.daily_volume || 0));
+        setTickerMatches(exact.slice(0, 4));
+        setTickerLookupState('done');
+      } catch {
+        setTickerLookupState('done');
+        setTickerMatches([]);
+      }
+    }, 500);
+    return () => clearTimeout(tickerDebounce.current);
+  }, [formData.ticker]);
+
   return (
     <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent:'center', padding: isMobile ? 0 : 16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
       <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius: isMobile ? '20px 20px 0 0' : 12, width:'100%', maxWidth: isMobile ? '100%' : 500, padding: isMobile ? '24px 16px 32px' : '24px 20px', animation:'slideUp 0.18s ease', maxHeight: isMobile ? '92vh' : '90vh', overflowY:'auto' }}>
@@ -293,27 +322,114 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
         {step === 1 && (
           <div style={{ animation:'fadeUp 0.2s ease' }}>
-            {[
-              { name:'name', label:'Token name', placeholder:'e.g., MegaTusk' },
-              { name:'ticker', label:'Ticker', placeholder:'TUSK' },
-              { name:'description', label:'Description', placeholder:'What does your token do?', rows:3 },
-            ].map(f => (
-              <div key={f.name} style={{ marginBottom:14 }}>
-                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>{f.label}</label>
-                {f.rows ? (
-                  <textarea name={f.name} value={formData[f.name]} onChange={handleChange} placeholder={f.placeholder} rows={f.rows}
-                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", resize:'none', outline:'none', opacity:isProcessing?0.6:1, boxSizing:'border-box' }}
-                    onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                    onBlur={e => e.currentTarget.style.borderColor=errors[f.name]?'#F43F5E':'var(--border)'}/>
-                ) : (
-                  <input type="text" name={f.name} value={formData[f.name]} onChange={handleChange} placeholder={f.placeholder}
-                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1, boxSizing:'border-box', minHeight:44 }}
-                    onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                    onBlur={e => e.currentTarget.style.borderColor=errors[f.name]?'#F43F5E':'var(--border)'}/>
-                )}
-                {errors[f.name] && <div style={{ fontSize:10, color:'#F43F5E', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>⚠ {errors[f.name]}</div>}
+
+            {/* Token name */}
+            <div style={{ marginBottom:14 }}>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Token name</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="e.g., MegaTusk" maxLength={32}
+                style={{ width:'100%', background:'var(--panel-alt)', border:errors.name?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
+                onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                onBlur={e => e.currentTarget.style.borderColor=errors.name?'#F43F5E':'var(--border)'}/>
+              {errors.name && <div style={{ fontSize:10, color:'#F43F5E', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>⚠ {errors.name}</div>}
+            </div>
+
+            {/* Ticker + collision lookup */}
+            <div style={{ marginBottom:14 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+                <label style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Ticker</label>
+                <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>1–10 chars · Solana max</span>
               </div>
-            ))}
+              <input type="text" name="ticker" value={formData.ticker} onChange={e => handleChange({ target:{ name:'ticker', value:e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'') } })} placeholder="TUSK" maxLength={10}
+                style={{ width:'100%', background:'var(--panel-alt)', border:errors.ticker?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44, letterSpacing:'0.08em' }}
+                onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                onBlur={e => e.currentTarget.style.borderColor=errors.ticker?'#F43F5E':'var(--border)'}/>
+              {errors.ticker && <div style={{ fontSize:10, color:'#F43F5E', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>⚠ {errors.ticker}</div>}
+
+              {/* Collision lookup results */}
+              {formData.ticker && tickerLookupState === 'loading' && (
+                <div style={{ marginTop:8, display:'flex', alignItems:'center', gap:6, fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>
+                  <div style={{ width:10, height:10, borderRadius:'50%', border:'2px solid #252848', borderTopColor:'#8B5CF6', animation:'spin 0.7s linear infinite', flexShrink:0 }}/>
+                  Checking existing tokens...
+                </div>
+              )}
+              {tickerLookupState === 'done' && tickerMatches.length === 0 && formData.ticker && (
+                <div style={{ marginTop:8, display:'flex', alignItems:'center', gap:6, fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#10B981' }}>
+                  ✓ No existing tokens found with this ticker
+                </div>
+              )}
+              {tickerLookupState === 'done' && tickerMatches.length > 0 && (
+                <div style={{ marginTop:8, background:'rgba(248,113,113,0.05)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:8, overflow:'hidden', animation:'fadeUp 0.15s ease' }}>
+                  <div style={{ padding:'7px 10px', borderBottom:'1px solid rgba(248,113,113,0.15)', display:'flex', alignItems:'center', gap:6 }}>
+                    <span style={{ fontSize:11 }}>⚠️</span>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'#F87171' }}>
+                      {tickerMatches.length} existing token{tickerMatches.length > 1 ? 's' : ''} use this ticker — yours will be distinct by contract address
+                    </span>
+                  </div>
+                  {tickerMatches.map((t, i) => (
+                    <div key={t.address || i} style={{ padding:'8px 10px', borderBottom: i < tickerMatches.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', display:'flex', alignItems:'center', gap:10 }}>
+                      {t.logoURI && <img src={t.logoURI} alt="" width={20} height={20} style={{ borderRadius:'50%', flexShrink:0, objectFit:'cover' }} onError={e => e.currentTarget.style.display='none'}/>}
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                          <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'var(--text)' }}>{t.name || t.symbol}</span>
+                          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#F87171', background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:3, padding:'1px 5px' }}>{t.symbol}</span>
+                        </div>
+                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginTop:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                          {t.address}
+                        </div>
+                      </div>
+                      <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:3, flexShrink:0 }}>
+                        {t.daily_volume > 0 && (
+                          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
+                            ${Number(t.daily_volume).toLocaleString(undefined,{maximumFractionDigits:0})} vol
+                          </span>
+                        )}
+                        {(t.extensions?.website || t.website) && (
+                          <a href={t.extensions?.website || t.website} target="_blank" rel="noopener noreferrer"
+                            style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#22D3EE', textDecoration:'none' }}>
+                            website ↗
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
+            <div style={{ marginBottom:14 }}>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Description</label>
+              <textarea name="description" value={formData.description} onChange={handleChange} placeholder="What does your token do?" rows={3}
+                style={{ width:'100%', background:'var(--panel-alt)', border:errors.description?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", resize:'none', outline:'none', boxSizing:'border-box' }}
+                onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                onBlur={e => e.currentTarget.style.borderColor=errors.description?'#F43F5E':'var(--border)'}/>
+              {errors.description && <div style={{ fontSize:10, color:'#F43F5E', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>⚠ {errors.description}</div>}
+            </div>
+
+            {/* Links */}
+            <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-dim)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:10 }}>Links <span style={{ fontWeight:400, color:'var(--text-muted)' }}>— all optional</span></div>
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                {[
+                  { name:'website',  icon:'🌐', placeholder:'https://yourproject.xyz' },
+                  { name:'twitter',  icon:'𝕏',  placeholder:'https://x.com/yourproject' },
+                  { name:'telegram', icon:'✈️', placeholder:'https://t.me/yourproject' },
+                  { name:'discord',  icon:'💬', placeholder:'https://discord.gg/yourproject' },
+                  { name:'github',   icon:'⌥',  placeholder:'https://github.com/yourproject' },
+                  { name:'farcaster',icon:'🟣', placeholder:'https://warpcast.com/yourproject' },
+                  { name:'docs',     icon:'📄', placeholder:'https://docs.yourproject.xyz' },
+                ].map(f => (
+                  <div key={f.name} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ fontSize:14, width:20, textAlign:'center', flexShrink:0 }}>{f.icon}</span>
+                    <input type="url" name={f.name} value={formData[f.name] || ''} onChange={handleChange} placeholder={f.placeholder}
+                      style={{ flex:1, background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                      onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                      onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
 
