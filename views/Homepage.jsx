@@ -133,10 +133,10 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           </div>
         </div>
 
-        {/* Tabs + Search row */}
-        <div className="tabs-search-row" style={{ display:'flex', gap:8, alignItems:'center', marginBottom:12 }}>
-          {/* Tabs */}
-          <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, flex:1, minWidth:0 }}>
+        {/* Tabs + Search — all inside one bar */}
+        <div style={{ display:'flex', alignItems:'center', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, marginBottom:12, gap:0, minWidth:0 }}>
+          {/* Tabs — scrollable */}
+          <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', flex:1, minWidth:0 }}>
             {TABS.map(t => (
               <button key={t.key} onClick={() => setTab(t.key)} className="tab"
                 style={{ background:tab===t.key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', padding:'7px 13px', borderRadius:5, transition:'color 0.15s, background 0.12s', whiteSpace:'nowrap', flexShrink:0, color:tab===t.key?'var(--bg)':'var(--text-dim)', minHeight:44 }}>
@@ -144,23 +144,16 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
               </button>
             ))}
           </div>
-          {/* Search — inline on desktop, hidden here on mobile (shown below) */}
-          <div className="search-inline" style={{ position:'relative', width:200, flexShrink:0 }}>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search tokens..."
-              style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px 9px 32px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
-              onFocus={e => e.currentTarget.style.borderColor='#7C3AED'}
-              onBlur={e => e.currentTarget.style.borderColor='var(--border-sub)'}/>
-            <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:14, pointerEvents:'none' }}>⌕</span>
+          {/* Divider */}
+          <div style={{ width:1, height:24, background:'#1a2438', flexShrink:0, margin:'0 4px' }}/>
+          {/* Search — inside the bar */}
+          <div style={{ position:'relative', flexShrink:0, width:180 }}>
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search..."
+              style={{ width:'100%', background:'transparent', border:'none', padding:'7px 10px 7px 28px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
+              onFocus={e => e.currentTarget.style.color='var(--text)'}
+              onBlur={e => e.currentTarget.style.color='var(--text)'}/>
+            <span style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:14, pointerEvents:'none' }}>⌕</span>
           </div>
-        </div>
-
-        {/* Search — mobile only, shown below tabs */}
-        <div className="search-mobile" style={{ position:'relative', marginBottom:16 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search tokens..."
-            style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px 9px 36px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
-            onFocus={e => e.currentTarget.style.borderColor='#7C3AED'}
-            onBlur={e => e.currentTarget.style.borderColor='var(--border-sub)'}/>
-          <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:15, pointerEvents:'none' }}>⌕</span>
         </div>
 
         {/* RPC error banner */}
