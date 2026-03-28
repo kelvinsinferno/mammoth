@@ -60,6 +60,7 @@ html, body { background: var(--bg); transition: background 0.25s, color 0.25s; }
 @keyframes marquee { from { transform:translateX(0) } to { transform:translateX(-50%) } }
 @keyframes spin { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
 @keyframes rainbow-shift { 0% { filter:hue-rotate(0deg) } 100% { filter:hue-rotate(360deg) } }
+@keyframes slideDown { from { opacity:0;transform:translateY(-6px) } to { opacity:1;transform:translateY(0) } }
 
 .card-in { animation: fadeUp 0.2s ease both; }
 .tab:hover { color: #8B5CF6 !important; }

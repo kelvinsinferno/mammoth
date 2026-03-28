@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { computeStepCurve, executeBuyTokens, executeExerciseRights } from '../lib/curves';
 import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
@@ -9,8 +9,42 @@ import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
 import PriceChart from '../components/charts/PriceChart';
 
+// ── Curve type tooltip definitions ──────────────────────────────────────────
+const CURVE_DEFS = {
+  'Step':     { title:'Step Curve', color:'#22D3EE', desc:'Price increases in fixed jumps. Every N tokens sold, the price steps up by a set amount. Buyers know exactly when the next price increase hits — creating urgency without surprise. This cycle steps up every {stepSize} tokens.' },
+  'Linear':   { title:'Linear Curve', color:'#A78BFA', desc:'Price rises smoothly and continuously with every token sold. No sudden jumps — the more that\'s bought, the higher the price climbs at a steady rate. Predictable and gradual.' },
+  'Exp-Lite': { title:'Exp-Lite Curve', color:'#FF9F1C', desc:'An exponential-style curve using integer math for on-chain safety. Price rises slowly at first, then accelerates as more tokens are sold. Early buyers get the best entry; late buyers pay a significant premium.' },
+};
+
+function CurveTooltip({ curveType, stepSize }) {
+  const [open, setOpen] = useState(false);
+  const def = CURVE_DEFS[curveType] || CURVE_DEFS['Step'];
+  const desc = def.desc.replace('{stepSize}', stepSize ? stepSize.toLocaleString() : '5,000');
+  return (
+    <span style={{ position:'relative', display:'inline-flex', alignItems:'center' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{ background:'none', border:`1px solid ${def.color}44`, borderRadius:4, padding:'1px 6px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:def.color, cursor:'pointer', fontWeight:600, letterSpacing:'0.03em', display:'inline-flex', alignItems:'center', gap:4 }}
+      >
+        {curveType} 🔥 <span style={{ fontSize:10, opacity:0.7 }}>ⓘ</span>
+      </button>
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position:'fixed', inset:0, zIndex:200 }}/>
+          <div style={{ position:'absolute', top:'calc(100% + 6px)', left:0, zIndex:201, background:'var(--panel)', border:`1px solid ${def.color}44`, borderRadius:8, padding:'12px 14px', width:260, boxShadow:'0 8px 32px rgba(0,0,0,0.5)', animation:'fadeUp 0.15s ease' }}>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:def.color, marginBottom:6 }}>{def.title}</div>
+            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-secondary)', lineHeight:1.65 }}>{desc}</div>
+            <button onClick={() => setOpen(false)} style={{ marginTop:10, background:'none', border:'none', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', cursor:'pointer', padding:0 }}>got it ✕</button>
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
 function CyclePanelDetail({ cycle }) {
   const pct = Math.round((cycle.sold/cycle.allocation)*100);
+  const launchPrice = cycle.launchPrice ?? cycle.currentPrice;
   return (
     <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'16px', marginBottom:12 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
@@ -30,13 +64,33 @@ function CyclePanelDetail({ cycle }) {
           <div style={{ height:'100%', width:`${pct}%`, background:cycle.status==='ACTIVE'?'linear-gradient(90deg,#7C3AED,#8B5CF6,#22D3EE)':'var(--bar-empty)', borderRadius:3 }}/>
         </div>
       </div>
-      <div className="cycle-panel-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:cycle.nextStepIn?12:0 }}>
-        {[['Curve',cycle.curveType+' 🔥'],['Current price',`${cycle.currentPrice.toFixed(5)} SOL`,'#22D3EE'],['Remaining',`${(cycle.allocation-cycle.sold).toLocaleString()}`],cycle.nextStepPrice&&['Next step',`${cycle.nextStepPrice.toFixed(5)} SOL`]].filter(Boolean).map(([l,v],i) => (
-          <div key={i} style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
-            <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>{l}</div>
-            <div style={{ fontSize:12, color:'var(--text)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{v}</div>
+      <div className="cycle-panel-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
+        {/* Curve — clickable tooltip */}
+        <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
+          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Curve</div>
+          <CurveTooltip curveType={cycle.curveType} stepSize={cycle.stepSize}/>
+        </div>
+        {/* Launch price */}
+        <div style={{ background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:6, padding:'9px 11px' }}>
+          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Launch price</div>
+          <div style={{ fontSize:12, color:'#A78BFA', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{launchPrice.toFixed(5)} SOL</div>
+        </div>
+        {/* Current price */}
+        <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
+          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Current price</div>
+          <div style={{ fontSize:12, color:'#22D3EE', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{cycle.currentPrice.toFixed(5)} SOL</div>
+        </div>
+        {/* Remaining */}
+        <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
+          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Remaining</div>
+          <div style={{ fontSize:12, color:'var(--text)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{(cycle.allocation-cycle.sold).toLocaleString()}</div>
+        </div>
+        {cycle.nextStepPrice && (
+          <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
+            <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Next step</div>
+            <div style={{ fontSize:12, color:'var(--text)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{cycle.nextStepPrice.toFixed(5)} SOL</div>
           </div>
-        ))}
+        )}
       </div>
       {cycle.nextStepIn && cycle.status==='ACTIVE' && (
         <div className="next-step-banner" style={{ background:'rgba(255,159,28,0.07)', border:'1px solid rgba(255,159,28,0.18)', borderRadius:6, padding:'9px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:2 }}>
@@ -83,9 +137,9 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
     try {
       setTxState('loading');
 
-      // Use real on-chain if we have a real mint address (44-char base58)
-      const isRealMint = mintAddress && mintAddress.length >= 32 && !mintAddress.includes('...');
-      const walletAdapter = getWalletAdapter();
+      // Use real on-chain if we have a real mint address (44-char base58, not a numeric mock id)
+      const isRealMint = mintAddress && mintAddress.length >= 32 && !mintAddress.includes('...') && !/^\d+$/.test(mintAddress);
+      const walletAdapter = getWalletAdapter?.();
 
       if (isRealMint && walletAdapter) {
         const result = await executeBuyTokens({
@@ -101,17 +155,18 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         toast.success(`Bought ${tokensOut.toLocaleString()} ${ticker}!`);
         onPurchaseComplete?.(result, quote);
       } else {
-        // Fallback mock for demo projects
-        const { mockExecuteBuy } = await import('../lib/curves');
-        const result = await mockExecuteBuy({ solIn: solNum, tokensOut, ticker });
+        // Fallback mock for demo/devnet projects
+        await new Promise(r => setTimeout(r, 900)); // simulate latency
+        const mockSig = 'MOCK' + Math.random().toString(36).slice(2, 10).toUpperCase();
+        const result = { tokensOut, solIn: solNum, fee: solNum * 0.02, signature: mockSig, mock: true };
         setReceipt(result);
         setTxState('success');
+        toast.success(`Bought ${tokensOut.toLocaleString()} ${ticker}!`);
         onPurchaseComplete?.(result, quote);
       }
     } catch(e) {
-      const userMsg = parseTransactionError(e);
+      const userMsg = parseTransactionError ? parseTransactionError(e) : null;
       if (userMsg === null) {
-        // User rejected — silently reset
         setTxState('idle');
         return;
       }
@@ -120,7 +175,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         setTxState('idle');
         return;
       }
-      setErrMsg(userMsg || e.message);
+      setErrMsg(userMsg || e?.message || 'Unknown error');
       setTxState('error');
       toast.error(userMsg || 'Transaction failed, please try again');
     }
@@ -175,20 +230,29 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   }
 
   if (txState === 'success' && receipt) return (
-    <div style={{ background:'var(--panel)', border:'1px solid rgba(139,92,246,0.35)', borderRadius:10, padding:'24px 18px', animation:'fadeUp 0.25s ease' }}>
+    <div style={{ background:'var(--panel)', border:'1px solid rgba(16,185,129,0.35)', borderRadius:10, padding:'24px 18px', animation:'fadeUp 0.25s ease' }}>
       <div style={{ textAlign:'center', marginBottom:20 }}>
-        <div style={{ width:48, height:48, borderRadius:'50%', background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.4)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 14px', fontSize:22 }}>✓</div>
-        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:4 }}>Purchase confirmed</div>
+        <div style={{ width:52, height:52, borderRadius:'50%', background:'rgba(16,185,129,0.15)', border:'2px solid rgba(16,185,129,0.5)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', fontSize:24 }}>✓</div>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, color:'#10B981', marginBottom:4 }}>Purchase confirmed!</div>
+        {receipt.mock && <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>demo transaction — connect wallet for real trades</div>}
       </div>
-      <div className="receipt-rows" style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:8, padding:'14px', marginBottom:16 }}>
-        {[['Tokens received',`${receipt.tokensOut.toLocaleString()} ${ticker}`,'#10B981'],['SOL spent',`${receipt.solIn.toFixed(4)} SOL`,'var(--text)'],['Mammoth fee',`${(receipt.solIn*0.02).toFixed(4)} SOL`,'var(--text-dim)'],['Signature',receipt.signature.slice(0,8)+'...','var(--text-muted)']].map(([l,v,c],i,arr) => (
-          <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'5px 0', borderBottom:i<arr.length-1?'1px solid #1a2438':'none' }}>
+      <div className="receipt-rows" style={{ background:'var(--panel-alt)', border:'1px solid rgba(16,185,129,0.15)', borderRadius:8, padding:'14px', marginBottom:16 }}>
+        {[
+          ['Tokens received', `${(receipt.tokensOut||0).toLocaleString()} ${ticker}`, '#10B981'],
+          ['SOL spent', `${Number(receipt.solIn||0).toFixed(4)} SOL`, 'var(--text)'],
+          ['Mammoth fee (2%)', `${(Number(receipt.solIn||0)*0.02).toFixed(4)} SOL`, 'var(--text-dim)'],
+          ['Tx signature', (receipt.signature||'').slice(0,10)+'...', 'var(--text-muted)'],
+        ].map(([l,v,c],i,arr) => (
+          <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'7px 0', borderBottom:i<arr.length-1?'1px solid #1a2438':'none', flexWrap:'wrap', gap:4 }}>
             <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{l}</span>
-            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:c, fontWeight:600 }}>{v}</span>
+            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:c, fontWeight:600, wordBreak:'break-all' }}>{v}</span>
           </div>
         ))}
       </div>
-      <button onClick={handleReset} style={{ width:'100%', padding:'11px 0', borderRadius:7, border:'1px solid #252848', background:'transparent', color:'var(--text-dim)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:13, cursor:'pointer', letterSpacing:'0.04em' }}>BUY MORE</button>
+      <div style={{ background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.18)', borderRadius:7, padding:'10px 12px', marginBottom:14, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'rgba(16,185,129,0.8)', lineHeight:1.6 }}>
+        Your tokens are now in your wallet. Trading via Jupiter is available when the cycle ends. Check the Cycles tab for history.
+      </div>
+      <button onClick={handleReset} style={{ width:'100%', padding:'11px 0', borderRadius:7, border:'1px solid rgba(16,185,129,0.3)', background:'rgba(16,185,129,0.08)', color:'#10B981', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, cursor:'pointer', letterSpacing:'0.04em' }}>BUY MORE</button>
     </div>
   );
 
@@ -259,15 +323,29 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         style={{ width:'100%', padding:'13px 0', borderRadius:7, border:txState==='error'?'1px solid rgba(248,113,113,0.3)':'none', background:txState==='error'?'rgba(248,113,113,0.12)':isProcessing?'#2d1f7a':(!walletConnected||solNum>0)&&!hasError?'#8B5CF6':'var(--border)', color:txState==='error'?'#F43F5E':isProcessing?'var(--text-dim)':(!walletConnected||solNum>0)&&!hasError?'#fff':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:14, cursor:isProcessing?'not-allowed':'pointer', letterSpacing:'0.05em', transition:'all 0.15s', minHeight:48 }}>
         {btnLabel}
       </button>
-      <div style={{ marginTop:10, fontSize:10, color:'#1a2240', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center' }}>{slippage}% slippage · 2% Mammoth fee · no custody</div>
+      <div style={{ marginTop:10, fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center' }}>{slippage}% slippage · 2% Mammoth fee · no custody</div>
     </div>
   );
 }
 
 export default function ProjectDetail({ project: p, onBack, wallet, walletState, onOpenModal, onDisconnect, onConnect, onPurchase, onManageCycles, theme, onToggleTheme, rpcError }) {
   const [tab, setTab] = useState('About');
+  const tabsRef = useRef(null);
   const up = p.change >= 0;
   const TABS = ['About','Tokenomics','Cycles','Treasury'];
+
+  // Scroll active tab into view on the tab bar
+  const handleTabClick = (t) => {
+    setTab(t);
+    // Find the button and scroll it into view within the scrollable tab container
+    if (tabsRef.current) {
+      const btns = tabsRef.current.querySelectorAll('button');
+      const idx = TABS.indexOf(t);
+      if (btns[idx]) {
+        btns[idx].scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+      }
+    }
+  };
 
   return (
     <div style={{ minHeight:'100vh', background:'var(--page-bg)', color:'var(--text)' }}>
@@ -316,11 +394,11 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
             <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'12px 8px 8px', marginBottom:12 }}>
               <PriceChart data={p.chartData} cycleStart={Math.floor(p.chartData.length*0.62)}/>
             </div>
-            <div className="desktop-only"><CyclePanelDetail cycle={p.cycleData}/></div>
+            <div className="desktop-only"><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
           </div>
 
           <div style={{ position:'sticky', top:68 }}>
-            <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={p.cycleData}/></div>
+            <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
             <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} walletBalance={walletState?.balance} walletLoading={walletState?.status === 'connecting'} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
             {p._mine && onManageCycles && (
               <button onClick={onManageCycles} style={{ marginTop:8, width:'100%', padding:'9px 0', background:'transparent', border:'1px solid #252848', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer', fontWeight:500, letterSpacing:'0.04em', transition:'all 0.13s' }}
@@ -333,9 +411,9 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
         </div>
 
         <div style={{ marginTop:32, animation:'fadeUp 0.3s ease 0.1s both' }}>
-          <div style={{ display:'flex', gap:0, borderBottom:'1px solid #1d2540', marginBottom:20, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch' }}>
+          <div ref={tabsRef} style={{ display:'flex', gap:0, borderBottom:'1px solid #1d2540', marginBottom:20, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', scrollBehavior:'smooth' }}>
             {TABS.map(t => (
-              <button key={t} onClick={() => setTab(t)} className="detail-tab-btn"
+              <button key={t} onClick={() => handleTabClick(t)} className="detail-tab-btn"
                 style={{ background:'none', border:'none', cursor:'pointer', padding:'10px 16px', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', color:tab===t?'#22D3EE':'var(--text-muted)', borderBottom:`2px solid ${tab===t?'#8B5CF6':'transparent'}`, transition:'all 0.13s', whiteSpace:'nowrap', flexShrink:0, minHeight:44 }}>
                 {t.toUpperCase()}
               </button>
