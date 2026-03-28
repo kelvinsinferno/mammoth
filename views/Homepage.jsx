@@ -39,13 +39,21 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
       <header style={{ background:'var(--header-bg)', backdropFilter:'blur(20px)', borderBottom:'1px solid var(--header-border)', position:'sticky', top:0, zIndex:50, boxShadow:'var(--header-shadow)' }}>
         <div className="header-inner" style={{ maxWidth:860, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-            <svg width="32" height="32" viewBox="0 0 44 44" fill="none">
-              <rect width="44" height="44" rx="10" fill={theme==='light'?'#7c3aed':'rgba(124,58,237,0.15)'} stroke={theme==='light'?'#6d28d9':'rgba(139,92,246,0.4)'} strokeWidth="1"/>
-              <ellipse cx="22" cy="28" rx="12" ry="9" fill="#7C3AED" opacity="0.9"/>
-              <ellipse cx="22" cy="25" rx="9" ry="8" fill="#8B5CF6"/>
-              <path d="M13.5 22.5 Q10.5 17 11.5 13.5 Q13 18.5 15.5 19.5" fill="#22D3EE"/>
-              <path d="M30.5 22.5 Q33.5 17 32.5 13.5 Q31 18.5 28.5 19.5" fill="#22D3EE"/>
-            </svg>
+            <img
+              src="/mammoth-logo.jpg"
+              alt="Mammoth"
+              width={36}
+              height={36}
+              style={{
+                borderRadius: 8,
+                objectFit: 'cover',
+                // Dark mode: shift warm browns → purple/cyan palette
+                filter: theme === 'dark'
+                  ? 'hue-rotate(200deg) saturate(1.4) brightness(0.85) contrast(1.1)'
+                  : 'none',
+                transition: 'filter 0.25s',
+              }}
+            />
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, letterSpacing:'-0.02em', background:'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Mammoth</span>
           </div>
           <div style={{ display:'flex', gap:6, alignItems:'center' }}>
