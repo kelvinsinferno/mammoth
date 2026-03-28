@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../../../lib/AppContext';
+import OpenCycleConfirm from '../../../../components/modals/OpenCycleConfirm';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -210,6 +211,7 @@ const DEFAULT_FORM = {
   expK: 3,                 // explite only
   // rights
   rightsRequired: false,
+  rightsWindowHours: 24,   // hours holders have before public sale
   // treasury
   creatorBps: 7000,
   reserveBps: 1800,
@@ -223,6 +225,7 @@ export default function NewCyclePage() {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const set = (key) => (e) => {
     const val = e.target.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
@@ -258,20 +261,17 @@ export default function NewCyclePage() {
     return e;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
-    setSubmitting(true);
-    try {
-      // Mock deploy — TASK-012 will wire real on-chain call
-      await new Promise(r => setTimeout(r, 1200));
-      setSubmitted(true);
-      setTimeout(() => router.push('/creator'), 2000);
-    } catch (err) {
-      setErrors({ submit: err.message });
-    } finally {
-      setSubmitting(false);
-    }
+    // Open the confirm modal — actual deploy happens inside it
+    setShowConfirm(true);
+  };
+
+  const handleConfirmSuccess = () => {
+    setShowConfirm(false);
+    setSubmitted(true);
+    setTimeout(() => router.push('/creator'), 2000);
   };
 
   if (walletState.status !== 'connected') {
@@ -393,12 +393,17 @@ export default function NewCyclePage() {
           <Section title="Rights" subtitle="Require prior holder entitlement to buy?">
             <Toggle checked={form.rightsRequired} onChange={() => setForm(f => ({ ...f, rightsRequired: !f.rightsRequired }))} label="Require rights to buy" />
             {form.rightsRequired && (
-              <div style={{ marginTop: 12, background: 'rgba(34,211,238,0.07)', border: '1px solid rgba(34,211,238,0.2)', borderRadius: 8, padding: '10px 12px' }}>
-                <div style={{ fontSize: 11, color: '#22D3EE', fontFamily: "'IBM Plex Mono',monospace", lineHeight: 1.6 }}>
-                  A holder snapshot will be taken at cycle open.<br />
-                  Rights are verified via Merkle proof on-chain.<br />
-                  Snapshot slot is recorded and immutable once open.
+              <div style={{ marginTop: 12 }}>
+                <div style={{ background: 'rgba(34,211,238,0.07)', border: '1px solid rgba(34,211,238,0.2)', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+                  <div style={{ fontSize: 11, color: '#22D3EE', fontFamily: "'IBM Plex Mono',monospace", lineHeight: 1.6 }}>
+                    A holder snapshot will be taken at cycle open.<br />
+                    Rights are verified via Merkle proof on-chain.<br />
+                    Snapshot slot is recorded and immutable once open.
+                  </div>
                 </div>
+                <Field label="Rights window (hours)" hint="How long holders have before public sale opens">
+                  <Input type="number" value={form.rightsWindowHours} onChange={set('rightsWindowHours')} min={1} max={168} step={1} />
+                </Field>
               </div>
             )}
           </Section>
@@ -477,7 +482,7 @@ export default function NewCyclePage() {
 
           <button onClick={handleSubmit} disabled={submitting || !bpsValid}
             style={{ width: '100%', padding: '13px 0', background: bpsValid ? '#8B5CF6' : 'var(--panel-alt)', border: 'none', borderRadius: 8, fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 13, color: bpsValid ? '#fff' : 'var(--text-muted)', cursor: bpsValid ? 'pointer' : 'not-allowed', letterSpacing: '0.04em', transition: 'opacity 0.15s', opacity: submitting ? 0.6 : 1 }}>
-            {submitting ? 'CREATING…' : 'CREATE CYCLE →'}
+            REVIEW & OPEN CYCLE →
           </button>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: "'IBM Plex Mono',monospace", textAlign: 'center', marginTop: 8, lineHeight: 1.6 }}>
             Cycle params are immutable once opened.<br />Snapshot taken at open slot.
@@ -485,6 +490,29 @@ export default function NewCyclePage() {
         </div>
 
       </div>
+
+      {/* ── Open Cycle Confirm Modal ── */}
+      {showConfirm && (
+        <OpenCycleConfirm
+          params={{
+            allocation: form.allocation,
+            curveType: form.curveType,
+            startPrice: form.startPrice,
+            stepSize: form.stepSize,
+            stepIncrement: form.stepIncrement,
+            endPrice: form.endPrice,
+            expK: form.expK,
+            rightsRequired: form.rightsRequired,
+            rightsWindowHours: form.rightsWindowHours,
+            creatorBps: form.creatorBps,
+            reserveBps: form.reserveBps,
+            sinkBps: form.sinkBps,
+            totalRaiseEst: totalRaiseEst,
+          }}
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={handleConfirmSuccess}
+        />
+      )}
     </div>
   );
 }
