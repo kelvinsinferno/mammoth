@@ -129,16 +129,47 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, onConnec
   const handleReset = () => { setTxState('idle'); setSol(''); setReceipt(null); setErrMsg(''); };
   const isProcessing = txState === 'awaiting' || txState === 'loading';
 
-  if (cycle.status !== 'ACTIVE') return (
-    <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'20px 18px' }}>
-      <div style={{ textAlign:'center', color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontSize:13, marginBottom:16 }}>Cycle ended — trade on secondary</div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-        <button style={{ background:'#8B5CF6', color:'#fff', border:'none', borderRadius:6, padding:'12px 0', fontFamily:"'IBM Plex Mono',monospace", fontSize:13, fontWeight:700, cursor:'pointer' }}>BUY</button>
-        <button style={{ background:'transparent', color:'#F43F5E', border:'1px solid rgba(248,113,113,0.5)', borderRadius:6, padding:'12px 0', fontFamily:"'IBM Plex Mono',monospace", fontSize:13, fontWeight:700, cursor:'pointer' }}>SELL</button>
+  if (cycle.status !== 'ACTIVE') {
+    // TASK-013: Jupiter secondary trading panel — shown when cycle is Closed or Between
+    const jupiterUrl = `https://jup.ag/swap/SOL-${mintAddress || 'So11111111111111111111111111111111111111112'}`;
+    return (
+      <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'20px 18px' }}>
+        <div style={{ textAlign:'center', marginBottom:16 }}>
+          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-muted)', marginBottom:4 }}>Cycle ended</div>
+          <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>Trade on secondary market</div>
+        </div>
+        <a
+          href={jupiterUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display:'block', textDecoration:'none' }}
+        >
+          <button style={{
+            width:'100%',
+            padding:'14px 0',
+            background:'#FF9F1C',
+            color:'#000',
+            border:'none',
+            borderRadius:7,
+            fontFamily:"'IBM Plex Mono',monospace",
+            fontSize:14,
+            fontWeight:700,
+            cursor:'pointer',
+            letterSpacing:'0.04em',
+            transition:'opacity 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+          >
+            Trade ${ticker} on Jupiter →
+          </button>
+        </a>
+        <div style={{ marginTop:10, fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center', lineHeight:1.5 }}>
+          2% fee applies to trades via Mammoth interface
+        </div>
       </div>
-      <div style={{ marginTop:10, fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center' }}>2% fee on Mammoth-routed trades · aggregator-routed</div>
-    </div>
-  );
+    );
+  }
 
   if (txState === 'success' && receipt) return (
     <div style={{ background:'var(--panel)', border:'1px solid rgba(139,92,246,0.35)', borderRadius:10, padding:'24px 18px', animation:'fadeUp 0.25s ease' }}>
