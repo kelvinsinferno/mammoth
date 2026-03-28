@@ -58,7 +58,27 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
   const [scheduleTime, setScheduleTime] = useState('');
   const [draftSaved, setDraftSaved] = useState(false);
   const [countdown, setCountdown] = useState(null); // seconds remaining until launch unlocks
-  const [scheduledAt, setScheduledAt] = useState(null); // Date object
+  const [scheduledAt, setScheduledAt] = useState(() => {
+    // Restore scheduled time from draft on resume
+    if (initialData?.scheduledFor) {
+      const d = new Date(initialData.scheduledFor);
+      if (!isNaN(d)) return d;
+    }
+    return null;
+  });
+
+  // If reopened from a scheduled draft, jump straight to the scheduled state
+  useEffect(() => {
+    if (initialData?.scheduledFor && scheduledAt) {
+      setLaunchMode('schedule');
+      setTxState('scheduled');
+      const d = new Date(initialData.scheduledFor);
+      setScheduleDate(d.toISOString().split('T')[0]);
+      setScheduleTime(d.toTimeString().slice(0, 5));
+      setStep(3);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Countdown ticker — updates every second when a schedule is set
   useEffect(() => {
