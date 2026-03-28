@@ -9,11 +9,12 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
 
-  // Mobile detection — starts false (SSR safe), updates on client after mount
-  const [isMobile, setIsMobile] = useState(false);
+  // Mobile detection — lazy init reads real width immediately on first render (client only)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
-    check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
