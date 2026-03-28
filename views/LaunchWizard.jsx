@@ -341,6 +341,37 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         {step === 1 && (
           <div style={{ animation:'fadeUp 0.2s ease' }}>
 
+            {/* Token image */}
+            <div style={{ marginBottom:14 }}>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Token image <span style={{ fontWeight:400, color:'var(--text-muted)' }}>— optional</span></label>
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                {/* Preview */}
+                <div style={{ width:56, height:56, borderRadius:10, background:'var(--panel-alt)', border:'1px solid var(--border)', flexShrink:0, overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  {formData.imagePreview
+                    ? <img src={formData.imagePreview} alt="preview" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
+                    : <span style={{ fontSize:22 }}>🦣</span>
+                  }
+                </div>
+                {/* Upload area */}
+                <label style={{ flex:1, cursor:'pointer' }}>
+                  <div style={{ border:'1px dashed var(--border)', borderRadius:7, padding:'10px 14px', textAlign:'center', transition:'border-color 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor='var(--border)'}>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#A78BFA', fontWeight:600, marginBottom:3 }}>
+                      {formData.imagePreview ? '↑ Replace image' : '↑ Upload image or GIF'}
+                    </div>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>PNG, JPG, GIF · Max 5MB</div>
+                  </div>
+                  <input type="file" accept="image/*,image/gif" onChange={handleImageUpload} style={{ display:'none' }}/>
+                </label>
+                {/* Clear button */}
+                {formData.imagePreview && (
+                  <button onClick={() => setFormData(prev => ({ ...prev, image:null, imagePreview:null }))}
+                    style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:16, padding:4, flexShrink:0 }}>✕</button>
+                )}
+              </div>
+            </div>
+
             {/* Token name */}
             <div style={{ marginBottom:14 }}>
               <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Token name</label>
