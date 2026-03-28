@@ -65,6 +65,13 @@ html, body { background: var(--bg); transition: background 0.25s, color 0.25s; }
 .card-in { animation: fadeUp 0.2s ease both; }
 .tab:hover { color: #8B5CF6 !important; }
 
+/* ── Learn page layout ── */
+.learn-grid { grid-template-columns: 220px 1fr; }
+@media (max-width: 680px) {
+  .learn-grid { grid-template-columns: 1fr !important; }
+  .learn-sidebar { position: static !important; top: auto !important; }
+}
+
 /* ── Header button icon/text swap ──────────────────────────────────────────
    .hdr-text = full text/toggle (shown on desktop, hidden on mobile)
    .hdr-icon = icon only       (hidden on desktop, shown on mobile)

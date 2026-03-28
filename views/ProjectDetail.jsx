@@ -9,6 +9,27 @@ import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
 import PriceChart from '../components/charts/PriceChart';
 
+// ── Inline info tooltip ──────────────────────────────────────────────────────
+function InfoTip({ text }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 4 }}>
+      <button
+        onClick={e => { e.stopPropagation(); setOpen(o => !o); }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, lineHeight: 1, padding: '0 2px', display: 'inline-flex', alignItems: 'center' }}
+      >ⓘ</button>
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 300 }} />
+          <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', zIndex: 301, background: 'var(--panel)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 8, padding: '10px 13px', width: 220, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', animation: 'fadeUp 0.15s ease', pointerEvents: 'none' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.65 }}>{text}</div>
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
 // ── Curve type definitions ───────────────────────────────────────────────────
 const CURVE_DEFS = {
   'Step': {
@@ -139,7 +160,7 @@ function CyclePanelDetail({ cycle }) {
         <CurveCard curveType={cycle.curveType} stepSize={cycle.stepSize} stepIncrement={cycle.stepIncrement}/>
         {/* Launch price */}
         <div style={{ background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:6, padding:'9px 11px' }}>
-          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Launch price</div>
+          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4, display:'flex', alignItems:'center' }}>Launch price<InfoTip text="The price per token when this cycle first opened. Early buyers pay this — price only goes up from here." /></div>
           <div style={{ fontSize:12, color:'#A78BFA', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{launchPrice.toFixed(5)} SOL</div>
         </div>
         {/* Current price */}
@@ -149,7 +170,7 @@ function CyclePanelDetail({ cycle }) {
         </div>
         {/* Remaining */}
         <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
-          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Remaining</div>
+          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4, display:'flex', alignItems:'center' }}>Remaining<InfoTip text="Tokens still available in this cycle. Once zero, the cycle ends and no more tokens can be bought here." /></div>
           <div style={{ fontSize:12, color:'var(--text)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{(cycle.allocation-cycle.sold).toLocaleString()}</div>
         </div>
         {cycle.nextStepPrice && (
@@ -345,8 +366,13 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   return (
     <div style={{ background:'var(--panel)', border:`1px solid ${txState==='error'?'rgba(248,113,113,0.3)':'var(--border)'}`, borderRadius:10, padding:'18px 16px', transition:'border-color 0.2s' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:walletConnected?8:14 }}>
-        <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>Buy ${ticker}</span>
-        <button onClick={() => setShowSlippage(s => !s)} style={{ background:'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)' }}>⚙ {slippage}% slip</button>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>Buy ${ticker}</span>
+          <a href="/learn" style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#A78BFA', textDecoration:'none', letterSpacing:'0.03em', opacity:0.8 }}>how this works?</a>
+        </div>
+        <button onClick={() => setShowSlippage(s => !s)} style={{ background:'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', display:'flex', alignItems:'center', gap:2 }}>
+          ⚙ {slippage}% slip<InfoTip text="Slippage tolerance — the max price increase you'll accept between submitting and confirming. Bonding curves move price as tokens are bought, so large orders may pay slightly more." />
+        </button>
       </div>
       {walletConnected && (
         <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:10 }}>

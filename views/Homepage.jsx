@@ -94,6 +94,32 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           </button>
         </div>
 
+        {/* How it works */}
+        <div style={{ marginBottom:20 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)' }}>How it works</div>
+            <a href="/learn" style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#A78BFA', textDecoration:'none', letterSpacing:'0.04em' }}>full guide →</a>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(min(190px,100%),1fr))', gap:8 }}>
+            {[
+              { icon:'🔄', color:'#22D3EE', title:'Cycle-Based Raises', desc:'Capital raised in discrete rounds. Fixed allocation, bounded price curve. No continuous emissions.' },
+              { icon:'🛡️', color:'#A78BFA', title:'Rights Protection', desc:'Existing holders get first access at launch price before each new cycle opens to the public.' },
+              { icon:'📊', color:'#FF9F1C', title:'Predictable Pricing', desc:'Step, Linear, or Exp-Lite curves. You always know what drives the next price change.' },
+              { icon:'💰', color:'#10B981', title:'On-Chain Treasury', desc:'Proceeds split automatically at cycle close. Creator, reserve, and sink shares are set in stone.' },
+            ].map((card,i) => (
+              <a key={i} href="/learn" style={{ textDecoration:'none' }}>
+                <div style={{ background:'var(--panel-alt)', border:`1px solid ${card.color}22`, borderRadius:8, padding:'12px 13px', cursor:'pointer', transition:'border-color 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor=`${card.color}55`}
+                  onMouseLeave={e => e.currentTarget.style.borderColor=`${card.color}22`}>
+                  <div style={{ fontSize:18, marginBottom:6 }}>{card.icon}</div>
+                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:card.color, marginBottom:4 }}>{card.title}</div>
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', lineHeight:1.65 }}>{card.desc}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
         {/* Tabs */}
         <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, marginBottom:12 }}>
           {TABS.map(t => (
