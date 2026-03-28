@@ -138,8 +138,8 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           {/* Tabs */}
           <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, flex:1, minWidth:0 }}>
             {TABS.map(t => (
-              <button key={t.key} onClick={() => setTab(t.key)}
-                style={{ background:tab===t.key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', padding:'7px 13px', borderRadius:5, transition:'all 0.12s', whiteSpace:'nowrap', flexShrink:0, color:tab===t.key?'var(--bg)':'var(--text-dim)', minHeight:44 }}>
+              <button key={t.key} onClick={() => setTab(t.key)} className="tab"
+                style={{ background:tab===t.key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', padding:'7px 13px', borderRadius:5, transition:'color 0.15s, background 0.12s', whiteSpace:'nowrap', flexShrink:0, color:tab===t.key?'var(--bg)':'var(--text-dim)', minHeight:44 }}>
                 {t.label}
               </button>
             ))}

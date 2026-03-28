@@ -89,9 +89,8 @@ button:hover:not(:disabled) {
 
 /* ── Tab bar buttons (homepage) ── */
 .tab:hover {
-  color: #A78BFA !important;
-  background: rgba(139,92,246,0.08) !important;
-  transition: color 0.15s, background 0.15s;
+  color: #22D3EE !important;
+  transition: color 0.15s;
 }
 
 /* ── Detail page tab buttons ── */
