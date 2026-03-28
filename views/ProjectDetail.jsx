@@ -111,7 +111,16 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const [errMsg, setErrMsg] = useState('');
   const [slippage, setSlippage] = useState(5);
   const [showSlippage, setShowSlippage] = useState(false);
-  const PRESETS = [0.1, 0.5, 1, 5];
+  // Dynamic presets — 5%, 10%, 25%, 50% of remaining cycle value in SOL
+  // This scales correctly whether the cycle is worth 0.5 SOL or 500 SOL
+  const remainingTokens = cycle.allocation - cycle.sold;
+  const cycleRemainingSOL = remainingTokens * cycle.currentPrice;
+  const PRESETS = [0.05, 0.10, 0.25, 0.50].map(pct => {
+    const raw = cycleRemainingSOL * pct;
+    // Round to 4 sig figs so it looks clean
+    const magnitude = Math.pow(10, Math.floor(Math.log10(raw)) - 1);
+    return Math.max(0.0001, Math.round(raw / magnitude) * magnitude);
+  });
   const solNum = parseFloat(sol) || 0;
 
   const quote = solNum > 0 ? computeStepCurve({ solIn:solNum, sold:cycle.sold, allocation:cycle.allocation, startPrice:cycle.currentPrice, stepSize:cycle.stepSize||5000, stepIncrement:cycle.stepIncrement||0.00022, feeBps:200 }) : null;
@@ -294,12 +303,18 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         </div>
       )}
       <div className="sol-presets" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:6, marginBottom:12 }}>
-        {PRESETS.map(v => (
-          <button key={v} onClick={() => !isProcessing && setSol(String(v))}
-            style={{ background:sol===String(v)?'rgba(139,92,246,0.18)':'var(--panel-alt)', border:`1px solid ${sol===String(v)?'#7C3AED':'var(--border)'}`, borderRadius:5, padding:'7px 0', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:sol===String(v)?'#22D3EE':'var(--text-dim)', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:44 }}>
-            {v} SOL
-          </button>
-        ))}
+        {PRESETS.map((v, i) => {
+          const labels = ['5%','10%','25%','50%'];
+          const solStr = v < 0.01 ? v.toFixed(4) : v < 0.1 ? v.toFixed(3) : v.toFixed(2);
+          const active = sol === String(v);
+          return (
+            <button key={i} onClick={() => !isProcessing && setSol(String(v))}
+              style={{ background:active?'rgba(139,92,246,0.18)':'var(--panel-alt)', border:`1px solid ${active?'#7C3AED':'var(--border)'}`, borderRadius:5, padding:'5px 0', fontFamily:"'IBM Plex Mono',monospace", cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:44, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:1 }}>
+              <span style={{ fontSize:11, color:active?'#22D3EE':'var(--text-dim)', fontWeight:700 }}>{labels[i]}</span>
+              <span style={{ fontSize:9, color:active?'#A78BFA':'var(--text-muted)' }}>{solStr} SOL</span>
+            </button>
+          );
+        })}
       </div>
       <div style={{ position:'relative', marginBottom:12 }}>
         <input type="number" value={sol} onChange={e => !isProcessing && setSol(e.target.value)} placeholder="0.00" disabled={isProcessing}
