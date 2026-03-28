@@ -49,7 +49,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, letterSpacing:'-0.02em', background:'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Mammoth</span>
           </div>
           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
+            <span className="nav-theme-toggle"><ThemeToggle theme={theme} onToggle={onToggleTheme}/></span>
             <button onClick={onLaunch} className="nav-launch-btn" style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, cursor:'pointer', fontWeight:700, letterSpacing:'0.04em', transition:'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow='0 0 16px rgba(139,92,246,0.4)'; e.currentTarget.style.color='#22D3EE'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.color='#A78BFA'; }}>LAUNCH</button>

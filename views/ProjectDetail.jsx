@@ -362,7 +362,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
             </div>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
-            <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
+            <span className="nav-theme-toggle"><ThemeToggle theme={theme} onToggle={onToggleTheme}/></span>
             <WalletButton walletState={walletState} onOpenModal={onOpenModal} onDisconnect={onDisconnect}/>
           </div>
         </div>
