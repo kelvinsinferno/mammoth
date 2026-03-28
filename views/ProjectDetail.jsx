@@ -88,17 +88,25 @@ function CurveModal({ curveType, stepSize, stepIncrement, onClose }) {
   );
 }
 
-function CurveTooltip({ curveType, stepSize, stepIncrement }) {
+function CurveCard({ curveType, stepSize, stepIncrement }) {
   const [open, setOpen] = useState(false);
   const def = CURVE_DEFS[curveType] || CURVE_DEFS['Step'];
   return (
     <>
-      <button
+      <div
         onClick={() => setOpen(true)}
-        style={{ background:'none', border:`1px solid ${def.color}55`, borderRadius:4, padding:'2px 8px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:def.color, cursor:'pointer', fontWeight:600, display:'inline-flex', alignItems:'center', gap:4 }}
+        style={{ background:'var(--panel-alt)', border:`1px solid ${def.color}33`, borderRadius:6, padding:'9px 11px', cursor:'pointer', transition:'border-color 0.15s' }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = `${def.color}88`}
+        onMouseLeave={e => e.currentTarget.style.borderColor = `${def.color}33`}
       >
-        {curveType} 🔥 <span style={{ fontSize:10, opacity:0.8 }}>ⓘ</span>
-      </button>
+        <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:5, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <span>Curve</span>
+          <span style={{ fontSize:9, color:def.color, opacity:0.7 }}>tap to learn ⓘ</span>
+        </div>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:def.color, fontWeight:700, display:'flex', alignItems:'center', gap:5 }}>
+          {def.icon} {curveType}
+        </div>
+      </div>
       {open && <CurveModal curveType={curveType} stepSize={stepSize} stepIncrement={stepIncrement} onClose={() => setOpen(false)} />}
     </>
   );
@@ -127,11 +135,8 @@ function CyclePanelDetail({ cycle }) {
         </div>
       </div>
       <div className="cycle-panel-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
-        {/* Curve — clickable tooltip */}
-        <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
-          <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Curve</div>
-          <CurveTooltip curveType={cycle.curveType} stepSize={cycle.stepSize} stepIncrement={cycle.stepIncrement}/>
-        </div>
+        {/* Curve — entire card is clickable */}
+        <CurveCard curveType={cycle.curveType} stepSize={cycle.stepSize} stepIncrement={cycle.stepIncrement}/>
         {/* Launch price */}
         <div style={{ background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:6, padding:'9px 11px' }}>
           <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Launch price</div>
