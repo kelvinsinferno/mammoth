@@ -1,8 +1,14 @@
 'use client';
 import { useState } from 'react';
 import { fmtTokens } from '../lib/utils';
+import { closeCycleOnChain } from '../lib/curves';
+import { parseTransactionError } from '../lib/anchorClient';
+import { useApp } from '../lib/AppContext';
+import { useToast } from '../components/ui/Toast';
 
 function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate }) {
+  const { connection, getWalletAdapter } = useApp();
+  const toast = useToast();
   const [action, setAction] = useState(null);
   const [params, setParams] = useState({ cycleAllocation:cycle.allocation, stepSize:cycle.stepSize||5000 });
   const [submitting, setSubmitting] = useState(false);
@@ -24,11 +30,22 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
     if (!confirm('Terminate cycle? This cannot be undone.')) return;
     setSubmitting(true);
     try {
-      await new Promise(r => setTimeout(r, 800));
+      const walletAdapter = getWalletAdapter();
+      const mintAddress = project?.mint || project?.id;
+      const isRealMint = mintAddress && mintAddress.length >= 32 && !mintAddress.includes('...');
+
+      if (walletAdapter && isRealMint) {
+        await closeCycleOnChain({ connection, walletAdapter, mintAddress });
+        toast.success('Cycle ended on-chain');
+      } else {
+        await new Promise(r => setTimeout(r, 800));
+      }
       onTerminate?.();
       onClose();
     } catch(e) {
-      console.error(e);
+      const userMsg = parseTransactionError(e);
+      if (userMsg === null) { setSubmitting(false); return; }
+      toast.error(userMsg || 'Failed to end cycle');
     } finally {
       setSubmitting(false);
     }

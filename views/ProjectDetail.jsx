@@ -1,6 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { computeStepCurve, mockExecuteBuy } from '../lib/curves';
+import { computeStepCurve, executeBuyTokens, executeExerciseRights } from '../lib/curves';
+import { parseTransactionError } from '../lib/anchorClient';
+import { useApp } from '../lib/AppContext';
+import { useToast } from '../components/ui/Toast';
 import TokenLogo, { getTokenPalette } from '../components/ui/TokenLogo';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
@@ -45,7 +48,9 @@ function CyclePanelDetail({ cycle }) {
   );
 }
 
-function BuyPanel({ cycle, price, ticker, walletConnected, onConnect, onPurchaseComplete }) {
+function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, onConnect, onPurchaseComplete }) {
+  const { connection, getWalletAdapter } = useApp();
+  const toast = useToast();
   const [txState, setTxState] = useState('idle');
   const [sol, setSol] = useState('');
   const [receipt, setReceipt] = useState(null);
@@ -74,12 +79,51 @@ function BuyPanel({ cycle, price, ticker, walletConnected, onConnect, onPurchase
     if (!walletConnected) { onConnect(); return; }
     if (!canSubmit && txState !== 'error') return;
     setTxState('awaiting'); setErrMsg('');
+
     try {
       setTxState('loading');
-      const result = await mockExecuteBuy({ solIn:solNum, tokensOut, ticker });
-      setReceipt(result); setTxState('success');
-      onPurchaseComplete?.(result, quote);
-    } catch(e) { setErrMsg(e.message); setTxState('error'); }
+
+      // Use real on-chain if we have a real mint address (44-char base58)
+      const isRealMint = mintAddress && mintAddress.length >= 32 && !mintAddress.includes('...');
+      const walletAdapter = getWalletAdapter();
+
+      if (isRealMint && walletAdapter) {
+        const result = await executeBuyTokens({
+          connection,
+          walletAdapter,
+          mintAddress,
+          amount: tokensOut,
+          solIn: solNum,
+          ticker,
+        });
+        setReceipt(result);
+        setTxState('success');
+        toast.success(`Bought ${tokensOut.toLocaleString()} ${ticker}!`);
+        onPurchaseComplete?.(result, quote);
+      } else {
+        // Fallback mock for demo projects
+        const { mockExecuteBuy } = await import('../lib/curves');
+        const result = await mockExecuteBuy({ solIn: solNum, tokensOut, ticker });
+        setReceipt(result);
+        setTxState('success');
+        onPurchaseComplete?.(result, quote);
+      }
+    } catch(e) {
+      const userMsg = parseTransactionError(e);
+      if (userMsg === null) {
+        // User rejected — silently reset
+        setTxState('idle');
+        return;
+      }
+      if (userMsg === 'Insufficient balance') {
+        toast.error('Insufficient balance');
+        setTxState('idle');
+        return;
+      }
+      setErrMsg(userMsg || e.message);
+      setTxState('error');
+      toast.error(userMsg || 'Transaction failed, please try again');
+    }
   };
 
   const handleReset = () => { setTxState('idle'); setSol(''); setReceipt(null); setErrMsg(''); };
@@ -225,7 +269,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
 
           <div style={{ position:'sticky', top:68 }}>
             <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={p.cycleData}/></div>
-            <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} walletConnected={wallet} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
+            <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
             {p._mine && onManageCycles && (
               <button onClick={onManageCycles} style={{ marginTop:8, width:'100%', padding:'9px 0', background:'transparent', border:'1px solid #252848', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer', fontWeight:500, letterSpacing:'0.04em', transition:'all 0.13s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor='#8B5CF6'; e.currentTarget.style.color='#22D3EE'; }}

@@ -1,0 +1,235 @@
+{
+  "version": "0.1.0",
+  "name": "mammoth_core",
+  "instructions": [
+    {
+      "name": "initializeProtocol",
+      "accounts": [
+        { "name": "protocolConfig", "isMut": true, "isSigner": false },
+        { "name": "protocolTreasury", "isMut": true, "isSigner": false },
+        { "name": "admin", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "feeBps", "type": "u16" },
+        { "name": "defaultCreatorBps", "type": "u16" },
+        { "name": "defaultReserveBps", "type": "u16" },
+        { "name": "defaultSinkBps", "type": "u16" }
+      ]
+    },
+    {
+      "name": "createProject",
+      "accounts": [
+        { "name": "projectState", "isMut": true, "isSigner": false },
+        { "name": "mint", "isMut": true, "isSigner": true },
+        { "name": "protocolConfig", "isMut": false, "isSigner": false },
+        { "name": "creator", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false },
+        { "name": "rent", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "supplyMode", "type": { "defined": "SupplyMode" } },
+        { "name": "totalSupply", "type": "u64" },
+        { "name": "publicAllocationBps", "type": "u16" },
+        { "name": "creatorBps", "type": "u16" },
+        { "name": "reserveBps", "type": "u16" },
+        { "name": "sinkBps", "type": "u16" }
+      ]
+    },
+    {
+      "name": "openCycle",
+      "accounts": [
+        { "name": "cycleState", "isMut": true, "isSigner": false },
+        { "name": "projectState", "isMut": true, "isSigner": false },
+        { "name": "creator", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "curveType", "type": { "defined": "CurveType" } },
+        { "name": "supplyCap", "type": "u64" },
+        { "name": "basePrice", "type": "u64" },
+        { "name": "rightsWindowDuration", "type": "i64" },
+        { "name": "stepSize", "type": "u64" },
+        { "name": "stepIncrement", "type": "u64" },
+        { "name": "endPrice", "type": "u64" },
+        { "name": "growthFactorK", "type": "u64" }
+      ]
+    },
+    {
+      "name": "buyTokens",
+      "accounts": [
+        { "name": "cycleState", "isMut": true, "isSigner": false },
+        { "name": "projectState", "isMut": true, "isSigner": false },
+        { "name": "holderRights", "isMut": true, "isSigner": false },
+        { "name": "protocolConfig", "isMut": false, "isSigner": false },
+        { "name": "protocolTreasury", "isMut": true, "isSigner": false },
+        { "name": "reserve", "isMut": true, "isSigner": false },
+        { "name": "buyer", "isMut": true, "isSigner": true },
+        { "name": "buyerTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "mint", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "amount", "type": "u64" }
+      ]
+    },
+    {
+      "name": "exerciseRights",
+      "accounts": [
+        { "name": "holderRights", "isMut": true, "isSigner": false },
+        { "name": "cycleState", "isMut": true, "isSigner": false },
+        { "name": "projectState", "isMut": true, "isSigner": false },
+        { "name": "protocolConfig", "isMut": false, "isSigner": false },
+        { "name": "protocolTreasury", "isMut": true, "isSigner": false },
+        { "name": "reserve", "isMut": true, "isSigner": false },
+        { "name": "holder", "isMut": true, "isSigner": true },
+        { "name": "holderTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "mint", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "amount", "type": "u64" }
+      ]
+    },
+    {
+      "name": "closeCycle",
+      "accounts": [
+        { "name": "cycleState", "isMut": true, "isSigner": false },
+        { "name": "projectState", "isMut": true, "isSigner": false },
+        { "name": "creator", "isMut": true, "isSigner": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "setHardCap",
+      "accounts": [
+        { "name": "projectState", "isMut": true, "isSigner": false },
+        { "name": "creator", "isMut": true, "isSigner": true }
+      ],
+      "args": [
+        { "name": "hardCap", "type": "u64" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ProtocolConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "admin", "type": "publicKey" },
+          { "name": "protocolTreasury", "type": "publicKey" },
+          { "name": "feeBps", "type": "u16" },
+          { "name": "defaultCreatorBps", "type": "u16" },
+          { "name": "defaultReserveBps", "type": "u16" },
+          { "name": "defaultSinkBps", "type": "u16" }
+        ]
+      }
+    },
+    {
+      "name": "ProjectState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "creator", "type": "publicKey" },
+          { "name": "mint", "type": "publicKey" },
+          { "name": "supplyMode", "type": { "defined": "SupplyMode" } },
+          { "name": "hardCap", "type": "u64" },
+          { "name": "totalSupply", "type": "u64" },
+          { "name": "publicAllocation", "type": "u64" },
+          { "name": "treasuryAllocation", "type": "u64" },
+          { "name": "protocolAllocation", "type": "u64" },
+          { "name": "totalMinted", "type": "u64" },
+          { "name": "currentCycle", "type": "u8" },
+          { "name": "creatorBps", "type": "u16" },
+          { "name": "reserveBps", "type": "u16" },
+          { "name": "sinkBps", "type": "u16" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "CycleState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "project", "type": "publicKey" },
+          { "name": "cycleIndex", "type": "u8" },
+          { "name": "curveType", "type": { "defined": "CurveType" } },
+          { "name": "supplyCap", "type": "u64" },
+          { "name": "minted", "type": "u64" },
+          { "name": "basePrice", "type": "u64" },
+          { "name": "status", "type": { "defined": "CycleStatus" } },
+          { "name": "rightsWindowEnd", "type": "i64" },
+          { "name": "stepSize", "type": "u64" },
+          { "name": "stepIncrement", "type": "u64" },
+          { "name": "endPrice", "type": "u64" },
+          { "name": "growthFactorK", "type": "u64" },
+          { "name": "solRaised", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "HolderRights",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "project", "type": "publicKey" },
+          { "name": "cycleIndex", "type": "u8" },
+          { "name": "holder", "type": "publicKey" },
+          { "name": "rightsAmount", "type": "u64" },
+          { "name": "exercisedAmount", "type": "u64" },
+          { "name": "expiry", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "SupplyMode",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Elastic" },
+          { "name": "Fixed" }
+        ]
+      }
+    },
+    {
+      "name": "CurveType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Step" },
+          { "name": "Linear" },
+          { "name": "ExpLite" }
+        ]
+      }
+    },
+    {
+      "name": "CycleStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Active" },
+          { "name": "Completed" },
+          { "name": "Terminated" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "NotAdmin", "msg": "Not admin" },
+    { "code": 6001, "name": "CycleNotActive", "msg": "No active cycle" },
+    { "code": 6002, "name": "RightsExpired", "msg": "Your rights window has expired" },
+    { "code": 6003, "name": "InsufficientRights", "msg": "Insufficient rights" },
+    { "code": 6004, "name": "ExceedsAllocation", "msg": "Exceeds cycle allocation" },
+    { "code": 6005, "name": "NotCreator", "msg": "Not project creator" },
+    { "code": 6006, "name": "HardCapReached", "msg": "Hard cap reached" }
+  ]
+}

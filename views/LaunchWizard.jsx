@@ -1,8 +1,13 @@
 'use client';
 import { useState } from 'react';
-// lib/utils imports: add here when validation helpers are needed
+import { deployProject } from '../lib/curves';
+import { parseTransactionError } from '../lib/anchorClient';
+import { useApp } from '../lib/AppContext';
+import { useToast } from '../components/ui/Toast';
 
 export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) {
+  const { connection, getWalletAdapter } = useApp();
+  const toast = useToast();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '', ticker: '', description: '', website: '', twitter: '', discord: '', image: null, imagePreview: null,
@@ -61,24 +66,50 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
 
   const handleLaunch = async () => {
     if (!validate()) return;
-    if (!walletState.status === 'connected') {
+    if (walletState.status !== 'connected') {
       setErrors({ form:'Connect wallet first' });
       return;
     }
     setTxState('awaiting');
     try {
       setTxState('loading');
-      await new Promise(r => setTimeout(r, 2000));
+
+      const walletAdapter = getWalletAdapter();
+      let deployResult;
+
+      if (walletAdapter) {
+        // Real on-chain deploy
+        deployResult = await deployProject({
+          connection,
+          walletAdapter,
+          form: {
+            supplyMode: formData.supplyMode,
+            totalSupply: formData.supplyMode === 'fixed'
+              ? parseInt(formData.hardCapSupply) || 1_000_000_000
+              : parseInt(formData.initialAllocation) || 1_000_000_000,
+            publicAllocationBps: Math.floor((100 - formData.creatorAlloc - formData.protocolFee) * 100),
+            creatorBps: Math.floor(formData.creatorAlloc * 100),
+            reserveBps: Math.floor(formData.treasuryAlloc * 100),
+            sinkBps: Math.floor((98 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
+          },
+        });
+      } else {
+        // Fallback mock
+        const { mockDeployToken } = await import('../lib/curves');
+        deployResult = await mockDeployToken(formData);
+      }
+
       const newProject = {
-        id: Math.floor(Math.random()*10000),
+        id: deployResult.mint,
+        mint: deployResult.mint,
         name: formData.name,
         ticker: formData.ticker.toUpperCase(),
         description: formData.description,
         creator: walletState.short || 'anon',
         image: formData.imagePreview,
         supplyMode: formData.supplyMode,
-        totalSupply: formData.supplyMode==='fixed'?formData.hardCapSupply:formData.initialAllocation,
-        status: 'ACTIVE',
+        totalSupply: formData.supplyMode === 'fixed' ? formData.hardCapSupply : formData.initialAllocation,
+        status: 'BETWEEN',
         price: formData.startPrice,
         change: 0,
         volume: 0,
@@ -87,9 +118,20 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
         sparkline: Array(12).fill(0).map(() => formData.startPrice * (0.95 + Math.random()*0.1)),
       };
       setTxState('success');
+      toast.success('Token launched on-chain!');
       setTimeout(() => onLaunch?.(newProject), 1500);
     } catch(e) {
-      setErrors({ form:e.message||'Failed to launch' });
+      const userMsg = parseTransactionError(e);
+      if (userMsg === null) {
+        setTxState('idle');
+        return;
+      }
+      if (userMsg === 'Insufficient balance') {
+        toast.error('Insufficient balance');
+        setTxState('idle');
+        return;
+      }
+      setErrors({ form: userMsg || e.message || 'Failed to launch' });
       setTxState('error');
     }
   };

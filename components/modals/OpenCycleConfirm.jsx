@@ -1,5 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { openCycleOnChain } from '../../lib/curves';
+import { parseTransactionError } from '../../lib/anchorClient';
+import { useApp } from '../../lib/AppContext';
+import { useToast } from '../ui/Toast';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -62,6 +66,8 @@ function SectionBlock({ title, children }) {
 // ─── main modal ───────────────────────────────────────────────────────────────
 
 export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
+  const { connection, getWalletAdapter } = useApp();
+  const toast = useToast();
   const [step, setStep] = useState('review'); // 'review' | 'confirming' | 'success'
   const [visible, setVisible] = useState(false);
 
@@ -74,13 +80,35 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
   const handleConfirm = async () => {
     setStep('confirming');
     try {
-      // Mock open_cycle — TASK-012 will wire real on-chain call
-      await new Promise(r => setTimeout(r, 1400));
+      const walletAdapter = getWalletAdapter();
+      const mintAddress = params.mintAddress;
+
+      if (walletAdapter && mintAddress && mintAddress.length >= 32) {
+        // Real on-chain open_cycle
+        await openCycleOnChain({
+          connection,
+          walletAdapter,
+          mintAddress,
+          params,
+        });
+        toast.success('Cycle opened on-chain!');
+      } else {
+        // Fallback mock (demo projects or no wallet)
+        await new Promise(r => setTimeout(r, 1400));
+      }
+
       setStep('success');
       setTimeout(() => {
         if (onConfirm) onConfirm();
       }, 2000);
     } catch (err) {
+      const userMsg = parseTransactionError(err);
+      if (userMsg === null) {
+        // User rejected
+        setStep('review');
+        return;
+      }
+      toast.error(userMsg || 'Failed to open cycle');
       setStep('review');
     }
   };
