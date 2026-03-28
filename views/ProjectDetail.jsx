@@ -106,7 +106,7 @@ function CurveTooltip({ curveType, stepSize, stepIncrement }) {
 
 function CyclePanelDetail({ cycle }) {
   const pct = Math.round((cycle.sold/cycle.allocation)*100);
-  const launchPrice = cycle.launchPrice ?? cycle.currentPrice;
+  const launchPrice = cycle.basePrice ?? cycle.launchPrice ?? cycle.currentPrice;
   return (
     <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'16px', marginBottom:12 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
