@@ -30,10 +30,10 @@ export default function Supernova() {
 
     // ── Cosmic dust particle spawned by mouse move ──────────────────────────
     const spawnDust = (x, y) => {
-      const count = 2;
+      const count = 5;
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 0.15 + Math.random() * 0.5;
+        const speed = 0.3 + Math.random() * 1.2;
         // Deep space palette: pale blue, purple nebula, faint cyan, dim white
         const palettes = [
           `rgba(167,139,250,`,   // lavender
@@ -45,11 +45,11 @@ export default function Supernova() {
         const col = palettes[Math.floor(Math.random() * palettes.length)];
         particles.current.push({
           x, y,
-          vx: Math.cos(angle) * speed + (Math.random() - 0.5) * 0.3,
-          vy: Math.sin(angle) * speed + (Math.random() - 0.5) * 0.3,
-          alpha: 0.4 + Math.random() * 0.35,
-          decay: 0.006 + Math.random() * 0.008,
-          size: 0.8 + Math.random() * 1.6,
+          vx: Math.cos(angle) * speed + (Math.random() - 0.5) * 0.5,
+          vy: Math.sin(angle) * speed + (Math.random() - 0.5) * 0.5,
+          alpha: 0.7 + Math.random() * 0.3,
+          decay: 0.008 + Math.random() * 0.010,
+          size: 1.5 + Math.random() * 3.0,
           color: col,
           trail: [],
           dust: true,
@@ -59,32 +59,25 @@ export default function Supernova() {
 
     // ── Full supernova on click ─────────────────────────────────────────────
     const spawnSupernova = (x, y) => {
-      const count = 55;
+      const count = 90;
 
-      // Shockwave ring
-      rings.current.push({
-        x, y,
-        r: 0,
-        maxR: 120 + Math.random() * 80,
-        alpha: 0.7,
-        decay: 0.014,
-        width: 2,
-      });
-      // Second fainter ring
-      rings.current.push({
-        x, y,
-        r: 0,
-        maxR: 80 + Math.random() * 50,
-        alpha: 0.35,
-        decay: 0.009,
-        width: 1,
-      });
+      // Three shockwave rings — different speeds and sizes
+      rings.current.push({ x, y, r: 0, maxR: 280 + Math.random() * 120, alpha: 0.9, decay: 0.010, width: 3 });
+      rings.current.push({ x, y, r: 0, maxR: 180 + Math.random() * 80,  alpha: 0.6, decay: 0.007, width: 2 });
+      rings.current.push({ x, y, r: 0, maxR: 100 + Math.random() * 60,  alpha: 0.4, decay: 0.005, width: 1.5 });
 
-      // Central stellar flash
+      // Central stellar flash — bigger, longer
       particles.current.push({
         x, y, vx: 0, vy: 0,
-        alpha: 1, decay: 0.025,
-        size: 22, color: 'rgba(255,255,255,',
+        alpha: 1, decay: 0.016,
+        size: 60, color: 'rgba(255,255,255,',
+        flash: true, trail: [],
+      });
+      // Secondary orange flash
+      particles.current.push({
+        x, y, vx: 0, vy: 0,
+        alpha: 0.8, decay: 0.012,
+        size: 40, color: 'rgba(255,180,80,',
         flash: true, trail: [],
       });
 
@@ -101,28 +94,28 @@ export default function Supernova() {
       for (let i = 0; i < count; i++) {
         const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
         // Speed varies a lot — some slow nebula wisps, some fast ejecta
-        const isFast = Math.random() > 0.4;
+        const isFast = Math.random() > 0.35;
         const speed = isFast
-          ? 1.2 + Math.random() * 2.8
-          : 0.2 + Math.random() * 0.8;
+          ? 2.5 + Math.random() * 5.5
+          : 0.4 + Math.random() * 1.5;
         const col = palettes[Math.floor(Math.random() * palettes.length)];
         const size = isFast
-          ? 1.0 + Math.random() * 1.8
-          : 2.0 + Math.random() * 3.5;  // slow = bigger nebula puffs
+          ? 1.5 + Math.random() * 3.0
+          : 4.0 + Math.random() * 6.0;  // slow = big nebula puffs
         particles.current.push({
           x, y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          alpha: 0.7 + Math.random() * 0.3,
+          alpha: 0.85 + Math.random() * 0.15,
           decay: isFast
-            ? 0.008 + Math.random() * 0.01
-            : 0.003 + Math.random() * 0.005,
+            ? 0.005 + Math.random() * 0.007
+            : 0.002 + Math.random() * 0.003,
           size,
           color: col,
           trail: [],
           dust: false,
           gravity: 0,
-          drag: isFast ? 0.985 : 0.998,
+          drag: isFast ? 0.982 : 0.997,
         });
       }
     };
@@ -155,9 +148,9 @@ export default function Supernova() {
         ctx.save();
         ctx.globalAlpha = r.alpha * (1 - progress * 0.5);
         ctx.strokeStyle = `rgba(167,139,250,1)`;
-        ctx.lineWidth = r.width + (1 - progress) * 2;
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = '#8B5CF6';
+        ctx.lineWidth = r.width + (1 - progress) * 4;
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = '#A78BFA';
         ctx.beginPath();
         ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
         ctx.stroke();
@@ -171,18 +164,22 @@ export default function Supernova() {
         // Flash (central glow)
         if (p.flash) {
           ctx.save();
-          ctx.globalAlpha = p.alpha * 0.55;
+          ctx.globalAlpha = p.alpha * 0.85;
+          ctx.shadowBlur = 60;
+          ctx.shadowColor = p.color + '1)';
+          const isOrange = p.color.includes('255,180');
           const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-          grad.addColorStop(0, 'rgba(255,255,255,1)');
-          grad.addColorStop(0.3, 'rgba(200,220,255,0.8)');
-          grad.addColorStop(1, 'rgba(139,92,246,0)');
+          grad.addColorStop(0, isOrange ? 'rgba(255,240,200,1)' : 'rgba(255,255,255,1)');
+          grad.addColorStop(0.2, isOrange ? 'rgba(255,180,80,0.9)' : 'rgba(210,230,255,0.9)');
+          grad.addColorStop(0.55, isOrange ? 'rgba(200,80,20,0.5)' : 'rgba(139,92,246,0.5)');
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
           ctx.fillStyle = grad;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
           p.alpha -= p.decay;
-          p.size *= 1.12;
+          p.size *= 1.18;
           continue;
         }
 
@@ -213,8 +210,8 @@ export default function Supernova() {
         ctx.save();
         ctx.globalAlpha = p.alpha;
         ctx.fillStyle = p.color + '1)';
-        ctx.shadowBlur = p.dust ? 6 : 14;
-        ctx.shadowColor = p.color + '0.9)';
+        ctx.shadowBlur = p.dust ? 14 : 30;
+        ctx.shadowColor = p.color + '1)';
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
         ctx.fill();
