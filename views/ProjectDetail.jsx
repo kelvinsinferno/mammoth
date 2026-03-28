@@ -109,7 +109,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const [sol, setSol] = useState('');
   const [receipt, setReceipt] = useState(null);
   const [errMsg, setErrMsg] = useState('');
-  const [slippage, setSlippage] = useState(1);
+  const [slippage, setSlippage] = useState(5);
   const [showSlippage, setShowSlippage] = useState(false);
   const PRESETS = [0.1, 0.5, 1, 5];
   const solNum = parseFloat(sol) || 0;
@@ -118,12 +118,14 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const tokensOut = quote?.tokensOut ?? 0;
   const exceedsRights = walletConnected && cycle.userRights > 0 && tokensOut > (cycle.userRights - (cycle.userRightsUsed||0));
   const exceedsAllocation = quote ? quote.remainingAfter < 0 : false;
-  const slippageOk = quote ? ((quote.effectivePrice - cycle.currentPrice) / cycle.currentPrice * 100) <= slippage : true;
+  // Skip slippage check on mock/demo projects — only enforce on real on-chain trades
+  const priceImpactPct = quote ? ((quote.effectivePrice - cycle.currentPrice) / cycle.currentPrice * 100) : 0;
+  const slippageOk = isMockProject ? true : (quote ? priceImpactPct <= slippage : true);
   const hasError = exceedsRights || exceedsAllocation || (!slippageOk && solNum > 0);
 
   const validationMsg = exceedsRights ? `Exceeds your rights allocation (${(cycle.userRights||0).toLocaleString()} tokens)`
     : exceedsAllocation ? 'Amount exceeds remaining cycle allocation'
-    : !slippageOk && solNum > 0 ? `Price impact ${((quote.effectivePrice - cycle.currentPrice) / cycle.currentPrice * 100).toFixed(2)}% exceeds slippage tolerance ${slippage}%`
+    : !slippageOk && solNum > 0 ? `Price impact too high (${priceImpactPct.toFixed(1)}%) — tap ⚙ to raise slippage tolerance`
     : null;
 
   // Mock projects have a numeric id — allow buy without wallet for demo purposes
