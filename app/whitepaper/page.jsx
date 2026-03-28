@@ -316,7 +316,7 @@ export default function WhitepaperPage() {
             <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, background: 'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Mammoth</span>
           </a>
           <span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 4 }}>/ Whitepaper</span>
-          <a href="/public/Mammoth Whitepaper.pdf" download style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 6, padding: '5px 12px', fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: '#A78BFA', textDecoration: 'none', fontWeight: 600, flexShrink: 0 }}>
+          <a href="/Mammoth.pdf" download="Mammoth.pdf" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 6, padding: '5px 12px', fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: '#A78BFA', textDecoration: 'none', fontWeight: 600, flexShrink: 0 }}>
             ↓ PDF
           </a>
         </div>
