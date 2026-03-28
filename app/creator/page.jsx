@@ -11,6 +11,7 @@ export default function CreatorPage() {
   const { myProjects, walletState, setWalletState, theme, handleLaunchCycle, handleTerminateProject, handleLaunchToken, projectsLoading } = useApp();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showLaunchModal, setShowLaunchModal] = useState(false);
+  const [resumeDraft, setResumeDraft] = useState(null);
 
   // If not connected, prompt wallet connection
   useEffect(() => {
@@ -29,13 +30,15 @@ export default function CreatorPage() {
         theme={theme}
         loading={projectsLoading}
         onLaunchNew={() => setShowLaunchModal(true)}
+        onResumeDraft={(draft) => { setResumeDraft(draft); setShowLaunchModal(true); }}
       />
       {showLaunchModal && (
         <LaunchWizard
-          onClose={() => setShowLaunchModal(false)}
-          onLaunch={(newProject) => { handleLaunchToken(newProject); setShowLaunchModal(false); }}
+          onClose={() => { setShowLaunchModal(false); setResumeDraft(null); }}
+          onLaunch={(newProject) => { handleLaunchToken(newProject); setShowLaunchModal(false); setResumeDraft(null); }}
           walletState={walletState}
           theme={theme}
+          initialData={resumeDraft}
         />
       )}
       {showWalletModal && (

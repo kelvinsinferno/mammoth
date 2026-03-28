@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { fmtTokens } from '../lib/utils';
 import { closeCycleOnChain } from '../lib/curves';
 import { parseTransactionError, activateCycle } from '../lib/anchorClient';
@@ -218,9 +218,29 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
   );
 }
 
-export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme, loading, onLaunchNew }) {
+export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme, loading, onLaunchNew, onResumeDraft }) {
   const [expandedId, setExpandedId] = useState(null);
   const [manageModal, setManageModal] = useState(null);
+  const [activeTab, setActiveTab] = useState('tokens'); // 'tokens' | 'drafts'
+  const [drafts, setDrafts] = useState([]);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    // Load drafts from localStorage
+    try {
+      const saved = JSON.parse(localStorage.getItem('mammoth_drafts') || '[]');
+      setDrafts(saved);
+    } catch {}
+    // Tick every 30s to update countdowns
+    const interval = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const deleteDraft = (id) => {
+    const updated = drafts.filter(d => d.id !== id);
+    setDrafts(updated);
+    localStorage.setItem('mammoth_drafts', JSON.stringify(updated));
+  };
 
   // Loading state
   if (loading) return (
@@ -261,15 +281,23 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
   return (
     <div onClick={onClose} className="cycle-dash-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
       <div onClick={e => e.stopPropagation()} className="cycle-dash-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:600, padding:'24px 20px', animation:'slideUp 0.18s ease', maxHeight:'85vh', overflowY:'auto' }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-          <div>
-            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Your tokens</div>
-            <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:2 }}>{myProjects.length} token{myProjects.length!==1?'s':''}</div>
-          </div>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+          <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Creator Dashboard</div>
           <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:18, lineHeight:1 }}>✕</button>
         </div>
 
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+        {/* Tabs */}
+        <div style={{ display:'flex', gap:2, background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, marginBottom:16 }}>
+          {[['tokens', `🪙 Tokens (${myProjects.length})`], ['drafts', `📝 Drafts${drafts.length > 0 ? ` (${drafts.length})` : ''}`]].map(([key, label]) => (
+            <button key={key} onClick={() => setActiveTab(key)}
+              style={{ flex:1, background:activeTab===key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, fontWeight:600, padding:'7px 10px', borderRadius:5, color:activeTab===key?'#fff':'var(--text-dim)', transition:'all 0.12s', minHeight:36 }}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tokens tab */}
+        {activeTab === 'tokens' && <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
           {myProjects.map(p => (
             <div key={p.id} style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:10, padding:'14px', cursor:'pointer', transition:'all 0.12s', animation:'fadeUp 0.2s ease both', animationDelay:`${myProjects.indexOf(p)*0.05}s` }}
               onClick={() => setExpandedId(expandedId===p.id?null:p.id)}
@@ -334,7 +362,76 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
               )}
             </div>
           ))}
-        </div>
+        </div>}
+
+        {/* Drafts tab */}
+        {activeTab === 'drafts' && (
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {drafts.length === 0 ? (
+              <div style={{ textAlign:'center', padding:'32px 0', color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontSize:12 }}>
+                <div style={{ fontSize:28, marginBottom:10 }}>📝</div>
+                No drafts saved yet.<br/>
+                <span style={{ fontSize:10, opacity:0.7 }}>Use the wizard to save a draft or schedule a launch.</span>
+              </div>
+            ) : drafts.map(draft => {
+              const isScheduled = !!draft.scheduledFor;
+              const launchTime = isScheduled ? new Date(draft.scheduledFor) : null;
+              const msUntil = launchTime ? launchTime - now : null;
+              const ready = msUntil !== null && msUntil <= 0;
+              const hrsUntil = msUntil ? Math.floor(msUntil / 3600000) : 0;
+              const minsUntil = msUntil ? Math.floor((msUntil % 3600000) / 60000) : 0;
+
+              return (
+                <div key={draft.id} style={{ background:'var(--panel-alt)', border:`1px solid ${ready ? 'rgba(255,159,28,0.3)' : '#1d2540'}`, borderRadius:10, padding:'14px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
+                    <div>
+                      <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>
+                        {draft.name || 'Unnamed Token'}
+                        {draft.ticker && <span style={{ fontSize:11, color:'var(--text-dim)', marginLeft:6 }}>/ ${draft.ticker.toUpperCase()}</span>}
+                      </div>
+                      <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:3 }}>
+                        Saved {new Date(draft.savedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}
+                        {isScheduled && (
+                          <span style={{ marginLeft:8, color: ready ? '#FF9F1C' : '#22D3EE', fontWeight:600 }}>
+                            {ready ? '⚡ READY TO LAUNCH' : `⏰ launches in ${hrsUntil}h ${minsUntil}m`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <button onClick={() => deleteDraft(draft.id)} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:14, lineHeight:1, padding:'0 0 0 8px' }} title="Delete draft">✕</button>
+                  </div>
+
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom:10 }}>
+                    {[
+                      ['Supply', draft.supplyMode || '—'],
+                      ['Start price', draft.startPrice ? `${draft.startPrice} SOL` : '—'],
+                      ['Allocation', draft.initialAllocation ? `${Number(draft.initialAllocation).toLocaleString()} tokens` : '—'],
+                      ['Curve', draft.curveType || '—'],
+                    ].map(([k,v],i) => (
+                      <div key={i} style={{ background:'var(--panel)', border:'1px solid #1a2438', borderRadius:5, padding:'6px 9px' }}>
+                        <div style={{ fontSize:9, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:2, textTransform:'uppercase', letterSpacing:'0.05em' }}>{k}</div>
+                        <div style={{ fontSize:11, color:'var(--text-secondary)', fontFamily:"'IBM Plex Mono',monospace" }}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={() => onResumeDraft?.(draft)}
+                      style={{ flex:1, padding:'9px 0', background:'rgba(139,92,246,0.12)', border:'1px solid rgba(139,92,246,0.28)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color:'#A78BFA', cursor:'pointer' }}>
+                      ✏️ EDIT & LAUNCH
+                    </button>
+                    {(ready || !isScheduled) && (
+                      <button onClick={() => onResumeDraft?.(draft, true)}
+                        style={{ flex:1, padding:'9px 0', background: ready ? '#FF9F1C' : 'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color: ready ? '#000' : '#fff', cursor:'pointer' }}>
+                        🚀 LAUNCH
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {manageModal && (

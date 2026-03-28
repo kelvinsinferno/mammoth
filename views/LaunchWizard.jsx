@@ -5,7 +5,21 @@ import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
 
-export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) {
+const DRAFTS_KEY = 'mammoth_drafts'
+
+function getDrafts() {
+  if (typeof window === 'undefined') return [];
+  try { return JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]'); } catch { return []; }
+}
+function saveDraft(data) {
+  const drafts = getDrafts();
+  const draft = { id: Date.now(), savedAt: new Date().toISOString(), ...data };
+  drafts.unshift(draft);
+  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts.slice(0, 20)));
+  return draft;
+}
+
+export default function LaunchWizard({ onClose, onLaunch, walletState, theme, initialData }) {
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
 
@@ -19,13 +33,44 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
     return () => window.removeEventListener('resize', check);
   }, []);
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     name: '', ticker: '', description: '', website: '', twitter: '', discord: '', image: null, imagePreview: null,
     supplyMode: 'elastic', initialAllocation: 1000000, hardCapSupply: 0, curveType: 'bonding', startPrice: 0.001,
     stepSize: 5000, stepIncrement: 0.00022, creatorAlloc: 10, treasuryAlloc: 15, protocolFee: 2,
-  });
+    // Pre-fill from draft if provided
+    ...(initialData ? {
+      name: initialData.name || '',
+      ticker: initialData.ticker || '',
+      description: initialData.description || '',
+      supplyMode: initialData.supplyMode || 'elastic',
+      initialAllocation: initialData.initialAllocation || 1000000,
+      hardCapSupply: initialData.hardCapSupply || 0,
+      curveType: initialData.curveType || 'bonding',
+      startPrice: initialData.startPrice || 0.001,
+      creatorAlloc: initialData.creatorAlloc || 10,
+      treasuryAlloc: initialData.treasuryAlloc || 15,
+    } : {}),
+  }));
   const [errors, setErrors] = useState({});
   const [txState, setTxState] = useState('idle');
+  const [launchMode, setLaunchMode] = useState('now'); // 'now' | 'draft' | 'schedule'
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('');
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [countdown, setCountdown] = useState(null); // seconds remaining until launch unlocks
+  const [scheduledAt, setScheduledAt] = useState(null); // Date object
+
+  // Countdown ticker — updates every second when a schedule is set
+  useEffect(() => {
+    if (!scheduledAt) return;
+    const tick = () => {
+      const remaining = Math.ceil((scheduledAt - Date.now()) / 1000);
+      setCountdown(Math.max(0, remaining));
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [scheduledAt]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -72,6 +117,24 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
       }
       setStep(3);
     }
+  };
+
+  const handleSaveDraft = () => {
+    if (!formData.name?.trim()) { setErrors({ form: 'Add a token name before saving' }); return; }
+    saveDraft(formData);
+    setDraftSaved(true);
+    setTimeout(() => setDraftSaved(false), 3000);
+  };
+
+  const handleSchedule = () => {
+    if (!validate()) return;
+    if (!scheduleDate || !scheduleTime) { setErrors({ form: 'Pick a date and time to schedule' }); return; }
+    const launchAt = new Date(`${scheduleDate}T${scheduleTime}`);
+    if (launchAt <= new Date()) { setErrors({ form: 'Schedule time must be in the future' }); return; }
+    // Save as draft with scheduled time
+    saveDraft({ ...formData, scheduledFor: launchAt.toISOString() });
+    setScheduledAt(launchAt);
+    setTxState('scheduled');
   };
 
   const handleLaunch = async () => {
@@ -260,6 +323,69 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
           </div>
         )}
 
+        {txState === 'scheduled' && (() => {
+          const unlocked = countdown !== null && countdown <= 0;
+          const hrs = countdown !== null ? Math.floor(countdown / 3600) : 0;
+          const mins = Math.floor(((countdown || 0) % 3600) / 60);
+          const secs = (countdown || 0) % 60;
+          const fmt = (n) => String(n).padStart(2, '0');
+          return (
+            <div style={{ marginBottom:12 }}>
+              <div style={{ background: unlocked ? 'rgba(16,185,129,0.08)' : 'rgba(139,92,246,0.07)', border: `1px solid ${unlocked ? 'rgba(16,185,129,0.3)' : 'rgba(139,92,246,0.25)'}`, borderRadius:8, padding:'14px 16px', marginBottom:12 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+                  <span style={{ fontSize:18 }}>{unlocked ? '🚀' : '⏰'}</span>
+                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color: unlocked ? '#10B981' : '#A78BFA' }}>
+                    {unlocked ? 'Ready to launch!' : 'Launch scheduled'}
+                  </div>
+                </div>
+                {!unlocked ? (
+                  <>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginBottom:10 }}>
+                      Launches on {scheduleDate} at {scheduleTime}
+                    </div>
+                    {/* Countdown clock */}
+                    <div style={{ display:'flex', gap:6, justifyContent:'center', marginBottom:6 }}>
+                      {[['HRS', hrs], ['MIN', mins], ['SEC', secs]].map(([label, val]) => (
+                        <div key={label} style={{ textAlign:'center', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', minWidth:52 }}>
+                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:18, color:'#A78BFA', lineHeight:1 }}>{fmt(val)}</div>
+                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'var(--text-muted)', marginTop:3, letterSpacing:'0.06em' }}>{label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', textAlign:'center', lineHeight:1.6 }}>
+                      Keep this window open or come back at launch time.<br/>LAUNCH unlocks automatically when the countdown hits zero.
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#10B981', lineHeight:1.6 }}>
+                    Your scheduled time has arrived. Hit LAUNCH below to deploy your token on-chain.
+                  </div>
+                )}
+              </div>
+              {/* Time-locked LAUNCH button */}
+              <button
+                onClick={unlocked ? handleLaunch : undefined}
+                disabled={!unlocked || isProcessing}
+                style={{ width:'100%', padding:'13px 0', borderRadius:7, border:'none', background: unlocked ? 'linear-gradient(135deg,#7C3AED,#8B5CF6)' : 'var(--border)', color: unlocked ? '#fff' : 'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:14, cursor: unlocked ? 'pointer' : 'not-allowed', letterSpacing:'0.05em', minHeight:48, transition:'all 0.2s', position:'relative', overflow:'hidden' }}>
+                {isProcessing ? 'LAUNCHING...' : unlocked ? '🚀 LAUNCH NOW' : `🔒 LOCKED — ${fmt(hrs)}:${fmt(mins)}:${fmt(secs)}`}
+                {!unlocked && (
+                  <div style={{ position:'absolute', bottom:0, left:0, height:2, background:'linear-gradient(90deg,#7C3AED,#8B5CF6)', transition:'width 1s linear', width: scheduledAt ? `${Math.min(100, (1 - countdown / Math.ceil((scheduledAt - (Date.now() - (countdown !== null ? 0 : 0))) / 1000)) * 100)}%` : '0%' }}/>
+                )}
+              </button>
+              <button onClick={onClose} style={{ marginTop:8, width:'100%', padding:'9px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer' }}>
+                CLOSE & COME BACK
+              </button>
+            </div>
+          );
+        })()}
+
+        {draftSaved && (
+          <div style={{ background:'rgba(16,185,129,0.07)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:6, padding:'10px 12px', marginBottom:12, display:'flex', alignItems:'center', gap:8 }}>
+            <span style={{ fontSize:14 }}>✓</span>
+            <span style={{ fontSize:12, color:'#10B981', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>Draft saved — find it in Creator Dashboard → Drafts</span>
+          </div>
+        )}
+
         {isProcessing && (
           <div style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:7, padding:'12px', marginBottom:12, display:'flex', alignItems:'center', gap:10 }}>
             <div style={{ width:16, height:16, borderRadius:'50%', border:'2px solid #252848', borderTopColor:'#8B5CF6', animation:'spin 0.7s linear infinite', flexShrink:0 }}/>
@@ -279,11 +405,64 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
               style={{ flex:1, padding:'11px 0', background:'#8B5CF6', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
               NEXT
             </button>
-          ) : (
-            <button onClick={handleLaunch} disabled={isProcessing}
-              style={{ flex:1, padding:'11px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
-              LAUNCH
-            </button>
+          ) : txState === 'scheduled' ? null : (
+            <div style={{ flex:1, display:'flex', flexDirection:'column', gap:8 }}>
+
+              {/* Launch mode selector */}
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
+                {[
+                  { key:'now', icon:'🚀', label:'Launch now' },
+                  { key:'schedule', icon:'⏰', label:'Schedule' },
+                  { key:'draft', icon:'📝', label:'Save draft' },
+                ].map(m => (
+                  <button key={m.key} onClick={() => setLaunchMode(m.key)} disabled={isProcessing}
+                    style={{ padding:'8px 6px', background:launchMode===m.key?'rgba(139,92,246,0.18)':'var(--panel-alt)', border:`1px solid ${launchMode===m.key?'#8B5CF6':'var(--border)'}`, borderRadius:6, cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, transition:'all 0.12s' }}>
+                    <span style={{ fontSize:14 }}>{m.icon}</span>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:launchMode===m.key?'#22D3EE':'var(--text-muted)', fontWeight:600, letterSpacing:'0.03em' }}>{m.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Schedule date/time picker */}
+              {launchMode === 'schedule' && (
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, animation:'fadeUp 0.15s ease' }}>
+                  <div>
+                    <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4, textTransform:'uppercase', letterSpacing:'0.05em' }}>Date</label>
+                    <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
+                      style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                      onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                      onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                  </div>
+                  <div>
+                    <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4, textTransform:'uppercase', letterSpacing:'0.05em' }}>Time</label>
+                    <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
+                      style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                      onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                      onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                  </div>
+                </div>
+              )}
+
+              {/* Action button */}
+              {launchMode === 'now' && (
+                <button onClick={handleLaunch} disabled={isProcessing}
+                  style={{ width:'100%', padding:'12px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
+                  🚀 LAUNCH NOW
+                </button>
+              )}
+              {launchMode === 'schedule' && (
+                <button onClick={handleSchedule} disabled={isProcessing||!scheduleDate||!scheduleTime}
+                  style={{ width:'100%', padding:'12px 0', background:'rgba(139,92,246,0.2)', border:'1px solid rgba(139,92,246,0.4)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#A78BFA', cursor:(!scheduleDate||!scheduleTime||isProcessing)?'not-allowed':'pointer', opacity:(!scheduleDate||!scheduleTime)?0.5:1, minHeight:48 }}>
+                  ⏰ SCHEDULE LAUNCH
+                </button>
+              )}
+              {launchMode === 'draft' && (
+                <button onClick={handleSaveDraft} disabled={isProcessing}
+                  style={{ width:'100%', padding:'12px 0', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:'pointer', minHeight:48 }}>
+                  📝 SAVE AS DRAFT
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
