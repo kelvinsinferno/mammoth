@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { deployProject } from '../lib/curves';
 import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
@@ -8,6 +8,15 @@ import { useToast } from '../components/ui/Toast';
 export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) {
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
+
+  // Mobile detection — starts false (SSR safe), updates on client after mount
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '', ticker: '', description: '', website: '', twitter: '', discord: '', image: null, imagePreview: null,
@@ -139,8 +148,8 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
   const isProcessing = txState === 'awaiting' || txState === 'loading';
 
   return (
-    <div onClick={onClose} className="launch-modal-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
-      <div onClick={e => e.stopPropagation()} className="launch-modal-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:500, padding:'24px 20px', animation:'slideUp 0.18s ease', maxHeight:'90vh', overflowY:'auto' }}>
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent:'center', padding: isMobile ? 0 : 16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius: isMobile ? '20px 20px 0 0' : 12, width:'100%', maxWidth: isMobile ? '100%' : 500, padding: isMobile ? '24px 16px 32px' : '24px 20px', animation:'slideUp 0.18s ease', maxHeight: isMobile ? '92vh' : '90vh', overflowY:'auto' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Launch token</div>
