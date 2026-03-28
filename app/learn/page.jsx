@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import MammothChat from '../../components/MammothChat';
 
 const SECTIONS = [
   {
@@ -261,6 +262,7 @@ export default function LearnPage() {
   const current = SECTIONS.find(s => s.id === activeSection) || SECTIONS[0];
 
   return (
+    <>
     <div style={{ minHeight: '100vh', background: 'var(--page-bg)', color: 'var(--text)', fontFamily: "'IBM Plex Mono', monospace" }}>
       {/* Header */}
       <header style={{ background: 'var(--header-bg)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--header-border)', position: 'sticky', top: 0, zIndex: 50, boxShadow: 'var(--header-shadow)' }}>
@@ -373,5 +375,7 @@ export default function LearnPage() {
         </div>
       </div>
     </div>
+    <MammothChat />
+    </>
   );
 }
