@@ -331,25 +331,15 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
 export default function ProjectDetail({ project: p, onBack, wallet, walletState, onOpenModal, onDisconnect, onConnect, onPurchase, onManageCycles, theme, onToggleTheme, rpcError }) {
   const [tab, setTab] = useState('About');
   const tabsRef = useRef(null);
+  const tabBtnRefs = useRef([]);
   const up = p.change >= 0;
   const TABS = ['About','Tokenomics','Cycles','Treasury'];
 
-  // Scroll active tab fully into view within the tab bar container
-  const handleTabClick = (t) => {
+  const handleTabClick = (t, idx) => {
     setTab(t);
-    if (tabsRef.current) {
-      const container = tabsRef.current;
-      const btns = container.querySelectorAll('button');
-      const idx = TABS.indexOf(t);
-      const btn = btns[idx];
-      if (btn) {
-        // Calculate scroll position to center the button in the container
-        const btnLeft = btn.offsetLeft;
-        const btnWidth = btn.offsetWidth;
-        const containerWidth = container.offsetWidth;
-        const targetScroll = btnLeft - (containerWidth / 2) + (btnWidth / 2);
-        container.scrollTo({ left: targetScroll, behavior: 'smooth' });
-      }
+    const btn = tabBtnRefs.current[idx];
+    if (btn) {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
   };
 
@@ -417,9 +407,9 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
         </div>
 
         <div style={{ marginTop:32, animation:'fadeUp 0.3s ease 0.1s both' }}>
-          <div ref={tabsRef} style={{ display:'flex', gap:0, borderBottom:'1px solid #1d2540', marginBottom:20, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', scrollBehavior:'smooth' }}>
-            {TABS.map(t => (
-              <button key={t} onClick={() => handleTabClick(t)} className="detail-tab-btn"
+          <div ref={tabsRef} style={{ display:'flex', gap:0, borderBottom:'1px solid #1d2540', marginBottom:20, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch' }}>
+            {TABS.map((t, idx) => (
+              <button key={t} ref={el => tabBtnRefs.current[idx] = el} onClick={() => handleTabClick(t, idx)} className="detail-tab-btn"
                 style={{ background:'none', border:'none', cursor:'pointer', padding:'10px 16px', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', color:tab===t?'#22D3EE':'var(--text-muted)', borderBottom:`2px solid ${tab===t?'#8B5CF6':'transparent'}`, transition:'all 0.13s', whiteSpace:'nowrap', flexShrink:0, minHeight:44 }}>
                 {t.toUpperCase()}
               </button>
