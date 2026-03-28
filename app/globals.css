@@ -65,7 +65,20 @@ html, body { background: var(--bg); transition: background 0.25s, color 0.25s; }
 .card-in { animation: fadeUp 0.2s ease both; }
 .tab:hover { color: #8B5CF6 !important; }
 
-/* Header button icon/text — controlled via JS useWindowWidth, no CSS needed here */
+/* ── Header button icon/text swap ──────────────────────────────────────────
+   .hdr-text = full text/toggle (shown on desktop, hidden on mobile)
+   .hdr-icon = icon only       (hidden on desktop, shown on mobile)
+   The breakpoint is 600px — triggers before the header overflows.
+   ───────────────────────────────────────────────────────────────────────── */
+.hdr-btn { border-radius: 6px; }
+.hdr-text { display: flex !important; }
+.hdr-icon { display: none !important; }
+
+@media (max-width: 600px) {
+  .hdr-text { display: none !important; }
+  .hdr-icon { display: flex !important; align-items: center; justify-content: center; }
+  .hdr-theme { border-radius: 8px !important; }
+}
 
 input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 input::placeholder { color: var(--text-muted); }
