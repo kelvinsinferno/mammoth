@@ -269,7 +269,7 @@ export default function LearnPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', fontSize: 18, padding: '4px 8px 4px 0', display: 'flex', alignItems: 'center' }}>←</button>
-            <img src="/mammoth-logo-dark.gif" alt="Mammoth" width={28} height={28} style={{ borderRadius: 6, objectFit: 'cover' }} />
+            <a href="/" style={{ display:'flex', flexShrink:0 }}><img src="/mammoth-logo-dark.gif" alt="Mammoth" width={28} height={28} style={{ borderRadius:6, objectFit:'cover', display:'block' }}/></a>
             <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 16, background: 'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Mammoth Learn</span>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>

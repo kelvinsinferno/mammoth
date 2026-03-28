@@ -527,13 +527,9 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
         <div className="header-inner" style={{ maxWidth:960, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, minWidth:0 }}>
           <div className="detail-header-left" style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flex:1, overflow:'hidden' }}>
             <button onClick={onBack} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer', fontSize:18, lineHeight:1, padding:'4px 6px 4px 0', flexShrink:0, minWidth:28, minHeight:44, display:'flex', alignItems:'center' }}>←</button>
-            <img
-              src="/mammoth-logo-dark.gif"
-              alt="Mammoth"
-              width={28}
-              height={28}
-              style={{ borderRadius:6, objectFit:'cover', flexShrink:0 }}
-            />
+            <a href="/" style={{ display:'flex', flexShrink:0 }}>
+              <img src="/mammoth-logo-dark.gif" alt="Mammoth" width={28} height={28} style={{ borderRadius:6, objectFit:'cover', display:'block' }}/>
+            </a>
             <div className="detail-header-name-row" style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'nowrap', overflow:'hidden', minWidth:0 }}>
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</span>
               <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'2px 7px', flexShrink:0 }}>${p.ticker}</span>

@@ -96,7 +96,7 @@ export default function MammothChat() {
         }}>
           {/* Header */}
           <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(124,58,237,0.08)', flexShrink: 0 }}>
-            <img src="/mammoth-logo-dark.gif" alt="Mammoth" width={24} height={24} style={{ borderRadius: 4, objectFit: 'cover' }} />
+            <a href="/" style={{ display:'flex', flexShrink:0 }}><img src="/mammoth-logo-dark.gif" alt="Mammoth" width={24} height={24} style={{ borderRadius:4, objectFit:'cover', display:'block' }}/></a>
             <div>
               <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Mammoth AI</div>
               <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, color: '#22D3EE', display: 'flex', alignItems: 'center', gap: 4 }}>

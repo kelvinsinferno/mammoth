@@ -46,13 +46,9 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
       <header style={{ background:'var(--header-bg)', backdropFilter:'blur(20px)', borderBottom:'1px solid var(--header-border)', position:'sticky', top:0, zIndex:50, boxShadow:'var(--header-shadow)' }}>
         <div className="header-inner" style={{ maxWidth:860, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-            <img
-              src="/mammoth-logo-dark.gif"
-              alt="Mammoth"
-              width={36}
-              height={36}
-              style={{ borderRadius: 8, objectFit: 'cover' }}
-            />
+            <a href="/" style={{ display:'flex', flexShrink:0 }}>
+              <img src="/mammoth-logo-dark.gif" alt="Mammoth" width={36} height={36} style={{ borderRadius:8, objectFit:'cover', display:'block' }}/>
+            </a>
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, letterSpacing:'-0.02em', background:'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Mammoth</span>
           </div>
           <div style={{ display:'flex', gap:6, alignItems:'center' }}>
