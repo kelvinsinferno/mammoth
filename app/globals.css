@@ -65,13 +65,7 @@ html, body { background: var(--bg); transition: background 0.25s, color 0.25s; }
 .card-in { animation: fadeUp 0.2s ease both; }
 .tab:hover { color: #8B5CF6 !important; }
 
-/* Header button icon/text visibility defaults (desktop = text, mobile = icon) */
-.theme-icon-only { display: none; }
-.theme-full      { display: flex; }
-.nav-launch-icon { display: none; }
-.nav-launch-text { display: inline; }
-.wallet-btn-icon { display: none !important; }
-.wallet-btn-full { display: flex !important; }
+/* Header button icon/text — controlled via JS useWindowWidth, no CSS needed here */
 
 input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 input::placeholder { color: var(--text-muted); }
@@ -97,19 +91,6 @@ select { background: var(--input-bg); color: var(--text); border: 1px solid var(
 html, body { overflow-x: hidden; max-width: 100vw; }
 
 @media (max-width: 767px) {
-  /* ── Nav bar: icon mode at ≤767px ── */
-  /* LAUNCH: icon only */
-  .nav-launch-text { display: none !important; }
-  .nav-launch-icon { display: inline !important; }
-  /* ThemeToggle: icon only */
-  .theme-full      { display: none !important; }
-  .theme-icon-only { display: inline !important; }
-  /* Tighten toggle button padding in icon mode */
-  .theme-toggle { padding: 0 10px !important; min-height: 36px !important; border-radius: 8px !important; }
-  /* WalletButton: icon only */
-  .wallet-btn-full { display: none !important; }
-  .wallet-btn-icon { display: flex !important; }
-
   /* ── Stats bar: 2×2 grid on mobile ── */
   .stats-bar-inner { flex-wrap: wrap !important; }
   .stats-bar-item { flex: 1 1 calc(50% - 6px) !important; min-width: 0 !important; }

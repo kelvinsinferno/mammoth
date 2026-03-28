@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useWindowWidth } from '../lib/useWindowWidth';
 import ProjectCard from '../components/ui/ProjectCard';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
@@ -9,6 +10,8 @@ import { SkeletonCardGrid } from '../components/ui/Skeleton';
 export default function Homepage({ projects, onSelectProject, wallet, walletState, onOpenModal, onDisconnect, onLaunch, theme, onToggleTheme, loading, rpcError }) {
   const [tab, setTab] = useState('new');
   const [search, setSearch] = useState('');
+  const width = useWindowWidth();
+  const iconMode = width < 768;
   const TABS = [{key:'new',label:'New'},{key:'trending',label:'Trending ⚡'},{key:'raised',label:'Most Raised'},{key:'ending',label:'Ending Soon'}];
   const sorted = {
     new: [...projects].sort((a,b) => Number(b.id)-Number(a.id)),
@@ -49,12 +52,11 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, letterSpacing:'-0.02em', background:'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Mammoth</span>
           </div>
           <div style={{ display:'flex', gap:6, alignItems:'center' }}>
-            <span className="nav-theme-toggle"><ThemeToggle theme={theme} onToggle={onToggleTheme}/></span>
-            <button onClick={onLaunch} className="nav-launch-btn" style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, cursor:'pointer', fontWeight:700, transition:'all 0.15s', display:'flex', alignItems:'center', minHeight:36, flexShrink:0 }}
+            <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
+            <button onClick={onLaunch} style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, cursor:'pointer', fontWeight:700, transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', minHeight:36, flexShrink:0, padding: iconMode ? '0 10px' : '6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontSize: iconMode ? 16 : 11, letterSpacing:'0.04em' }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow='0 0 16px rgba(139,92,246,0.4)'; e.currentTarget.style.color='#22D3EE'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.color='#A78BFA'; }}>
-              <span className="nav-launch-text" style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, letterSpacing:'0.04em', padding:'6px 14px' }}>LAUNCH</span>
-              <span className="nav-launch-icon" style={{ display:'none', fontSize:16, padding:'0 10px', lineHeight:1 }}>🚀</span>
+              {iconMode ? '🚀' : 'LAUNCH'}
             </button>
             <WalletButton walletState={walletState} onOpenModal={onOpenModal} onDisconnect={onDisconnect}/>
           </div>
