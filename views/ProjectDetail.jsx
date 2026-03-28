@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { computeStepCurve, executeBuyTokens, executeExerciseRights } from '../lib/curves';
 import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
@@ -8,6 +8,107 @@ import TokenLogo, { getTokenPalette } from '../components/ui/TokenLogo';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
 import PriceChart from '../components/charts/PriceChart';
+
+// ── Jupiter Terminal inline swap panel ───────────────────────────────────────
+function JupiterPanel({ mintAddress, ticker }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+  const initiated = useRef(false);
+
+  useEffect(() => {
+    if (initiated.current) return;
+    initiated.current = true;
+
+    // Load Jupiter Terminal script once
+    const existing = document.getElementById('jupiter-terminal-script');
+    const init = () => {
+      try {
+        if (window.Jupiter) {
+          window.Jupiter.init({
+            displayMode: 'integrated',
+            integratedTargetId: 'jupiter-terminal-container',
+            endpoint: 'https://mainnet.helius-rpc.com/?api-key=demo',
+            defaultExplorer: 'Solscan',
+            formProps: {
+              initialInputMint: 'So11111111111111111111111111111111111111112', // SOL
+              initialOutputMint: mintAddress || undefined,
+              fixedOutputMint: !!mintAddress && mintAddress.length > 10,
+            },
+          });
+          setLoaded(true);
+        }
+      } catch (e) {
+        console.error('Jupiter init error:', e);
+        setError(true);
+      }
+    };
+
+    if (existing) {
+      // Script already in DOM — just init
+      if (window.Jupiter) init();
+      else existing.addEventListener('load', init);
+    } else {
+      const script = document.createElement('script');
+      script.id = 'jupiter-terminal-script';
+      script.src = 'https://terminal.jup.ag/main-v3.js';
+      script.async = true;
+      script.onload = init;
+      script.onerror = () => setError(true);
+      document.head.appendChild(script);
+    }
+  }, [mintAddress]);
+
+  const fallbackUrl = `https://jup.ag/swap/SOL-${mintAddress || 'So11111111111111111111111111111111111111112'}`;
+
+  return (
+    <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, overflow:'hidden' }}>
+      {/* Header */}
+      <div style={{ padding:'14px 16px 10px', borderBottom:'1px solid #1a2438' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div>
+            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginBottom:2 }}>Cycle ended · secondary market</div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>Trade ${ticker}</div>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:5 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#22D3EE', fontWeight:600 }}>Jupiter</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Terminal container */}
+      {!error ? (
+        <div style={{ position:'relative', minHeight: 380 }}>
+          {!loaded && (
+            <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:12, background:'var(--panel)' }}>
+              <div style={{ width:20, height:20, borderRadius:'50%', border:'2px solid #1a2438', borderTopColor:'#22D3EE', animation:'spin 0.8s linear infinite' }}/>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>Loading Jupiter swap...</div>
+            </div>
+          )}
+          <div id="jupiter-terminal-container" style={{ width:'100%' }}/>
+        </div>
+      ) : (
+        /* Fallback if script fails to load */
+        <div style={{ padding:'20px 16px' }}>
+          <div style={{ background:'rgba(34,211,238,0.06)', border:'1px solid rgba(34,211,238,0.2)', borderRadius:8, padding:'12px 14px', marginBottom:14, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)', lineHeight:1.6 }}>
+            Jupiter swap is temporarily unavailable inline. Trade directly on Jupiter — your token address is pre-filled.
+          </div>
+          <a href={fallbackUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration:'none', display:'block' }}>
+            <button style={{ width:'100%', padding:'13px 0', background:'#FF9F1C', color:'#000', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, cursor:'pointer', letterSpacing:'0.04em' }}>
+              OPEN JUPITER →
+            </button>
+          </a>
+        </div>
+      )}
+
+      <div style={{ padding:'8px 16px 12px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', textAlign:'center', lineHeight:1.6 }}>
+        Powered by Jupiter · best-price routing across Solana DEXes · 2% Mammoth fee on Mammoth-routed trades
+      </div>
+    </div>
+  );
+}
 
 // ── Inline info tooltip ──────────────────────────────────────────────────────
 function InfoTip({ text }) {
@@ -292,48 +393,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const isProcessing = txState === 'awaiting' || txState === 'loading';
 
   if (cycle.status !== 'ACTIVE') {
-    // TASK-013: Jupiter secondary trading panel — shown when cycle is Closed or Between
-    const jupiterUrl = `https://jup.ag/swap/SOL-${mintAddress || 'So11111111111111111111111111111111111111112'}`;
-    return (
-      <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'20px 18px' }}>
-        <div style={{ textAlign:'center', marginBottom:16 }}>
-          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-muted)', marginBottom:4 }}>Cycle ended</div>
-          <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>Trade on secondary market</div>
-        </div>
-        <a
-          href={jupiterUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display:'block', textDecoration:'none' }}
-        >
-          <button style={{
-            width:'100%',
-            padding:'14px 0',
-            background:'#FF9F1C',
-            color:'#000',
-            border:'none',
-            borderRadius:7,
-            fontFamily:"'IBM Plex Mono',monospace",
-            fontSize:14,
-            fontWeight:700,
-            cursor:'pointer',
-            letterSpacing:'0.04em',
-            transition:'opacity 0.15s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-          >
-            Trade ${ticker} on Jupiter →
-          </button>
-        </a>
-        <div style={{ marginTop:10, fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center', lineHeight:1.5 }}>
-          2% fee on trades routed via Mammoth interface
-        </div>
-        <div style={{ marginTop:10, background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
-          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>No active cycle · trade freely on secondary</span>
-        </div>
-      </div>
-    );
+    return <JupiterPanel mintAddress={mintAddress} ticker={ticker} />;
   }
 
   if (txState === 'success' && receipt) return (
