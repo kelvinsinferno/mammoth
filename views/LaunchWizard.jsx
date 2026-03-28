@@ -36,7 +36,8 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
   const [formData, setFormData] = useState(() => ({
     name: '', ticker: '', description: '', website: '', twitter: '', discord: '', image: null, imagePreview: null,
     supplyMode: 'elastic', initialAllocation: 1000000, hardCapSupply: 0, curveType: 'linear', startPrice: 0.001,
-    stepSize: 5000, stepIncrement: 0.00022, creatorAlloc: 10, treasuryAlloc: 15, protocolFee: 2,
+    stepSize: 5000, stepIncrement: 0.00022, endPrice: 0.01, expMultiplier: 10,
+    creatorAlloc: 10, treasuryAlloc: 15, protocolFee: 2,
     // Pre-fill from draft if provided
     ...(initialData ? {
       name: initialData.name || '',
@@ -356,6 +357,14 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                     <div style={{ background:'var(--panel-alt)', border:`1px solid ${c.color}`, borderTop:'none', borderBottomLeftRadius:6, borderBottomRightRadius:6, padding:'12px 12px 14px', marginBottom:6, animation:'fadeUp 0.15s ease' }}>
                       <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:c.color, fontWeight:700, letterSpacing:'0.06em', marginBottom:10, textTransform:'uppercase' }}>Configure {c.label}</div>
                       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                        {/* Cycle allocation — always first */}
+                        <div style={{ gridColumn:'1/-1' }}>
+                          <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Cycle allocation (tokens)</label>
+                          <input type="number" name="initialAllocation" value={formData.initialAllocation} onChange={handleChange} step={1000} min={1}
+                            style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                            onFocus={e => e.currentTarget.style.borderColor=c.color}
+                            onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                        </div>
                         {/* Start price — always shown */}
                         <div>
                           <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Start price (SOL)</label>
@@ -364,6 +373,26 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                             onFocus={e => e.currentTarget.style.borderColor=c.color}
                             onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
                         </div>
+                        {/* Linear: end price */}
+                        {c.key === 'linear' && (
+                          <div>
+                            <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>End price (SOL)</label>
+                            <input type="number" name="endPrice" value={formData.endPrice} onChange={handleChange} step={0.00001} min={0.000001}
+                              style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                              onFocus={e => e.currentTarget.style.borderColor=c.color}
+                              onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                          </div>
+                        )}
+                        {/* Exp-Lite: growth multiplier */}
+                        {c.key === 'exp' && (
+                          <div>
+                            <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Growth multiplier (×)</label>
+                            <input type="number" name="expMultiplier" value={formData.expMultiplier} onChange={handleChange} step={1} min={2} max={1000}
+                              style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                              onFocus={e => e.currentTarget.style.borderColor=c.color}
+                              onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                          </div>
+                        )}
                         {/* Step-specific: step size */}
                         {c.key === 'step' && (
                           <div>
@@ -387,10 +416,102 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                       </div>
                       {/* Hint text */}
                       <div style={{ marginTop:10, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.7 }}>
-                        {c.key === 'linear' && 'Price increases proportionally with every token sold. Equal advantage at all points.'}
+                        {c.key === 'linear' && `Price rises evenly from ${formData.startPrice} SOL to ${formData.endPrice} SOL across the full cycle.`}
                         {c.key === 'step' && `Price holds at ${formData.startPrice} SOL for every ${Number(formData.stepSize).toLocaleString()} tokens, then jumps +${formData.stepIncrement} SOL. Buyers race to beat the next step.`}
-                        {c.key === 'exp' && 'Price accelerates exponentially as supply fills. First buyers get the deepest discount. No manual parameters needed — the curve does the work.'}
+                        {c.key === 'exp' && `Price starts at ${formData.startPrice} SOL and ends at ${(formData.startPrice * formData.expMultiplier).toFixed(5)} SOL (${formData.expMultiplier}× growth). First buyers get the deepest discount.`}
                       </div>
+
+                      {/* ── Raise Calculator ── */}
+                      {(() => {
+                        const alloc = Number(formData.initialAllocation) || 0;
+                        const sp = Number(formData.startPrice) || 0;
+                        const ep = Number(formData.endPrice) || sp;
+                        const ss = Number(formData.stepSize) || 5000;
+                        const si = Number(formData.stepIncrement) || 0;
+                        const mult = Number(formData.expMultiplier) || 10;
+                        const creatorPct = Number(formData.creatorAlloc) / 100;
+                        const treasuryPct = Number(formData.treasuryAlloc) / 100;
+                        const protocolPct = 0.02;
+                        const sinkPct = Math.max(0, 1 - creatorPct - treasuryPct - protocolPct);
+
+                        let totalRaise = 0;
+                        let finalPrice = sp;
+                        let avgPrice = sp;
+
+                        if (c.key === 'linear') {
+                          // Area under line: (sp + ep) / 2 * alloc
+                          totalRaise = alloc > 0 ? ((sp + ep) / 2) * alloc : 0;
+                          finalPrice = ep;
+                          avgPrice = (sp + ep) / 2;
+                        } else if (c.key === 'step') {
+                          // Step through each interval exactly
+                          let remaining = alloc;
+                          let sold = 0;
+                          let raise = 0;
+                          while (remaining > 0) {
+                            const stepIdx = Math.floor(sold / ss);
+                            const price = sp + stepIdx * si;
+                            const tokensThisStep = Math.min(ss - (sold % ss), remaining);
+                            raise += tokensThisStep * price;
+                            sold += tokensThisStep;
+                            remaining -= tokensThisStep;
+                          }
+                          totalRaise = raise;
+                          const finalStepIdx = Math.floor((alloc - 1) / ss);
+                          finalPrice = sp + finalStepIdx * si;
+                          avgPrice = alloc > 0 ? raise / alloc : sp;
+                        } else if (c.key === 'exp') {
+                          // Exp-lite: price(t) = sp * mult^(t/alloc), integral = sp * alloc * (mult - 1) / ln(mult)
+                          if (mult <= 1 || alloc <= 0) {
+                            totalRaise = sp * alloc;
+                            finalPrice = sp;
+                            avgPrice = sp;
+                          } else {
+                            const lnMult = Math.log(mult);
+                            totalRaise = sp * alloc * (mult - 1) / lnMult;
+                            finalPrice = sp * mult;
+                            avgPrice = alloc > 0 ? totalRaise / alloc : sp;
+                          }
+                        }
+
+                        if (alloc === 0 || sp === 0) return (
+                          <div style={{ marginTop:12, background:'rgba(255,159,28,0.06)', border:'1px solid rgba(255,159,28,0.15)', borderRadius:6, padding:'10px 12px', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>
+                            Set cycle allocation and start price above to see raise projection.
+                          </div>
+                        );
+
+                        const fmt = (n) => n >= 1 ? n.toFixed(2) : n.toPrecision(3);
+                        const fmtSOL = (n) => `${fmt(n)} SOL`;
+                        const rows = [
+                          { label: 'Total raise (full sell)', value: fmtSOL(totalRaise), accent: '#FF9F1C' },
+                          { label: 'Final price at sell-out', value: fmtSOL(finalPrice), accent: c.color },
+                          { label: 'Avg price paid', value: fmtSOL(avgPrice), accent: 'var(--text)' },
+                          { label: `→ Creator (${(creatorPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * creatorPct), accent: '#A78BFA' },
+                          { label: `→ Treasury (${(treasuryPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * treasuryPct), accent: '#22D3EE' },
+                          { label: '→ Protocol (2%)', value: fmtSOL(totalRaise * protocolPct), accent: 'var(--text-muted)' },
+                          { label: `→ Burn/sink (${(sinkPct*100).toFixed(0)}%)`, value: fmtSOL(totalRaise * sinkPct), accent: 'var(--text-muted)' },
+                        ];
+
+                        return (
+                          <div style={{ marginTop:12, background:'rgba(255,159,28,0.05)', border:'1px solid rgba(255,159,28,0.2)', borderRadius:7, overflow:'hidden' }}>
+                            <div style={{ padding:'8px 12px', borderBottom:'1px solid rgba(255,159,28,0.15)', display:'flex', alignItems:'center', gap:6 }}>
+                              <span style={{ fontSize:11 }}>📊</span>
+                              <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'#FF9F1C', letterSpacing:'0.05em', textTransform:'uppercase' }}>Raise projection — {Number(alloc).toLocaleString()} tokens</span>
+                            </div>
+                            <div style={{ padding:'8px 12px' }}>
+                              {rows.map((r, i) => (
+                                <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'3px 0', borderBottom: i === 2 ? '1px solid rgba(255,255,255,0.06)' : 'none', marginBottom: i === 2 ? 4 : 0 }}>
+                                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>{r.label}</span>
+                                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:r.accent }}>{r.value}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <div style={{ padding:'6px 12px', borderTop:'1px solid rgba(255,159,28,0.1)', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.6 }}>
+                              Projection assumes 100% of cycle sold. Actual results vary.
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
@@ -402,9 +523,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         {step === 3 && (
           <div style={{ animation:'fadeUp 0.2s ease' }}>
             {[
-              { name:'initialAllocation', label:'Initial allocation', suffix:'tokens' },
               formData.supplyMode==='fixed' && { name:'hardCapSupply', label:'Hard cap supply', suffix:'tokens' },
-              { name:'startPrice', label:'Starting price', suffix:'SOL', step:0.00001 },
               { name:'creatorAlloc', label:'Creator share', suffix:'%' },
               { name:'treasuryAlloc', label:'Treasury share', suffix:'%' },
             ].filter(Boolean).map(f => (
