@@ -9,12 +9,19 @@ import { SkeletonCardGrid } from '../components/ui/Skeleton';
 export default function Homepage({ projects, onSelectProject, wallet, walletState, onOpenModal, onDisconnect, onLaunch, theme, onToggleTheme, loading, rpcError }) {
   const [tab, setTab] = useState('new');
   const [search, setSearch] = useState('');
-  const TABS = [{key:'new',label:'New'},{key:'trending',label:'Trending ⚡'},{key:'raised',label:'Most Raised'},{key:'ending',label:'Ending Soon'}];
+  const TABS = [
+    {key:'new',label:'New'},
+    {key:'trending',label:'Trending ⚡'},
+    {key:'raised',label:'Most Raised'},
+    {key:'ending',label:'Ending Soon'},
+    {key:'between',label:'Between Cycles'},
+  ];
   const sorted = {
     new: [...projects].sort((a,b) => Number(b.id)-Number(a.id)),
     trending: [...projects].sort((a,b) => b.change-a.change),
     raised: [...projects].sort((a,b) => parseFloat(b.raised)-parseFloat(a.raised)),
     ending: [...projects].filter(p => p.status==='ACTIVE').sort((a,b) => b.progress-a.progress),
+    between: [...projects].filter(p => p.status==='BETWEEN'||p.status==='CLOSED'||p.status==='ENDED'),
   };
   const filtered = (sorted[tab]||sorted.new).filter(p => !search||p.name.toLowerCase().includes(search.toLowerCase())||p.ticker.toLowerCase().includes(search.toLowerCase()));
 
@@ -120,18 +127,29 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           </div>
         </div>
 
-        {/* Tabs */}
-        <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, marginBottom:12 }}>
-          {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
-              style={{ background:tab===t.key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', padding:'7px 13px', borderRadius:5, transition:'all 0.12s', whiteSpace:'nowrap', flexShrink:0, color:tab===t.key?'var(--bg)':'var(--text-dim)', minHeight:44 }}>
-              {t.label}
-            </button>
-          ))}
+        {/* Tabs + Search row */}
+        <div className="tabs-search-row" style={{ display:'flex', gap:8, alignItems:'center', marginBottom:12 }}>
+          {/* Tabs */}
+          <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, flex:1, minWidth:0 }}>
+            {TABS.map(t => (
+              <button key={t.key} onClick={() => setTab(t.key)}
+                style={{ background:tab===t.key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', padding:'7px 13px', borderRadius:5, transition:'all 0.12s', whiteSpace:'nowrap', flexShrink:0, color:tab===t.key?'var(--bg)':'var(--text-dim)', minHeight:44 }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {/* Search — inline on desktop, hidden here on mobile (shown below) */}
+          <div className="search-inline" style={{ position:'relative', width:200, flexShrink:0 }}>
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search tokens..."
+              style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px 9px 32px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
+              onFocus={e => e.currentTarget.style.borderColor='#7C3AED'}
+              onBlur={e => e.currentTarget.style.borderColor='var(--border-sub)'}/>
+            <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:14, pointerEvents:'none' }}>⌕</span>
+          </div>
         </div>
 
-        {/* Search */}
-        <div style={{ position:'relative', marginBottom:16 }}>
+        {/* Search — mobile only, shown below tabs */}
+        <div className="search-mobile" style={{ position:'relative', marginBottom:16 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search tokens..."
             style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px 9px 36px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
             onFocus={e => e.currentTarget.style.borderColor='#7C3AED'}
