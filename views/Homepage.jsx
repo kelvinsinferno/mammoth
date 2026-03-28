@@ -57,6 +57,12 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           </div>
           <div style={{ display:'flex', gap:6, alignItems:'center' }}>
             <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
+            <a href="/creator" className="hdr-btn hdr-creator" style={{ background:'transparent', border:'1px solid rgba(139,92,246,0.3)', borderRadius:6, cursor:'pointer', fontWeight:600, transition:'all 0.13s', display:'flex', alignItems:'center', justifyContent:'center', minHeight:36, flexShrink:0, textDecoration:'none' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='#8B5CF6'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(139,92,246,0.3)'; }}>
+              <span className="hdr-text" style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, letterSpacing:'0.04em', padding:'6px 12px', color:'#A78BFA' }}>DASHBOARD</span>
+              <span className="hdr-icon" style={{ fontSize:16, padding:'0 10px' }}>👤</span>
+            </a>
             <button onClick={onLaunch} className="hdr-btn hdr-launch"
               style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, cursor:'pointer', fontWeight:700, transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', minHeight:36, flexShrink:0 }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow='0 0 16px rgba(139,92,246,0.4)'; e.currentTarget.style.color='#22D3EE'; }}
