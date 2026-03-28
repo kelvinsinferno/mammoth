@@ -636,7 +636,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
           {tab==='Cycles' && (
             <div>
               {p.cycleHistory.map(c => (
-                <div key={c.id} style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:8, padding:'13px 14px', marginBottom:8 }}>
+                <div key={c.id} className="cycles-history-card" style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:8, padding:'13px 14px', marginBottom:8 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                     <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)' }}>Cycle #{c.id}</span>
                     <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:600, color:c.status==='COMPLETED'?'#22D3EE':c.status==='ACTIVE'?'#8B5CF6':'var(--text-muted)' }}>{c.status}</span>

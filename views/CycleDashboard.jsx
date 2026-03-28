@@ -299,10 +299,8 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
         {/* Tokens tab */}
         {activeTab === 'tokens' && <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
           {myProjects.map(p => (
-            <div key={p.id} style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:10, padding:'14px', cursor:'pointer', transition:'all 0.12s', animation:'fadeUp 0.2s ease both', animationDelay:`${myProjects.indexOf(p)*0.05}s` }}
-              onClick={() => setExpandedId(expandedId===p.id?null:p.id)}
-              onMouseEnter={e => e.currentTarget.style.borderColor='#7C3AED'}
-              onMouseLeave={e => e.currentTarget.style.borderColor='var(--border-sub)'}>
+            <div key={p.id} className="token-row-card" style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:10, padding:'14px', cursor:'pointer', transition:'all 0.12s', animation:'fadeUp 0.2s ease both', animationDelay:`${myProjects.indexOf(p)*0.05}s` }}
+              onClick={() => setExpandedId(expandedId===p.id?null:p.id)}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div>
                   <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:3 }}>{p.name} <span style={{ fontSize:11, color:'var(--text-dim)' }}>/ ${p.ticker}</span></div>
@@ -382,7 +380,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
               const minsUntil = msUntil ? Math.floor((msUntil % 3600000) / 60000) : 0;
 
               return (
-                <div key={draft.id} style={{ background:'var(--panel-alt)', border:`1px solid ${ready ? 'rgba(255,159,28,0.3)' : '#1d2540'}`, borderRadius:10, padding:'14px' }}>
+                <div key={draft.id} className="draft-card" style={{ background:'var(--panel-alt)', border:`1px solid ${ready ? 'rgba(255,159,28,0.3)' : '#1d2540'}`, borderRadius:10, padding:'14px' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                     <div>
                       <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>

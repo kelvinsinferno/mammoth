@@ -65,35 +65,154 @@ html, body { background: var(--bg); transition: background 0.25s, color 0.25s; }
 .card-in { animation: fadeUp 0.2s ease both; }
 .tab:hover { color: #8B5CF6 !important; }
 
-/* ── Subtle universal hover effects ─────────────────────────────────────────
-   Applied to any panel-alt div that doesn't already have a hover handler.
-   Uses :hover on CSS classes so it's zero-JS and instant.
-   ──────────────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════
+   GLOBAL HOVER SYSTEM
+   Every interactive element gets a visible hover state.
+   Rule: outline/border change minimum. Glow where appropriate.
+   ══════════════════════════════════════════════════════ */
 
-/* Stats bar items */
-.stats-bar-item:hover {
+/* ── Generic: any button that doesn't have its own handler ── */
+button:hover:not(:disabled) {
   filter: brightness(1.12);
-  transform: translateY(-1px);
-  transition: filter 0.15s, transform 0.15s;
+  transition: filter 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
-/* Tab buttons */
+/* ── Stats bar items ── */
+.stats-bar-item {
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.stats-bar-item:hover {
+  border-color: rgba(139,92,246,0.5) !important;
+  box-shadow: 0 0 12px rgba(139,92,246,0.2) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Tab bar buttons (homepage) ── */
+.tab:hover {
+  color: #A78BFA !important;
+  background: rgba(139,92,246,0.08) !important;
+  transition: color 0.15s, background 0.15s;
+}
+
+/* ── Detail page tab buttons ── */
+.detail-tab-btn {
+  transition: color 0.15s, border-color 0.15s !important;
+}
 .detail-tab-btn:hover {
   color: #A78BFA !important;
+  border-bottom-color: rgba(139,92,246,0.4) !important;
 }
 
-/* How it works cards on homepage — already have JS hover, this is a fallback */
-/* Cycle panel stat tiles */
+/* ── Cycle panel stat tiles ── */
+.cycle-stat-tile {
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  cursor: default;
+}
 .cycle-stat-tile:hover {
-  border-color: rgba(139,92,246,0.35) !important;
-  background: rgba(139,92,246,0.06) !important;
+  border-color: rgba(139,92,246,0.45) !important;
+  background: rgba(139,92,246,0.07) !important;
+  box-shadow: 0 0 10px rgba(139,92,246,0.15);
+}
+
+/* ── Token/project cards ── already have JS hover, reinforce with CSS ── */
+
+/* ── Search input focus ring ── */
+input:focus, textarea:focus {
+  box-shadow: 0 0 0 2px rgba(139,92,246,0.25) !important;
+}
+
+/* ── Homepage how-it-works cards (anchor tags wrapping divs) ── */
+a[href="/learn"] > div {
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s !important;
+}
+a[href="/learn"]:hover > div {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+
+/* ── Launch Wizard mode selector buttons ── */
+/* ── Slippage buttons ── */
+/* ── Supply mode / curve type radio cards in wizard ── */
+
+/* ── Cycle history cards in Cycles tab ── */
+.cycles-history-card {
   transition: border-color 0.15s, background 0.15s;
 }
-
-/* Learn page sidebar nav */
-.learn-nav-btn:hover {
-  background: rgba(139,92,246,0.08) !important;
+.cycles-history-card:hover {
+  border-color: rgba(34,211,238,0.35) !important;
+  background: rgba(34,211,238,0.04) !important;
 }
+
+/* ── Learn page sidebar buttons ── */
+.learn-nav-btn {
+  transition: background 0.15s, border-color 0.15s !important;
+}
+.learn-nav-btn:hover {
+  background: rgba(139,92,246,0.12) !important;
+  border-color: rgba(139,92,246,0.3) !important;
+}
+
+/* ── Learn page content cards (curve cards, step cards) ── */
+
+/* ── Footer/footnote links ── */
+a:hover {
+  opacity: 0.85;
+}
+
+/* ── Wallet button hover glow (supplement JS) ── */
+.wallet-btn:hover {
+  box-shadow: 0 0 14px rgba(34,211,238,0.3) !important;
+}
+
+/* ── Header DASHBOARD / LAUNCH buttons ── */
+.hdr-creator:hover {
+  border-color: #8B5CF6 !important;
+  box-shadow: 0 0 12px rgba(139,92,246,0.3) !important;
+}
+
+/* ── Creator dashboard token row cards ── */
+.token-row-card {
+  transition: border-color 0.15s, background 0.15s;
+}
+.token-row-card:hover {
+  border-color: #7C3AED !important;
+  background: rgba(124,58,237,0.06) !important;
+}
+
+/* ── Cycle manager action buttons (Launch next cycle, End cycle) ──
+   These have inline JS onMouseEnter already — reinforce with CSS fallback */
+
+/* ── Draft cards in Creator Dashboard ── */
+.draft-card {
+  transition: border-color 0.15s, background 0.15s;
+}
+.draft-card:hover {
+  border-color: rgba(139,92,246,0.4) !important;
+  background: rgba(139,92,246,0.05) !important;
+}
+
+/* ── Preset SOL buy buttons ── */
+.sol-presets button:hover:not(:disabled) {
+  border-color: #8B5CF6 !important;
+  color: #22D3EE !important;
+  filter: none;
+}
+
+/* ── About / Tokenomics / Cycles info grid tiles ── */
+.about-grid > div, .cycles-history-grid > div {
+  transition: border-color 0.15s, background 0.15s;
+}
+.about-grid > div:hover {
+  border-color: rgba(139,92,246,0.3) !important;
+  background: rgba(139,92,246,0.05) !important;
+}
+
+/* ── Chart expand button ── */
+
+/* ── Mammoth AI chat suggestions ── */
+
+/* Disable brightness filter on buttons that already have explicit bg */
+.hdr-btn:hover { filter: none; }
 
 /* ── Tabs + search row ── */
 .search-inline  { display: block; }
