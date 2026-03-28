@@ -39,7 +39,7 @@ function CyclePanelDetail({ cycle }) {
         ))}
       </div>
       {cycle.nextStepIn && cycle.status==='ACTIVE' && (
-        <div style={{ background:'rgba(255,159,28,0.07)', border:'1px solid rgba(255,159,28,0.18)', borderRadius:6, padding:'9px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:2 }}>
+        <div className="next-step-banner" style={{ background:'rgba(255,159,28,0.07)', border:'1px solid rgba(255,159,28,0.18)', borderRadius:6, padding:'9px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:2 }}>
           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#d97706' }}>⚡ next price jump in</span>
           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:13, color:'#F59E0B', fontWeight:700 }}>{cycle.nextStepIn.toLocaleString()} tokens</span>
         </div>
@@ -180,7 +180,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         <div style={{ width:48, height:48, borderRadius:'50%', background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.4)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 14px', fontSize:22 }}>✓</div>
         <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:4 }}>Purchase confirmed</div>
       </div>
-      <div style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:8, padding:'14px', marginBottom:16 }}>
+      <div className="receipt-rows" style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:8, padding:'14px', marginBottom:16 }}>
         {[['Tokens received',`${receipt.tokensOut.toLocaleString()} ${ticker}`,'#10B981'],['SOL spent',`${receipt.solIn.toFixed(4)} SOL`,'var(--text)'],['Mammoth fee',`${(receipt.solIn*0.02).toFixed(4)} SOL`,'var(--text-dim)'],['Signature',receipt.signature.slice(0,8)+'...','var(--text-muted)']].map(([l,v,c],i,arr) => (
           <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'5px 0', borderBottom:i<arr.length-1?'1px solid #1a2438':'none' }}>
             <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{l}</span>
@@ -219,7 +219,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
           </div>
         </div>
       )}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:6, marginBottom:12 }}>
+      <div className="sol-presets" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:6, marginBottom:12 }}>
         {PRESETS.map(v => (
           <button key={v} onClick={() => !isProcessing && setSol(String(v))}
             style={{ background:sol===String(v)?'rgba(139,92,246,0.18)':'var(--panel-alt)', border:`1px solid ${sol===String(v)?'#7C3AED':'var(--border)'}`, borderRadius:5, padding:'7px 0', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:sol===String(v)?'#22D3EE':'var(--text-dim)', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:44 }}>
@@ -272,7 +272,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
   return (
     <div style={{ minHeight:'100vh', background:'var(--page-bg)', color:'var(--text)' }}>
       <header style={{ background:'var(--header-bg)', backdropFilter:'blur(20px)', borderBottom:'1px solid var(--header-border)', position:'sticky', top:0, zIndex:50, boxShadow:'var(--header-shadow)' }}>
-        <div style={{ maxWidth:960, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, minWidth:0 }}>
+        <div className="header-inner" style={{ maxWidth:960, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, minWidth:0 }}>
           <div className="detail-header-left" style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flex:1, overflow:'hidden' }}>
             <button onClick={onBack} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer', fontSize:18, lineHeight:1, padding:'4px 6px 4px 0', flexShrink:0, minWidth:28, minHeight:44, display:'flex', alignItems:'center' }}>←</button>
             <div className="detail-header-name-row" style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'nowrap', overflow:'hidden', minWidth:0 }}>
@@ -297,7 +297,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
         </div>
       )}
 
-      <div style={{ maxWidth:960, margin:'0 auto', padding:'0 16px 64px' }}>
+      <div className="detail-main" style={{ maxWidth:960, margin:'0 auto', padding:'0 16px 64px' }}>
         <div style={{ display:'grid', gridTemplateColumns:'minmax(0,1fr) 310px', gap:16, alignItems:'start', paddingTop:20 }} className="detail-grid">
           <div>
             <div style={{ marginBottom:16, display:'flex', alignItems:'flex-start', gap:14 }}>
@@ -306,7 +306,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
               </div>
               <div style={{ flex:1 }}>
                 <div style={{ display:'flex', alignItems:'baseline', gap:12, flexWrap:'wrap', marginBottom:4 }}>
-                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:28, color:'#22D3EE', letterSpacing:'-0.03em', textShadow:'0 0 20px rgba(34,211,238,0.6)' }}>{p.price.toFixed(5)}</span>
+                  <span className="price-display" style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:28, color:'#22D3EE', letterSpacing:'-0.03em', textShadow:'0 0 20px rgba(34,211,238,0.6)' }}>{p.price.toFixed(5)}</span>
                   <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:14, color:'var(--text-dim)' }}>SOL</span>
                   <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:14, fontWeight:700, color:up?'#22D3EE':'#F43F5E' }}>{up?'▲':'▼'} {Math.abs(p.change).toFixed(1)}% (24h)</span>
                 </div>
@@ -335,7 +335,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
         <div style={{ marginTop:32, animation:'fadeUp 0.3s ease 0.1s both' }}>
           <div style={{ display:'flex', gap:0, borderBottom:'1px solid #1d2540', marginBottom:20, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch' }}>
             {TABS.map(t => (
-              <button key={t} onClick={() => setTab(t)}
+              <button key={t} onClick={() => setTab(t)} className="detail-tab-btn"
                 style={{ background:'none', border:'none', cursor:'pointer', padding:'10px 16px', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', color:tab===t?'#22D3EE':'var(--text-muted)', borderBottom:`2px solid ${tab===t?'#8B5CF6':'transparent'}`, transition:'all 0.13s', whiteSpace:'nowrap', flexShrink:0, minHeight:44 }}>
                 {t.toUpperCase()}
               </button>

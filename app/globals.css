@@ -169,3 +169,84 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   /* Stats bar items text: prevent overflow */
   .stats-bar-item { padding: 8px 2px !important; }
 }
+
+/* ══════════════════════════════════════════════════════
+   TASK-017 — Ultra-narrow / Galaxy Z Fold outer screen
+   Target: 260–374px (covers all narrow-fold / budget phones)
+   ══════════════════════════════════════════════════════ */
+
+@media (max-width: 374px) {
+  /* ── Hide ThemeToggle — frees ~54px of header space ── */
+  .theme-toggle { display: none !important; }
+
+  /* ── Header inner: tighter padding (16px → 10px each side) ── */
+  .header-inner { padding-left: 10px !important; padding-right: 10px !important; }
+
+  /* ── Stats bar: shrink value + label fonts ── */
+  .stats-bar-item { padding: 6px 2px !important; }
+  .stats-bar-item > div:first-child { font-size: 12px !important; }
+  .stats-bar-item > div:last-child  { font-size: 7px !important; }
+
+  /* ── Buy panel presets: 2×2 grid instead of 1×4 ── */
+  .sol-presets { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── Next price jump banner: stack vertically ── */
+  .next-step-banner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+
+  /* ── Price display: smaller font on ultra-narrow ── */
+  .price-display { font-size: 20px !important; letter-spacing: -0.04em !important; }
+
+  /* ── Receipt rows: allow wrapping ── */
+  .receipt-rows > div { flex-wrap: wrap !important; row-gap: 2px !important; }
+  .receipt-rows > div span:last-child { word-break: break-all; }
+
+  /* ── Cycle history tab: 2 col instead of 3 ── */
+  .cycles-history-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── Modal cards: reduce horizontal padding ── */
+  .launch-modal-card  { padding: 18px 14px !important; }
+  .cycle-dash-card    { padding: 18px 14px !important; }
+  .cycle-manager-card { padding: 18px 14px !important; }
+  .open-cycle-card    { padding: 18px 14px !important; }
+
+  /* ── WalletButton: tighter padding ── */
+  .wallet-btn-inner { padding: 6px 9px !important; font-size: 10px !important; }
+
+  /* ── Detail page info tabs: tighter buttons ── */
+  .detail-tab-btn { padding: 10px 10px !important; font-size: 11px !important; }
+
+  /* ── Empty state CTA: allow text wrap ── */
+  .empty-cta-btn {
+    white-space: normal !important;
+    font-size: 11px !important;
+    padding: 10px 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  /* ── Main padding reduction ── */
+  .main-content { padding-left: 10px !important; padding-right: 10px !important; }
+  .detail-main  { padding-left: 10px !important; padding-right: 10px !important; }
+}
+
+/* Absolute minimum (Galaxy Z Fold outer at default zoom: ~280px) */
+@media (max-width: 320px) {
+  /* ── Tighter main padding ── */
+  .main-content { padding-left: 8px !important; padding-right: 8px !important; }
+  .detail-main  { padding-left: 8px !important; padding-right: 8px !important; }
+
+  /* ── Nav header: further compress ── */
+  .header-inner { padding-left: 8px !important; padding-right: 8px !important; }
+
+  /* ── Tab buttons even tighter ── */
+  .detail-tab-btn { padding: 10px 7px !important; font-size: 10px !important; }
+
+  /* ── Wallet button: minimal ── */
+  .wallet-btn-inner { padding: 6px 7px !important; font-size: 9px !important; }
+
+  /* ── Price display ── */
+  .price-display { font-size: 18px !important; }
+}

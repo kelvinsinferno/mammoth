@@ -37,7 +37,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
 
       {/* Header */}
       <header style={{ background:'var(--header-bg)', backdropFilter:'blur(20px)', borderBottom:'1px solid var(--header-border)', position:'sticky', top:0, zIndex:50, boxShadow:'var(--header-shadow)' }}>
-        <div style={{ maxWidth:860, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div className="header-inner" style={{ maxWidth:860, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div style={{ display:'flex', alignItems:'center', gap:9 }}>
             <svg width="32" height="32" viewBox="0 0 44 44" fill="none">
               <rect width="44" height="44" rx="10" fill={theme==='light'?'#7c3aed':'rgba(124,58,237,0.15)'} stroke={theme==='light'?'#6d28d9':'rgba(139,92,246,0.4)'} strokeWidth="1"/>
@@ -60,14 +60,14 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
 
       {/* Stats bar */}
       <div style={{ background:'var(--stats-bg)', borderBottom:'1px solid var(--stats-border)' }}>
-        <div className="stats-bar-inner" style={{ maxWidth:860, margin:'0 auto', padding:'12px 16px', display:'flex', gap:8, flexWrap:'wrap' }}>
+        <div className="stats-bar-inner" style={{ maxWidth:860, margin:'0 auto', padding:'12px 16px', display:'flex', gap:6, flexWrap:'wrap' }}>
           {[
             ['active cycles', projects.filter(p=>p.status==='ACTIVE').length,'#22D3EE','rgba(34,211,238,0.08)','rgba(34,211,238,0.22)'],
             ['projects', projects.length,'#8B5CF6','rgba(139,92,246,0.08)','rgba(139,92,246,0.22)'],
             ['24h volume','823K SOL','#F59E0B','rgba(245,158,11,0.08)','rgba(245,158,11,0.22)'],
             ['raised','1.84K SOL','#10B981','rgba(16,185,129,0.08)','rgba(16,185,129,0.22)'],
           ].map(([l,v,c,bg,bdr],i) => (
-            <div key={i} className="stats-bar-item" style={{ flex:'1 1 calc(50% - 6px)', minWidth:0, textAlign:'center', background:bg, border:`1px solid ${bdr}`, borderRadius:8, padding:'9px 4px' }}>
+            <div key={i} className="stats-bar-item" style={{ flex:'1 1 calc(50% - 4px)', minWidth:0, textAlign:'center', background:bg, border:`1px solid ${bdr}`, borderRadius:8, padding:'9px 4px' }}>
               <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:15, color:c, textShadow:`0 0 14px ${c}99`, marginBottom:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{v}</div>
               <div style={{ fontSize:9, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", letterSpacing:'0.05em', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{l}</div>
             </div>
@@ -75,7 +75,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         </div>
       </div>
 
-      <main style={{ maxWidth:860, margin:'0 auto', padding:'18px 16px 56px' }}>
+      <main className="main-content" style={{ maxWidth:860, margin:'0 auto', padding:'18px 16px 56px' }}>
         {/* Hero */}
         <div style={{ marginBottom:20, padding:'16px 18px', background:'var(--hero-bg)', border:'1px solid var(--hero-border)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10, boxSizing:'border-box' }}>
           <div>
