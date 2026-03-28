@@ -214,12 +214,11 @@ a:hover {
 .hdr-btn:hover { filter: none; }
 
 /* ── Tabs + search row ── */
-.search-inline  { display: block; }
-.search-mobile  { display: none; }
+.search-inline  { display: flex !important; }
+.search-mobile  { display: none !important; }
 @media (max-width: 600px) {
   .search-inline { display: none !important; }
   .search-mobile { display: block !important; }
-  .tabs-search-row { flex-wrap: wrap; }
 }
 
 /* ── Learn page layout ── */
