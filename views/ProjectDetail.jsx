@@ -260,17 +260,17 @@ function CyclePanelDetail({ cycle }) {
         {/* Curve — entire card is clickable */}
         <CurveCard curveType={cycle.curveType} stepSize={cycle.stepSize} stepIncrement={cycle.stepIncrement}/>
         {/* Launch price */}
-        <div style={{ background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:6, padding:'9px 11px' }}>
+        <div className="cycle-stat-tile" style={{ background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:6, padding:'9px 11px' }}>
           <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4, display:'flex', alignItems:'center' }}>Launch price<InfoTip text="The price per token when this cycle first opened. Early buyers pay this — price only goes up from here." /></div>
           <div style={{ fontSize:12, color:'#A78BFA', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{launchPrice.toFixed(5)} SOL</div>
         </div>
         {/* Current price */}
-        <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
+        <div className="cycle-stat-tile" style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
           <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>Current price</div>
           <div style={{ fontSize:12, color:'#22D3EE', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{cycle.currentPrice.toFixed(5)} SOL</div>
         </div>
         {/* Remaining */}
-        <div style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
+        <div className="cycle-stat-tile" style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
           <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4, display:'flex', alignItems:'center' }}>Remaining<InfoTip text="Tokens still available in this cycle. Once zero, the cycle ends and no more tokens can be bought here." /></div>
           <div style={{ fontSize:12, color:'var(--text)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>{(cycle.allocation-cycle.sold).toLocaleString()}</div>
         </div>

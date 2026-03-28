@@ -65,6 +65,36 @@ html, body { background: var(--bg); transition: background 0.25s, color 0.25s; }
 .card-in { animation: fadeUp 0.2s ease both; }
 .tab:hover { color: #8B5CF6 !important; }
 
+/* ── Subtle universal hover effects ─────────────────────────────────────────
+   Applied to any panel-alt div that doesn't already have a hover handler.
+   Uses :hover on CSS classes so it's zero-JS and instant.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Stats bar items */
+.stats-bar-item:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  transition: filter 0.15s, transform 0.15s;
+}
+
+/* Tab buttons */
+.detail-tab-btn:hover {
+  color: #A78BFA !important;
+}
+
+/* How it works cards on homepage — already have JS hover, this is a fallback */
+/* Cycle panel stat tiles */
+.cycle-stat-tile:hover {
+  border-color: rgba(139,92,246,0.35) !important;
+  background: rgba(139,92,246,0.06) !important;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+/* Learn page sidebar nav */
+.learn-nav-btn:hover {
+  background: rgba(139,92,246,0.08) !important;
+}
+
 /* ── Tabs + search row ── */
 .search-inline  { display: block; }
 .search-mobile  { display: none; }

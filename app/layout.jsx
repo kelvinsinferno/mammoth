@@ -1,5 +1,6 @@
 import './globals.css';
 import Providers from '../components/Providers';
+import Supernova from '../components/ui/Supernova';
 
 export const metadata = {
   title: 'Mammoth',
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
       <body>
         <Providers>
           {children}
+          <Supernova />
         </Providers>
       </body>
     </html>
