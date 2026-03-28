@@ -173,11 +173,13 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
     opacity: visible ? 1 : 0,
   };
 
+  // Mobile: open-cycle-overlay and open-cycle-card classes handle breakpoint overrides
+
   // ── Success state
   if (step === 'success') {
     return (
-      <div style={overlayStyle}>
-        <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 32px', textAlign: 'center' }}>
+      <div style={overlayStyle} className="open-cycle-overlay">
+        <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 32px', textAlign: 'center' }} className="open-cycle-card">
           <div style={{ fontSize: 52, marginBottom: 16 }}>✅</div>
           <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 22, color: 'var(--text)', marginBottom: 8 }}>
             Cycle opened successfully
@@ -191,8 +193,8 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
   }
 
   return (
-    <div style={overlayStyle} onClick={(e) => { if (e.target === e.currentTarget) handleCancel(); }}>
-      <div style={cardStyle}>
+    <div style={overlayStyle} className="open-cycle-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCancel(); }}>
+      <div style={cardStyle} className="open-cycle-card">
 
         {/* ── Header ── */}
         <div style={{
@@ -348,6 +350,7 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
                 letterSpacing: '0.04em',
                 opacity: step === 'confirming' ? 0.4 : 1,
                 transition: 'opacity 0.15s',
+                minHeight: 48,
               }}
             >
               CANCEL
@@ -372,6 +375,7 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
+                minHeight: 48,
               }}
             >
               {step === 'confirming' ? (

@@ -53,8 +53,8 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
   };
 
   return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:400, padding:'22px 20px', animation:'slideUp 0.18s ease' }}>
+    <div onClick={onClose} className="cycle-manager-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
+      <div onClick={e => e.stopPropagation()} className="cycle-manager-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:400, padding:'22px 20px', animation:'slideUp 0.18s ease' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--text)' }}>{action?'Settings':'Manage cycle'}</div>
@@ -68,7 +68,7 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
             {cycle.status==='ACTIVE' && (
               <>
                 <button onClick={() => setAction('launch')}
-                  style={{ display:'flex', alignItems:'center', gap:12, background:'rgba(139,92,246,0.13)', border:'1px solid rgba(139,92,246,0.28)', borderRadius:8, padding:'12px 14px', cursor:'pointer', transition:'all 0.12s', width:'100%' }}
+                  style={{ display:'flex', alignItems:'center', gap:12, background:'rgba(139,92,246,0.13)', border:'1px solid rgba(139,92,246,0.28)', borderRadius:8, padding:'12px 14px', cursor:'pointer', transition:'all 0.12s', width:'100%', minHeight:52 }}
                   onMouseEnter={e => e.currentTarget.style.borderColor='#8B5CF6'}
                   onMouseLeave={e => e.currentTarget.style.borderColor='rgba(139,92,246,0.28)'}>
                   <span style={{ fontSize:16, lineHeight:1 }}>🚀</span>
@@ -78,7 +78,7 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
                   </div>
                 </button>
                 <button onClick={() => setAction('terminate')}
-                  style={{ display:'flex', alignItems:'center', gap:12, background:'rgba(248,113,113,0.08)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:8, padding:'12px 14px', cursor:'pointer', transition:'all 0.12s', width:'100%' }}
+                  style={{ display:'flex', alignItems:'center', gap:12, background:'rgba(248,113,113,0.08)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:8, padding:'12px 14px', cursor:'pointer', transition:'all 0.12s', width:'100%', minHeight:52 }}
                   onMouseEnter={e => e.currentTarget.style.borderColor='rgba(248,113,113,0.5)'}
                   onMouseLeave={e => e.currentTarget.style.borderColor='rgba(248,113,113,0.2)'}>
                   <span style={{ fontSize:16, lineHeight:1 }}>⏹</span>
@@ -151,8 +151,8 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
 
   // Loading state
   if (loading) return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:600, padding:'24px 20px', animation:'slideUp 0.18s ease' }}>
+    <div onClick={onClose} className="cycle-dash-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
+      <div onClick={e => e.stopPropagation()} className="cycle-dash-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:600, padding:'24px 20px', animation:'slideUp 0.18s ease' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
           <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Your tokens</div>
           <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:18, lineHeight:1 }}>✕</button>
@@ -164,8 +164,8 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
 
   // Empty state — no tokens launched
   if (myProjects.length === 0) return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, padding:'40px 28px', textAlign:'center', maxWidth:400, animation:'slideUp 0.18s ease' }}>
+    <div onClick={onClose} className="cycle-dash-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
+      <div onClick={e => e.stopPropagation()} className="cycle-dash-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, padding:'40px 28px', textAlign:'center', maxWidth:400, width:'100%', animation:'slideUp 0.18s ease' }}>
         <div style={{ fontSize:36, marginBottom:14 }}>📭</div>
         <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:8 }}>You haven&apos;t launched a token yet.</div>
         <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:24, lineHeight:1.6 }}>Create your first token to start managing cycles and raising capital.</div>
@@ -186,8 +186,8 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
   );
 
   return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:600, padding:'24px 20px', animation:'slideUp 0.18s ease', maxHeight:'85vh', overflowY:'auto' }}>
+    <div onClick={onClose} className="cycle-dash-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
+      <div onClick={e => e.stopPropagation()} className="cycle-dash-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:600, padding:'24px 20px', animation:'slideUp 0.18s ease', maxHeight:'85vh', overflowY:'auto' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Your tokens</div>
@@ -225,7 +225,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                       </button>
                     </div>
                   )}
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
+                  <div className="creator-project-stats" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
                     {[
                       { k:'Current price', v:`${p.price.toFixed(5)} SOL`, c:'#22D3EE' },
                       { k:'24h change', v:`${p.change>=0?'▲':'▼'} ${Math.abs(p.change).toFixed(1)}%`, c:p.change>=0?'#22D3EE':'#F43F5E' },

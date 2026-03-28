@@ -21,7 +21,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
   return (
     <div style={{ minHeight:'100vh', background:'var(--page-bg)', color:'var(--text)' }}>
       {/* Ticker bar */}
-      <div style={{ background:theme==='light'?'linear-gradient(90deg,#7c3aed,#06b6d4,#10b981,#f59e0b,#ec4899,#8b5cf6)':'var(--bg-deep)', borderBottom:theme==='light'?'none':'1px solid rgba(139,92,246,0.25)', height:30, overflow:'hidden', position:'relative', boxShadow:theme==='light'?'0 3px 16px rgba(124,58,237,0.35)':'none' }}>
+      <div style={{ background:theme==='light'?'linear-gradient(90deg,#7c3aed,#06b6d4,#10b981,#f59e0b,#ec4899,#8b5cf6)':'var(--bg-deep)', borderBottom:theme==='light'?'none':'1px solid rgba(139,92,246,0.25)', height:30, overflow:'hidden', position:'relative', boxShadow:theme==='light'?'0 3px 16px rgba(124,58,237,0.35)':'none', maxWidth:'100vw' }}>
         <div style={{ display:'flex', animation:'marquee 24s linear infinite', width:'max-content' }}>
           {[...projects,...projects].map((p,i) => { const pal=getTokenPalette(p.id); return (
             <span key={i} style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'0 20px', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", whiteSpace:'nowrap', lineHeight:'30px' }}>
@@ -50,7 +50,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           </div>
           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
             <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
-            <button onClick={onLaunch} style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, cursor:'pointer', fontWeight:700, letterSpacing:'0.04em', transition:'all 0.15s' }}
+            <button onClick={onLaunch} className="nav-launch-btn" style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, cursor:'pointer', fontWeight:700, letterSpacing:'0.04em', transition:'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow='0 0 16px rgba(139,92,246,0.4)'; e.currentTarget.style.color='#22D3EE'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.color='#A78BFA'; }}>LAUNCH</button>
             <WalletButton walletState={walletState} onOpenModal={onOpenModal} onDisconnect={onDisconnect}/>
@@ -60,16 +60,16 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
 
       {/* Stats bar */}
       <div style={{ background:'var(--stats-bg)', borderBottom:'1px solid var(--stats-border)' }}>
-        <div style={{ maxWidth:860, margin:'0 auto', padding:'12px 16px', display:'flex', gap:8 }}>
+        <div className="stats-bar-inner" style={{ maxWidth:860, margin:'0 auto', padding:'12px 16px', display:'flex', gap:8, flexWrap:'wrap' }}>
           {[
             ['active cycles', projects.filter(p=>p.status==='ACTIVE').length,'#22D3EE','rgba(34,211,238,0.08)','rgba(34,211,238,0.22)'],
             ['projects', projects.length,'#8B5CF6','rgba(139,92,246,0.08)','rgba(139,92,246,0.22)'],
             ['24h volume','823K SOL','#F59E0B','rgba(245,158,11,0.08)','rgba(245,158,11,0.22)'],
             ['raised','1.84K SOL','#10B981','rgba(16,185,129,0.08)','rgba(16,185,129,0.22)'],
           ].map(([l,v,c,bg,bdr],i) => (
-            <div key={i} style={{ flex:1, textAlign:'center', background:bg, border:`1px solid ${bdr}`, borderRadius:8, padding:'9px 4px' }}>
-              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:15, color:c, textShadow:`0 0 14px ${c}99`, marginBottom:2 }}>{v}</div>
-              <div style={{ fontSize:9, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", letterSpacing:'0.05em' }}>{l}</div>
+            <div key={i} className="stats-bar-item" style={{ flex:'1 1 calc(50% - 6px)', minWidth:0, textAlign:'center', background:bg, border:`1px solid ${bdr}`, borderRadius:8, padding:'9px 4px' }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:15, color:c, textShadow:`0 0 14px ${c}99`, marginBottom:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{v}</div>
+              <div style={{ fontSize:9, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", letterSpacing:'0.05em', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{l}</div>
             </div>
           ))}
         </div>
@@ -77,7 +77,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
 
       <main style={{ maxWidth:860, margin:'0 auto', padding:'18px 16px 56px' }}>
         {/* Hero */}
-        <div style={{ marginBottom:20, padding:'16px 18px', background:'var(--hero-bg)', border:'1px solid var(--hero-border)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
+        <div style={{ marginBottom:20, padding:'16px 18px', background:'var(--hero-bg)', border:'1px solid var(--hero-border)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10, boxSizing:'border-box' }}>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:3 }}>
               The fastest way to{' '}
@@ -85,16 +85,16 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
             </div>
             <div style={{ fontSize:11, color:theme==='light'?'rgba(255,255,255,0.85)':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>permissionless · cycle-based · no curation · no approvals</div>
           </div>
-          <button onClick={onLaunch} style={{ background:theme==='light'?'#fff':'linear-gradient(135deg,#7C3AED,#8B5CF6)', color:theme==='light'?'#7c3aed':'#fff', border:'none', borderRadius:7, padding:'10px 20px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, cursor:'pointer', letterSpacing:'0.05em', whiteSpace:'nowrap', flexShrink:0 }}>
+          <button onClick={onLaunch} style={{ background:theme==='light'?'#fff':'linear-gradient(135deg,#7C3AED,#8B5CF6)', color:theme==='light'?'#7c3aed':'#fff', border:'none', borderRadius:7, padding:'10px 20px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, cursor:'pointer', letterSpacing:'0.05em', whiteSpace:'nowrap', flexShrink:0, minHeight:44 }}>
             LAUNCH TOKEN →
           </button>
         </div>
 
         {/* Tabs */}
-        <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, marginBottom:12 }}>
+        <div style={{ display:'flex', gap:2, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, marginBottom:12 }}>
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              style={{ background:tab===t.key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', padding:'7px 13px', borderRadius:5, transition:'all 0.12s', whiteSpace:'nowrap', flexShrink:0, color:tab===t.key?'var(--bg)':'var(--text-dim)' }}>
+              style={{ background:tab===t.key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', padding:'7px 13px', borderRadius:5, transition:'all 0.12s', whiteSpace:'nowrap', flexShrink:0, color:tab===t.key?'var(--bg)':'var(--text-dim)', minHeight:44 }}>
               {t.label}
             </button>
           ))}
@@ -103,7 +103,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         {/* Search */}
         <div style={{ position:'relative', marginBottom:16 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search tokens..."
-            style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px 9px 36px', color:'var(--text)', fontSize:13, fontFamily:"'IBM Plex Mono',monospace", outline:'none' }}
+            style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 12px 9px 36px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
             onFocus={e => e.currentTarget.style.borderColor='#7C3AED'}
             onBlur={e => e.currentTarget.style.borderColor='var(--border-sub)'}/>
           <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:15, pointerEvents:'none' }}>⌕</span>
@@ -122,7 +122,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         {loading ? (
           <SkeletonCardGrid count={6} />
         ) : filtered.length > 0 ? (
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))', gap:8 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(min(290px,100%),1fr))', gap:8 }}>
             {filtered.map((p,i) => (
               <div key={p.id} style={{ animation:'fadeUp 0.2s ease both', animationDelay:`${i*0.033}s` }}>
                 <ProjectCard p={p} onClick={() => onSelectProject(p)} theme={theme}/>

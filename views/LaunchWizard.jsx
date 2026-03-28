@@ -139,8 +139,8 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
   const isProcessing = txState === 'awaiting' || txState === 'loading';
 
   return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:500, padding:'24px 20px', animation:'slideUp 0.18s ease', maxHeight:'90vh', overflowY:'auto' }}>
+    <div onClick={onClose} className="launch-modal-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
+      <div onClick={e => e.stopPropagation()} className="launch-modal-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:500, padding:'24px 20px', animation:'slideUp 0.18s ease', maxHeight:'90vh', overflowY:'auto' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Launch token</div>
@@ -166,12 +166,12 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
                 <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>{f.label}</label>
                 {f.rows ? (
                   <textarea name={f.name} value={formData[f.name]} onChange={handleChange} placeholder={f.placeholder} rows={f.rows}
-                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:13, fontFamily:"'IBM Plex Mono',monospace", resize:'none', outline:'none', opacity:isProcessing?0.6:1 }}
+                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", resize:'none', outline:'none', opacity:isProcessing?0.6:1, boxSizing:'border-box' }}
                     onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                     onBlur={e => e.currentTarget.style.borderColor=errors[f.name]?'#F43F5E':'var(--border)'}/>
                 ) : (
                   <input type="text" name={f.name} value={formData[f.name]} onChange={handleChange} placeholder={f.placeholder}
-                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:13, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1 }}
+                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1, boxSizing:'border-box', minHeight:44 }}
                     onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                     onBlur={e => e.currentTarget.style.borderColor=errors[f.name]?'#F43F5E':'var(--border)'}/>
                 )}
@@ -227,7 +227,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
                 <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>{f.label}</label>
                 <div style={{ position:'relative' }}>
                   <input type="number" name={f.name} value={formData[f.name]} onChange={handleChange} step={f.step||1}
-                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px 9px', color:'var(--text)', fontSize:13, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1 }}
+                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px 9px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1, boxSizing:'border-box', minHeight:44 }}
                     onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                     onBlur={e => e.currentTarget.style.borderColor=errors[f.name]?'#F43F5E':'var(--border)'}/>
                   {f.suffix && <span style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)' }}>{f.suffix}</span>}
@@ -260,18 +260,18 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme }) 
         <div style={{ display:'flex', gap:8, marginTop:18 }}>
           {step > 1 && (
             <button onClick={() => setStep(step-1)} disabled={isProcessing}
-              style={{ flex:1, padding:'11px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1 }}>
+              style={{ flex:1, padding:'11px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
               BACK
             </button>
           )}
           {step < 3 ? (
             <button onClick={handleNext} disabled={isProcessing}
-              style={{ flex:1, padding:'11px 0', background:'#8B5CF6', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1 }}>
+              style={{ flex:1, padding:'11px 0', background:'#8B5CF6', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
               NEXT
             </button>
           ) : (
             <button onClick={handleLaunch} disabled={isProcessing}
-              style={{ flex:1, padding:'11px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1 }}>
+              style={{ flex:1, padding:'11px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
               LAUNCH
             </button>
           )}

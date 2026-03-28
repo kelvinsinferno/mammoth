@@ -79,3 +79,93 @@ select { background: var(--input-bg); color: var(--text); border: 1px solid var(
   .mobile-only { display: block !important; }
   .desktop-only { display: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════
+   TASK-015 — Mobile Responsiveness
+   ══════════════════════════════════════════════════════ */
+
+/* Prevent horizontal scroll globally */
+html, body { overflow-x: hidden; max-width: 100vw; }
+
+@media (max-width: 767px) {
+  /* ── Nav bar ── */
+  /* Hide the redundant LAUNCH button in the nav (hero has its own) */
+  .nav-launch-btn { display: none !important; }
+  /* ThemeToggle: hide text label, keep toggle switch */
+  .theme-label { display: none !important; }
+  .theme-toggle { padding: 5px 8px 5px 6px !important; }
+
+  /* ── Stats bar: 2×2 grid on mobile ── */
+  .stats-bar-inner { flex-wrap: wrap !important; }
+  .stats-bar-item { flex: 1 1 calc(50% - 6px) !important; min-width: 0 !important; }
+
+  /* ── Launch Wizard modal: slide up from bottom ── */
+  .launch-modal-overlay { padding: 0 !important; align-items: flex-end !important; }
+  .launch-modal-card {
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 95vh !important;
+  }
+
+  /* ── Cycle Dashboard modals: slide up from bottom ── */
+  .cycle-dash-overlay { padding: 0 !important; align-items: flex-end !important; }
+  .cycle-dash-card {
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 92vh !important;
+  }
+  .cycle-manager-overlay { padding: 0 !important; align-items: flex-end !important; }
+  .cycle-manager-card {
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 92vh !important;
+  }
+
+  /* ── Open Cycle Confirm modal: slide up from bottom ── */
+  .open-cycle-overlay { padding: 0 !important; align-items: flex-end !important; }
+  .open-cycle-card {
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 95vh !important;
+  }
+
+  /* ── New Cycle page: single column ── */
+  .new-cycle-grid { grid-template-columns: 1fr !important; }
+  .new-cycle-preview { position: static !important; top: auto !important; }
+
+  /* ── BPS split: stack to single column ── */
+  .bps-grid { grid-template-columns: 1fr 1fr 1fr !important; }
+
+  /* ── Project Detail: header name area wraps ── */
+  .detail-header-left { min-width: 0 !important; overflow: hidden !important; }
+  .detail-header-name-row { flex-wrap: nowrap !important; }
+
+  /* ── Token card grid: single column at mobile ── */
+  .token-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Minimum touch targets ──
+     Applied per-component via inline minHeight to avoid breaking compact UI elements */
+
+  /* ── BPS Split Editor ── */
+  .bps-grid-inner { gap: 6px !important; }
+
+  /* ── Creator project expanded stats: 2 col on mobile ── */
+  .creator-project-stats { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── Cycle stats panel grid ── */
+  .cycle-panel-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── About tab details grid: full width ── */
+  .about-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Tokenomics cycle history grid ── */
+  .cycles-history-grid { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* Extra-small phones (375px) */
+@media (max-width: 420px) {
+  /* Curve type buttons: 3 still fits, keep */
+  /* Cycle panel grid: keep 2 col */
+  /* Stats bar items text: prevent overflow */
+  .stats-bar-item { padding: 8px 2px !important; }
+}

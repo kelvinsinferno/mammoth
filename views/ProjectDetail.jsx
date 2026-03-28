@@ -30,7 +30,7 @@ function CyclePanelDetail({ cycle }) {
           <div style={{ height:'100%', width:`${pct}%`, background:cycle.status==='ACTIVE'?'linear-gradient(90deg,#7C3AED,#8B5CF6,#22D3EE)':'var(--bar-empty)', borderRadius:3 }}/>
         </div>
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:cycle.nextStepIn?12:0 }}>
+      <div className="cycle-panel-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:cycle.nextStepIn?12:0 }}>
         {[['Curve',cycle.curveType+' 🔥'],['Current price',`${cycle.currentPrice.toFixed(5)} SOL`,'#22D3EE'],['Remaining',`${(cycle.allocation-cycle.sold).toLocaleString()}`],cycle.nextStepPrice&&['Next step',`${cycle.nextStepPrice.toFixed(5)} SOL`]].filter(Boolean).map(([l,v],i) => (
           <div key={i} style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'9px 11px' }}>
             <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>{l}</div>
@@ -222,14 +222,14 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:6, marginBottom:12 }}>
         {PRESETS.map(v => (
           <button key={v} onClick={() => !isProcessing && setSol(String(v))}
-            style={{ background:sol===String(v)?'rgba(139,92,246,0.18)':'var(--panel-alt)', border:`1px solid ${sol===String(v)?'#7C3AED':'var(--border)'}`, borderRadius:5, padding:'7px 0', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:sol===String(v)?'#22D3EE':'var(--text-dim)', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1 }}>
+            style={{ background:sol===String(v)?'rgba(139,92,246,0.18)':'var(--panel-alt)', border:`1px solid ${sol===String(v)?'#7C3AED':'var(--border)'}`, borderRadius:5, padding:'7px 0', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:sol===String(v)?'#22D3EE':'var(--text-dim)', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:44 }}>
             {v} SOL
           </button>
         ))}
       </div>
       <div style={{ position:'relative', marginBottom:12 }}>
         <input type="number" value={sol} onChange={e => !isProcessing && setSol(e.target.value)} placeholder="0.00" disabled={isProcessing}
-          style={{ width:'100%', background:'var(--panel-alt)', border:`1px solid ${hasError?'#F43F5E':'var(--border)'}`, borderRadius:6, padding:'12px 52px 12px 14px', color:'var(--text)', fontSize:16, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1 }}/>
+          style={{ width:'100%', background:'var(--panel-alt)', border:`1px solid ${hasError?'#F43F5E':'var(--border)'}`, borderRadius:6, padding:'12px 52px 12px 14px', color:'var(--text)', fontSize:16, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1, boxSizing:'border-box', minHeight:44 }}/>
         <span style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', fontFamily:"'IBM Plex Mono',monospace", fontSize:13, color:'var(--text-dim)', fontWeight:600 }}>SOL</span>
       </div>
       {quote && solNum > 0 && (
@@ -256,7 +256,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         </div>
       )}
       <button onClick={txState==='error'?handleReset:handleBuy} disabled={isProcessing||(txState==='idle'&&(!walletConnected?false:!canSubmit))}
-        style={{ width:'100%', padding:'13px 0', borderRadius:7, border:txState==='error'?'1px solid rgba(248,113,113,0.3)':'none', background:txState==='error'?'rgba(248,113,113,0.12)':isProcessing?'#2d1f7a':(!walletConnected||solNum>0)&&!hasError?'#8B5CF6':'var(--border)', color:txState==='error'?'#F43F5E':isProcessing?'var(--text-dim)':(!walletConnected||solNum>0)&&!hasError?'#fff':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:14, cursor:isProcessing?'not-allowed':'pointer', letterSpacing:'0.05em', transition:'all 0.15s' }}>
+        style={{ width:'100%', padding:'13px 0', borderRadius:7, border:txState==='error'?'1px solid rgba(248,113,113,0.3)':'none', background:txState==='error'?'rgba(248,113,113,0.12)':isProcessing?'#2d1f7a':(!walletConnected||solNum>0)&&!hasError?'#8B5CF6':'var(--border)', color:txState==='error'?'#F43F5E':isProcessing?'var(--text-dim)':(!walletConnected||solNum>0)&&!hasError?'#fff':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:14, cursor:isProcessing?'not-allowed':'pointer', letterSpacing:'0.05em', transition:'all 0.15s', minHeight:48 }}>
         {btnLabel}
       </button>
       <div style={{ marginTop:10, fontSize:10, color:'#1a2240', fontFamily:"'IBM Plex Mono',monospace", textAlign:'center' }}>{slippage}% slippage · 2% Mammoth fee · no custody</div>
@@ -272,19 +272,21 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
   return (
     <div style={{ minHeight:'100vh', background:'var(--page-bg)', color:'var(--text)' }}>
       <header style={{ background:'var(--header-bg)', backdropFilter:'blur(20px)', borderBottom:'1px solid var(--header-border)', position:'sticky', top:0, zIndex:50, boxShadow:'var(--header-shadow)' }}>
-        <div style={{ maxWidth:960, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-            <button onClick={onBack} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer', fontSize:18, lineHeight:1, padding:'4px 6px 4px 0' }}>←</button>
-            <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
-              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>{p.name}</span>
-              <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'2px 7px' }}>${p.ticker}</span>
-              {p.status==='ACTIVE' && <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:10, fontWeight:600, fontFamily:"'IBM Plex Mono',monospace", padding:'2px 8px', borderRadius:4, background:'rgba(139,92,246,0.13)', color:'#22D3EE', border:'1px solid rgba(139,92,246,0.28)' }}>
+        <div style={{ maxWidth:960, margin:'0 auto', padding:'0 16px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, minWidth:0 }}>
+          <div className="detail-header-left" style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flex:1, overflow:'hidden' }}>
+            <button onClick={onBack} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer', fontSize:18, lineHeight:1, padding:'4px 6px 4px 0', flexShrink:0, minWidth:28, minHeight:44, display:'flex', alignItems:'center' }}>←</button>
+            <div className="detail-header-name-row" style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'nowrap', overflow:'hidden', minWidth:0 }}>
+              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</span>
+              <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'2px 7px', flexShrink:0 }}>${p.ticker}</span>
+              {p.status==='ACTIVE' && <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:10, fontWeight:600, fontFamily:"'IBM Plex Mono',monospace", padding:'2px 8px', borderRadius:4, background:'rgba(139,92,246,0.13)', color:'#22D3EE', border:'1px solid rgba(139,92,246,0.28)', flexShrink:0 }}>
                 <span style={{ width:4, height:4, borderRadius:'50%', background:'#8B5CF6', display:'inline-block', animation:'blink 2s ease-in-out infinite' }}/>OPEN</span>}
-              {(p.status==='BETWEEN' || p.status==='CLOSED') && <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:10, fontWeight:600, fontFamily:"'IBM Plex Mono',monospace", padding:'2px 8px', borderRadius:4, background:'rgba(255,159,28,0.10)', color:'#FF9F1C', border:'1px solid rgba(255,159,28,0.28)' }}>BETWEEN</span>}
+              {(p.status==='BETWEEN' || p.status==='CLOSED') && <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:10, fontWeight:600, fontFamily:"'IBM Plex Mono',monospace", padding:'2px 8px', borderRadius:4, background:'rgba(255,159,28,0.10)', color:'#FF9F1C', border:'1px solid rgba(255,159,28,0.28)', flexShrink:0 }}>BETWEEN</span>}
             </div>
           </div>
-          <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
-          <WalletButton walletState={walletState} onOpenModal={onOpenModal} onDisconnect={onDisconnect}/>
+          <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
+            <ThemeToggle theme={theme} onToggle={onToggleTheme}/>
+            <WalletButton walletState={walletState} onOpenModal={onOpenModal} onDisconnect={onDisconnect}/>
+          </div>
         </div>
       </header>
 
@@ -331,10 +333,10 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
         </div>
 
         <div style={{ marginTop:32, animation:'fadeUp 0.3s ease 0.1s both' }}>
-          <div style={{ display:'flex', gap:0, borderBottom:'1px solid #1d2540', marginBottom:20, overflowX:'auto', scrollbarWidth:'none' }}>
+          <div style={{ display:'flex', gap:0, borderBottom:'1px solid #1d2540', marginBottom:20, overflowX:'auto', scrollbarWidth:'none', WebkitOverflowScrolling:'touch' }}>
             {TABS.map(t => (
               <button key={t} onClick={() => setTab(t)}
-                style={{ background:'none', border:'none', cursor:'pointer', padding:'10px 16px', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', color:tab===t?'#22D3EE':'var(--text-muted)', borderBottom:`2px solid ${tab===t?'#8B5CF6':'transparent'}`, transition:'all 0.13s', whiteSpace:'nowrap', flexShrink:0 }}>
+                style={{ background:'none', border:'none', cursor:'pointer', padding:'10px 16px', fontFamily:"'IBM Plex Mono',monospace", fontSize:12, fontWeight:500, letterSpacing:'0.04em', color:tab===t?'#22D3EE':'var(--text-muted)', borderBottom:`2px solid ${tab===t?'#8B5CF6':'transparent'}`, transition:'all 0.13s', whiteSpace:'nowrap', flexShrink:0, minHeight:44 }}>
                 {t.toUpperCase()}
               </button>
             ))}
@@ -343,7 +345,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
           {tab==='About' && (
             <div>
               <p style={{ fontSize:14, color:'var(--text-secondary)', lineHeight:1.75, fontFamily:"'Space Grotesk',sans-serif", marginBottom:20 }}>{p.description}</p>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+              <div className="about-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 {[['Creator',p.creator],['Launched',p.createdAt],['Supply mode',p.supplyMode],['Hard cap',p.hardCap?'Yes — final':'No']].map(([k,v],i) => (
                   <div key={i} style={{ background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:6, padding:'10px 12px' }}>
                     <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:4 }}>{k}</div>
@@ -380,7 +382,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
                     <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)' }}>Cycle #{c.id}</span>
                     <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:600, color:c.status==='COMPLETED'?'#22D3EE':c.status==='ACTIVE'?'#8B5CF6':'var(--text-muted)' }}>{c.status}</span>
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
+                  <div className="cycles-history-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
                     {[['Allocation',`${(c.allocation/1000).toFixed(0)}K`],['Raised',c.raised],['Price range',c.priceRange]].map(([k,v],i) => (
                       <div key={i}>
                         <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:3 }}>{k}</div>

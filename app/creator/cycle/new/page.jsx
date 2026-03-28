@@ -159,7 +159,7 @@ function BpsSplit({ creator, reserve, sink, onChange }) {
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+      <div className="bps-grid-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
         {[
           { label: 'Creator', key: 'creator', val: creator, handler: handleCreator, desc: 'To your wallet' },
           { label: 'Reserve', key: 'reserve', val: reserve, handler: handleReserve, desc: 'Protocol reserve' },
@@ -316,7 +316,7 @@ export default function NewCyclePage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '28px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div className="new-cycle-grid" style={{ maxWidth: 720, margin: '0 auto', padding: '28px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
 
         {/* ── LEFT COLUMN: Form ─────────────────────────────────── */}
         <div>
@@ -422,7 +422,7 @@ export default function NewCyclePage() {
         </div>
 
         {/* ── RIGHT COLUMN: Live preview ────────────────────────── */}
-        <div style={{ position: 'sticky', top: 80, alignSelf: 'start' }}>
+        <div className="new-cycle-preview" style={{ position: 'sticky', top: 80, alignSelf: 'start' }}>
           <div style={{ background: 'var(--panel)', border: '1px solid #252848', borderRadius: 12, padding: '20px', marginBottom: 16 }}>
             <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 14 }}>Live preview</div>
 
