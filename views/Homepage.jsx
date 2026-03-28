@@ -48,11 +48,14 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
             </svg>
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, letterSpacing:'-0.02em', background:'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Mammoth</span>
           </div>
-          <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+          <div style={{ display:'flex', gap:6, alignItems:'center' }}>
             <span className="nav-theme-toggle"><ThemeToggle theme={theme} onToggle={onToggleTheme}/></span>
-            <button onClick={onLaunch} className="nav-launch-btn" style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, cursor:'pointer', fontWeight:700, letterSpacing:'0.04em', transition:'all 0.15s' }}
+            <button onClick={onLaunch} className="nav-launch-btn" style={{ background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(34,211,238,0.08))', border:'1px solid rgba(139,92,246,0.4)', color:'#A78BFA', borderRadius:6, cursor:'pointer', fontWeight:700, transition:'all 0.15s', display:'flex', alignItems:'center', minHeight:36, flexShrink:0 }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow='0 0 16px rgba(139,92,246,0.4)'; e.currentTarget.style.color='#22D3EE'; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.color='#A78BFA'; }}>LAUNCH</button>
+              onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.color='#A78BFA'; }}>
+              <span className="nav-launch-text" style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, letterSpacing:'0.04em', padding:'6px 14px' }}>LAUNCH</span>
+              <span className="nav-launch-icon" style={{ display:'none', fontSize:16, padding:'0 10px', lineHeight:1 }}>🚀</span>
+            </button>
             <WalletButton walletState={walletState} onOpenModal={onOpenModal} onDisconnect={onDisconnect}/>
           </div>
         </div>
