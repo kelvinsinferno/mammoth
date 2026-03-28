@@ -1,0 +1,217 @@
+MAMMOTH PROTOCOL — RISK DISCLOSURE
+Last Updated: March 28, 2026
+DRAFT — For Attorney Review Prior to Publication
+
+================================================================================
+
+PLEASE READ THIS RISK DISCLOSURE CAREFULLY. IT DESCRIBES MATERIAL RISKS
+ASSOCIATED WITH USING MAMMOTH PROTOCOL. THIS IS NOT AN EXHAUSTIVE LIST.
+BY USING THE PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THESE
+RISKS AND ACCEPT THEM IN FULL.
+
+================================================================================
+
+1. YOU CAN LOSE EVERYTHING
+
+Participation in token launches, purchases, or any activity on Mammoth Protocol
+may result in the total and permanent loss of all funds involved. Cryptocurrency
+and token markets are highly volatile. There is no guarantee that any token will
+retain any value. Do not invest more than you can afford to lose entirely.
+
+================================================================================
+
+2. SMART CONTRACT RISK
+
+Mammoth Protocol operates through smart contracts deployed on the Solana
+blockchain. Smart contracts may contain bugs, errors, or vulnerabilities that
+are not apparent even after code review or audit. Such vulnerabilities could be
+exploited by malicious actors, resulting in partial or total loss of funds held
+in or interacting with those contracts.
+
+The Company does not guarantee that its smart contracts are free from
+vulnerabilities. No smart contract audit constitutes a guarantee of security.
+Past security does not guarantee future security.
+
+================================================================================
+
+3. BLOCKCHAIN NETWORK RISK
+
+The Solana blockchain, like all blockchain networks, may experience:
+(a) Network outages, downtime, or degraded performance
+(b) Congestion that delays or prevents transaction confirmation
+(c) Protocol upgrades, hard forks, or consensus failures
+(d) Validator failures or collusion
+
+Any of these events could affect your ability to transact, exercise rights, or
+access your tokens. The Company has no control over the Solana network.
+
+================================================================================
+
+4. TRANSACTION IRREVERSIBILITY
+
+All transactions on the Solana blockchain are irreversible once confirmed.
+This includes token purchases, rights exercises, cycle activations, and treasury
+distributions. There is no mechanism to cancel, reverse, or recover a confirmed
+transaction. Verify all transaction parameters carefully before signing.
+
+================================================================================
+
+5. SCHEDULED LAUNCH AND TIME-LOCK RISK
+
+When a creator deploys a token with a scheduled launch time, that time is
+encoded immutably in the smart contract. The launch will occur at the specified
+time regardless of market conditions, creator intent, or any other factor.
+Neither the creator nor the Company can delay, cancel, or modify a scheduled
+launch once the transaction is signed. Creators should carefully consider timing
+before committing to a scheduled launch.
+
+================================================================================
+
+6. RIGHTS WINDOW RISK
+
+Rights-based anti-dilution windows are time-limited. If you fail to exercise
+your rights within the designated window, those rights will expire permanently.
+You will not be able to exercise expired rights, and the Company has no ability
+to restore them. Monitor active cycles and rights windows carefully.
+
+================================================================================
+
+7. TOKEN VALUE RISK
+
+Tokens created on Mammoth Protocol:
+(a) Have no intrinsic value guaranteed by any person, entity, or asset.
+(b) Are not backed by any government, central bank, or reserve.
+(c) May have no utility beyond the Platform or ecosystem in which they are used.
+(d) May trade at any price determined by market participants, including zero.
+(e) May be subject to extreme price volatility at any time.
+
+Bonding curve price projections displayed on the Platform are mathematical
+models, not guarantees or predictions of future price.
+
+================================================================================
+
+8. LIQUIDITY RISK
+
+Tokens created on Mammoth Protocol may have limited or no secondary market
+liquidity. You may be unable to sell your tokens at any price, or at all,
+particularly between cycles or for newly launched tokens with limited adoption.
+The existence of a Jupiter deeplink does not guarantee liquidity or a market.
+
+================================================================================
+
+9. REGULATORY RISK
+
+The regulatory environment for cryptocurrency and digital tokens is rapidly
+evolving and uncertain. Regulatory action by governments or agencies including
+but not limited to the SEC, CFTC, FinCEN, or equivalent international bodies
+could:
+(a) Classify tokens as securities, commodities, or other regulated instruments.
+(b) Restrict or prohibit your ability to hold, trade, or use tokens.
+(c) Result in enforcement actions, fines, or asset freezes.
+(d) Require the Platform to cease operations in certain jurisdictions.
+
+The Company makes no representation as to the regulatory status of any token
+on the Platform. You are responsible for your own regulatory compliance.
+
+================================================================================
+
+10. CREATOR RISK
+
+Tokens on Mammoth Protocol are created by independent third parties, not by the
+Company. The Company does not:
+(a) Vet, endorse, or verify token creators or their projects.
+(b) Guarantee that creators will open future cycles, continue development, or
+    fulfill any stated goals or roadmap.
+(c) Have any recourse against creators who abandon projects or act in bad faith.
+
+Purchasing a token does not establish any contractual relationship between you
+and the creator beyond what is encoded in the smart contract. Cycle parameters
+are set by creators and are immutable once deployed. Creators may terminate
+cycles early, choose not to open future cycles, or set hard caps at any time.
+
+================================================================================
+
+11. TREASURY DISTRIBUTION RISK
+
+Treasury routing parameters are set by creators at cycle creation and are
+immutable. The Company does not control how creators configure treasury splits.
+There is no escrow, lock-up, or vesting requirement on creator treasury
+distributions. A creator may receive their treasury allocation immediately upon
+cycle close.
+
+================================================================================
+
+12. PROTOCOL FEE RISK
+
+Mammoth Protocol charges a 2% fee on trades routed through the Mammoth
+interface. This fee is non-refundable and is deducted automatically. The Company
+reserves the right to modify fee structures, which could affect the economics
+of token purchases.
+
+================================================================================
+
+13. THIRD-PARTY INTEGRATION RISK
+
+The Platform integrates with third-party services including Jupiter Protocol,
+Solana RPC providers, and wallet applications. Failures, vulnerabilities, or
+changes in these third-party services could affect Platform functionality.
+The Company is not responsible for losses arising from third-party service
+failures.
+
+================================================================================
+
+14. CYBERSECURITY RISK
+
+The Platform and its infrastructure may be targeted by hackers, phishing
+attacks, or other malicious actors. While the Company implements security
+measures, no system is completely secure. You are responsible for securing
+your own wallet credentials and private keys. The Company will never ask for
+your seed phrase or private keys.
+
+================================================================================
+
+15. NO INSURANCE
+
+Cryptocurrency assets, including tokens on Mammoth Protocol, are not covered
+by any government deposit insurance scheme (such as FDIC or SIPC in the United
+States) or any private insurance arrangement provided by the Company.
+
+================================================================================
+
+16. EXPERIMENTAL TECHNOLOGY
+
+Mammoth Protocol is built on experimental technology. The Solana blockchain,
+SPL token standard, and the Mammoth smart contracts are all relatively new and
+may behave in unexpected ways. Features may change, fail, or be deprecated.
+The Platform is currently operating on Solana Devnet (test network) and will
+transition to Mainnet. Behavior on Mainnet may differ from Devnet.
+
+================================================================================
+
+17. TAX RISK
+
+Cryptocurrency transactions may be taxable events in your jurisdiction. Buying,
+selling, or receiving tokens may trigger capital gains, income tax, or other tax
+obligations. The Company does not provide tax advice. You are solely responsible
+for determining and meeting your own tax obligations.
+
+================================================================================
+
+BY USING MAMMOTH PROTOCOL, YOU CONFIRM THAT:
+- You have read and understood this Risk Disclosure.
+- You accept all risks described herein and any other risks not listed.
+- You are using the Platform voluntarily and at your own risk.
+- You are financially and technically capable of bearing these risks.
+- You are not relying on the Company for financial, legal, or tax advice.
+
+================================================================================
+
+ATTORNEY REVIEW NOTES:
+- Consider adding jurisdiction-specific risk warnings for target markets
+- Review whether the scheduled launch risk disclosure is sufficient for
+  the irreversibility claim in the ToS
+- Assess whether additional CFTC/SEC risk language is warranted given
+  the bonding curve mechanics
+- Consider whether a clickthrough acknowledgment is required at time of
+  purchase or token creation
+================================================================================

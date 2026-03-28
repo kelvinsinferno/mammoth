@@ -1,0 +1,33 @@
+'use client';
+import LegalPage from '../../components/LegalPage';
+
+const SECTIONS = [
+  { title: 'Acceptance of Terms', body: `These Terms of Service ("Terms") constitute a legally binding agreement between you ("User") and Kelvinsinferno Studio LLC ("Company"), the operator of Mammoth Protocol, accessible at mammoth-protocol.vercel.app.\n\nBy connecting a wallet, accessing, or using the Platform in any capacity, you confirm that you are at least 18 years of age, have the legal capacity to enter into binding agreements in your jurisdiction, are not a resident of any jurisdiction where such use is prohibited by law, and have read and agree to these Terms in their entirety.` },
+  { title: 'Description of Services', body: `Mammoth Protocol is a permissionless smart contract infrastructure deployed on the Solana blockchain. The Platform enables token deployment with configurable supply parameters and bonding curves, cycle-based fundraising, rights-based anti-dilution for existing holders, and navigation to third-party decentralized exchanges for secondary trading.\n\nThe Company does not control, endorse, or take responsibility for any tokens created, listed, or traded on the Platform. The Company is a protocol provider, not a broker, dealer, exchange, financial institution, or investment adviser.` },
+  { title: 'No Financial Advice', body: `NOTHING ON THIS PLATFORM CONSTITUTES FINANCIAL, INVESTMENT, LEGAL, TAX, OR ANY OTHER PROFESSIONAL ADVICE.\n\nAll information provided is for informational and educational purposes only. Token prices, valuations, and bonding curve projections are not predictions, guarantees, or recommendations. You should consult a qualified financial adviser before making any investment decisions.` },
+  { title: 'No Securities Offering', body: `The Company does not represent that any token created or facilitated through Mammoth Protocol constitutes a security, investment contract, or regulated financial instrument under the laws of any jurisdiction. Token creators are solely responsible for ensuring their tokens comply with applicable securities laws.\n\nYou acknowledge that regulatory classification is uncertain and may vary by jurisdiction. You assume full responsibility for your own legal compliance.` },
+  { title: 'Restricted Jurisdictions', body: `The Platform is not available to residents or citizens of the United States, its territories, or any jurisdiction where use would violate applicable law, including OFAC-sanctioned jurisdictions. By using the Platform, you represent you are not in any restricted category. The Company reserves the right to restrict access from any jurisdiction at any time without notice.` },
+  { title: 'Wallet Connectivity and Self-Custody', body: `The Platform interfaces with non-custodial wallets including Phantom and Solflare. The Company does not custody, control, or have access to any funds, tokens, or private keys. The Company has no ability to reverse, cancel, or modify any on-chain transaction once confirmed.\n\nYou are solely responsible for the security of your private keys and wallet credentials. Loss of private keys results in permanent loss of access to associated assets.` },
+  { title: 'Smart Contract Risks', body: `Smart contracts may contain bugs, vulnerabilities, or exploits that could result in partial or total loss of funds. Blockchain networks may experience downtime, forks, or technical issues. All on-chain transactions are irreversible once confirmed.\n\nToken supply parameters, treasury routing, and launch timing set by creators are immutable once deployed. The Company has no ability to modify deployed contracts.` },
+  { title: 'Fees', body: `The Protocol charges a 2% fee on trades routed through the Mammoth interface. This fee is automatically deducted at the smart contract level and is non-refundable. The Company reserves the right to modify fee structures with reasonable notice through an updated version of these Terms.` },
+  { title: 'Prohibited Conduct', body: `You agree not to create or promote tokens designed to defraud or mislead other users, engage in market manipulation or wash trading, violate any applicable law, attempt to exploit or hack the Platform's smart contracts, impersonate the Company or other users, or create tokens that infringe on third-party intellectual property.` },
+  { title: 'Disclaimer of Warranties', body: `THE PLATFORM IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF ANY KIND. THE COMPANY DISCLAIMS ALL WARRANTIES INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND ACCURACY. THE COMPANY DOES NOT WARRANT THAT THE PLATFORM WILL BE UNINTERRUPTED OR ERROR-FREE.` },
+  { title: 'Limitation of Liability', body: `TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COMPANY SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFIT, REVENUE, DATA, OR CRYPTOCURRENCY.\n\nIn no event shall the Company's total liability exceed the amount of fees paid by you in the three months preceding the claim, or $100 USD, whichever is less.` },
+  { title: 'Indemnification', body: `You agree to indemnify and hold harmless the Company and its affiliates, officers, directors, employees, and agents from any claims, liabilities, damages, and expenses arising out of or connected with your use of the Platform, your violation of these Terms, or your violation of any law or the rights of any third party.` },
+  { title: 'Dispute Resolution', body: `Any dispute arising out of these Terms shall be resolved by binding arbitration under AAA Commercial Arbitration Rules in Cheyenne, Wyoming. The arbitrator's decision shall be final and binding.\n\nYOU WAIVE YOUR RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE ARBITRATION.` },
+  { title: 'Governing Law', body: `These Terms shall be governed by and construed in accordance with the laws of the State of Wyoming, without regard to its conflict of law provisions.` },
+  { title: 'Modifications', body: `The Company reserves the right to modify these Terms at any time. Changes are effective upon posting. Your continued use of the Platform after changes are posted constitutes your acceptance of the revised Terms.` },
+  { title: 'Contact', body: `For legal notices or questions regarding these Terms:\nKelvinsinferno Studio LLC\nlegal@mammoth-protocol.io` },
+];
+
+export default function TermsPage() {
+  return (
+    <LegalPage
+      title="Terms of Service"
+      subtitle="Last Updated: March 28, 2026 · Draft — Subject to Attorney Review"
+      icon="⚖️"
+      warning="THESE TERMS CONTAIN IMPORTANT LIMITATIONS ON LIABILITY AND A BINDING ARBITRATION CLAUSE. PLEASE READ CAREFULLY."
+      sections={SECTIONS}
+    />
+  );
+}

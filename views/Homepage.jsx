@@ -199,8 +199,17 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         )}
 
         <div style={{ marginTop:44, paddingTop:20, borderTop:'1px solid #1a2438', textAlign:'center' }}>
-          <div style={{ fontSize:11, color:'var(--bar-empty)', fontFamily:"'IBM Plex Mono',monospace", lineHeight:1.9 }}>
+          <div style={{ fontSize:11, color:'var(--bar-empty)', fontFamily:"'IBM Plex Mono',monospace", lineHeight:1.9, marginBottom:12 }}>
             Mammoth Protocol · permissionless issuance · 2% fee on Mammoth-routed trades<br/>not a curator · not a guarantor · not financial advice
+          </div>
+          <div style={{ display:'flex', gap:16, justifyContent:'center', flexWrap:'wrap' }}>
+            {[['/terms','Terms of Service'],['/privacy','Privacy Policy'],['/risk','Risk Disclosure'],['/learn','Learn']].map(([href, label]) => (
+              <a key={href} href={href} style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', textDecoration:'none', transition:'color 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.color='#A78BFA'}
+                onMouseLeave={e => e.currentTarget.style.color='var(--text-muted)'}>
+                {label}
+              </a>
+            ))}
           </div>
         </div>
       </main>

@@ -1,0 +1,263 @@
+MAMMOTH PROTOCOL — TERMS OF SERVICE
+Last Updated: March 28, 2026
+DRAFT — For Attorney Review Prior to Publication
+
+================================================================================
+
+IMPORTANT NOTICE: PLEASE READ THESE TERMS OF SERVICE CAREFULLY BEFORE USING
+MAMMOTH PROTOCOL. BY ACCESSING OR USING THE PLATFORM, YOU AGREE TO BE BOUND BY
+THESE TERMS. IF YOU DO NOT AGREE, DO NOT USE THE PLATFORM.
+
+================================================================================
+
+1. ACCEPTANCE OF TERMS
+
+These Terms of Service ("Terms") constitute a legally binding agreement between
+you ("User," "you," "your") and Kelvinsinferno Studio LLC ("Company," "we," "us,"
+"our"), the operator of Mammoth Protocol ("Platform," "Mammoth," "the Protocol"),
+accessible at mammoth-protocol.vercel.app and any associated domains.
+
+By connecting a wallet, accessing, or using the Platform in any capacity, you
+confirm that:
+(a) You are at least 18 years of age and have the legal capacity to enter into
+    binding agreements in your jurisdiction.
+(b) You are not a resident of, or accessing the Platform from, any jurisdiction
+    where such use is prohibited or restricted by law, including but not limited
+    to the United States, its territories, or any OFAC-sanctioned jurisdiction.
+(c) You have read, understood, and agree to these Terms in their entirety.
+
+================================================================================
+
+2. DESCRIPTION OF SERVICES
+
+Mammoth Protocol is a permissionless smart contract infrastructure deployed on
+the Solana blockchain. The Platform enables:
+
+(a) Token Deployment: Users may deploy custom SPL tokens with configurable
+    supply parameters, bonding curves, and treasury routing.
+(b) Cycle-Based Issuance: Token creators may conduct bounded fundraising cycles
+    through the Protocol's cycle management system.
+(c) Rights-Based Anti-Dilution: Existing token holders may exercise pro-rata
+    rights during designated windows before new cycles open to the public.
+(d) Secondary Market Navigation: The Platform provides navigation to third-party
+    decentralized exchanges for secondary trading of tokens.
+
+The Company does not control, endorse, or take responsibility for any tokens
+created, listed, or traded on the Platform. The Company is a protocol provider,
+not a broker, dealer, exchange, financial institution, or investment adviser.
+
+================================================================================
+
+3. NO FINANCIAL ADVICE
+
+NOTHING ON THIS PLATFORM CONSTITUTES FINANCIAL, INVESTMENT, LEGAL, TAX, OR
+ANY OTHER PROFESSIONAL ADVICE.
+
+All information provided on or through the Platform is for informational and
+educational purposes only. Token prices, valuations, bonding curve projections,
+and any other financial information displayed are not predictions, guarantees, or
+recommendations. You should consult a qualified financial adviser before making
+any investment decisions. The Company expressly disclaims any liability arising
+from your reliance on any information provided on the Platform.
+
+================================================================================
+
+4. NO SECURITIES OFFERING
+
+The Company does not represent that any token created, listed, or facilitated
+through Mammoth Protocol constitutes a security, investment contract, or any
+regulated financial instrument under the laws of any jurisdiction. Token creators
+are solely responsible for ensuring that any tokens they deploy comply with
+applicable securities laws in their jurisdiction.
+
+The Company makes no representation as to whether any token on the Platform
+would or would not be classified as a security by any regulatory authority. You
+acknowledge that regulatory classification is uncertain and may vary by
+jurisdiction. You assume full responsibility for your own legal compliance.
+
+================================================================================
+
+5. ELIGIBILITY AND RESTRICTED JURISDICTIONS
+
+The Platform is not available to:
+(a) Residents or citizens of the United States, its territories, or possessions.
+(b) Residents or citizens of any jurisdiction where use of the Platform would
+    violate applicable law, including but not limited to jurisdictions subject to
+    OFAC sanctions.
+(c) Any person or entity listed on any sanctions list maintained by OFAC, the
+    United Nations, the European Union, or any other governmental authority.
+
+By using the Platform, you represent and warrant that you are not in any of the
+above categories. The Company reserves the right to restrict access from any
+jurisdiction at any time without notice.
+
+================================================================================
+
+6. WALLET CONNECTIVITY AND SELF-CUSTODY
+
+The Platform interfaces with non-custodial cryptocurrency wallets (including
+Phantom and Solflare). The Company does not:
+(a) Custody, control, or have access to any funds, tokens, or private keys.
+(b) Have the ability to reverse, cancel, or modify any on-chain transaction once
+    confirmed.
+(c) Provide any warranty regarding wallet compatibility, security, or
+    functionality.
+
+You are solely responsible for the security of your private keys, seed phrases,
+and wallet credentials. Loss of private keys results in permanent loss of access
+to associated assets. The Company has no ability to recover lost keys or funds.
+
+================================================================================
+
+7. SMART CONTRACT RISKS
+
+Mammoth Protocol operates through smart contracts deployed on the Solana
+blockchain. You acknowledge and accept the following risks:
+
+(a) Smart contracts may contain bugs, vulnerabilities, or exploits that could
+    result in partial or total loss of funds.
+(b) Blockchain networks may experience downtime, forks, congestion, or other
+    technical issues that affect transactions.
+(c) On-chain transactions are irreversible. Once confirmed, transactions cannot
+    be cancelled, reversed, or modified by any party.
+(d) The Company has not represented that its smart contracts have been audited
+    by any third party. No audit guarantees freedom from vulnerabilities.
+(e) Token supply parameters, treasury routing, and launch timing set by creators
+    are immutable once deployed. The Company has no ability to modify deployed
+    contracts.
+
+================================================================================
+
+8. FEES
+
+The Protocol charges a 2% fee on trades routed through the Mammoth interface.
+This fee is automatically deducted at the smart contract level. All fees are
+non-refundable. The Company reserves the right to modify fee structures with
+reasonable notice through an updated version of these Terms.
+
+================================================================================
+
+9. PROHIBITED CONDUCT
+
+You agree not to use the Platform to:
+(a) Create, deploy, or promote tokens designed to defraud, mislead, or
+    manipulate other users.
+(b) Engage in market manipulation, wash trading, front-running, or any form of
+    deceptive trading practice.
+(c) Violate any applicable law, including securities law, anti-money laundering
+    regulations, or sanctions requirements.
+(d) Attempt to exploit, hack, or interfere with the Platform's smart contracts
+    or infrastructure.
+(e) Impersonate the Company, its employees, or other users.
+(f) Create tokens that infringe on the intellectual property of any third party.
+
+================================================================================
+
+10. INTELLECTUAL PROPERTY
+
+The Mammoth Protocol brand, visual design, written content, and documentation
+are the intellectual property of the Company. The underlying smart contract code
+may be open-source; refer to the applicable license in the code repository. Your
+use of the Platform does not grant you any license to the Company's intellectual
+property beyond what is necessary to use the Platform as described herein.
+
+================================================================================
+
+11. DISCLAIMER OF WARRANTIES
+
+THE PLATFORM IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED. THE COMPANY DISCLAIMS ALL WARRANTIES INCLUDING BUT
+NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+NON-INFRINGEMENT, AND ACCURACY. THE COMPANY DOES NOT WARRANT THAT THE PLATFORM
+WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.
+
+================================================================================
+
+12. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE COMPANY AND ITS
+AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR:
+
+(a) Any indirect, incidental, special, consequential, or punitive damages.
+(b) Any loss of profit, revenue, data, tokens, cryptocurrency, or goodwill.
+(c) Any loss arising from smart contract vulnerabilities, blockchain failures,
+    or third-party service failures.
+(d) Any loss arising from your reliance on information provided on the Platform.
+
+IN NO EVENT SHALL THE COMPANY'S TOTAL LIABILITY TO YOU EXCEED THE AMOUNT OF
+FEES PAID BY YOU TO THE COMPANY IN THE THREE (3) MONTHS PRECEDING THE EVENT
+GIVING RISE TO THE CLAIM, OR $100 USD, WHICHEVER IS LESS.
+
+================================================================================
+
+13. INDEMNIFICATION
+
+You agree to indemnify, defend, and hold harmless the Company and its affiliates,
+officers, directors, employees, and agents from any claims, liabilities, damages,
+losses, and expenses (including reasonable attorneys' fees) arising out of or
+in any way connected with your use of the Platform, your violation of these Terms,
+or your violation of any law or the rights of any third party.
+
+================================================================================
+
+14. DISPUTE RESOLUTION AND ARBITRATION
+
+Any dispute, controversy, or claim arising out of or relating to these Terms or
+the Platform shall be resolved by binding arbitration administered by the
+American Arbitration Association (AAA) under its Commercial Arbitration Rules.
+Arbitration shall take place in Cheyenne, Wyoming, United States. The arbitrator's
+decision shall be final and binding and may be entered as a judgment in any court
+of competent jurisdiction.
+
+YOU WAIVE YOUR RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE
+ARBITRATION.
+
+================================================================================
+
+15. GOVERNING LAW
+
+These Terms shall be governed by and construed in accordance with the laws of
+the State of Wyoming, without regard to its conflict of law provisions.
+
+================================================================================
+
+16. MODIFICATIONS TO TERMS
+
+The Company reserves the right to modify these Terms at any time. Changes will
+be effective upon posting to the Platform. Your continued use of the Platform
+after changes are posted constitutes your acceptance of the revised Terms.
+
+================================================================================
+
+17. SEVERABILITY
+
+If any provision of these Terms is found to be unenforceable, that provision
+shall be modified to the minimum extent necessary to make it enforceable, and
+the remaining provisions shall continue in full force and effect.
+
+================================================================================
+
+18. ENTIRE AGREEMENT
+
+These Terms, together with the Privacy Policy and Risk Disclosure, constitute
+the entire agreement between you and the Company with respect to the Platform.
+
+================================================================================
+
+19. CONTACT
+
+For legal notices or questions regarding these Terms:
+Kelvinsinferno Studio LLC
+[Registered Address — To Be Added Upon LLC Formation]
+legal@mammoth-protocol.io [Placeholder — To Be Configured]
+
+================================================================================
+
+ATTORNEY REVIEW NOTES:
+- Insert LLC registered address upon formation
+- Confirm Wyoming jurisdiction is appropriate based on actual entity formation
+- Review US person exclusion language for compliance adequacy
+- Assess securities law exposure and update Section 4 accordingly
+- Consider adding a GDPR/CCPA section if EU/California users expected
+- Confirm arbitration clause enforceability in Wyoming
+================================================================================

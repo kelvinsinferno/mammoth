@@ -1,0 +1,161 @@
+MAMMOTH PROTOCOL — PRIVACY POLICY
+Last Updated: March 28, 2026
+DRAFT — For Attorney Review Prior to Publication
+
+================================================================================
+
+This Privacy Policy describes how Kelvinsinferno Studio LLC ("Company," "we,"
+"us," "our") handles information in connection with your use of Mammoth Protocol
+("Platform"), accessible at mammoth-protocol.vercel.app.
+
+================================================================================
+
+1. INFORMATION WE DO NOT COLLECT
+
+Mammoth Protocol is designed to minimize data collection. We do not collect:
+(a) Your name, email address, or other personally identifiable information unless
+    voluntarily provided.
+(b) Your private keys, seed phrases, or wallet credentials. We have no access to
+    these and never will.
+(c) Payment card or bank account information.
+(d) Government-issued ID or KYC documentation (the Platform does not perform KYC
+    at this time).
+
+================================================================================
+
+2. INFORMATION COLLECTED AUTOMATICALLY
+
+When you access the Platform, the following may be collected automatically:
+
+(a) Wallet Address: Your public blockchain wallet address when you connect to
+    the Platform. This is a public identifier visible on the blockchain.
+
+(b) On-Chain Activity: Any transactions you conduct through the Platform are
+    permanently recorded on the Solana blockchain and are publicly visible.
+    The Company does not control this and has no ability to delete it.
+
+(c) Usage Data: Standard web server logs including IP address, browser type,
+    pages visited, and timestamps. This data is used to maintain and improve
+    the Platform and is not sold to third parties.
+
+(d) Browser Storage: We use localStorage to store user preferences such as
+    theme settings and draft token configurations. This data remains on your
+    device and is not transmitted to our servers.
+
+================================================================================
+
+3. HOW WE USE INFORMATION
+
+We use the information described above to:
+(a) Operate and maintain the Platform.
+(b) Monitor for security threats, abuse, or violations of our Terms of Service.
+(c) Improve Platform functionality and user experience.
+(d) Comply with applicable legal obligations.
+
+We do not sell, rent, or trade your information to third parties for marketing
+or advertising purposes.
+
+================================================================================
+
+4. BLOCKCHAIN DATA
+
+You acknowledge that all transactions conducted on the Solana blockchain are
+permanently public. This includes token purchases, sales, wallet balances, and
+any other on-chain activity. The Company has no ability to modify or delete
+blockchain records. Before conducting any transaction, consider that your wallet
+address and activity will be permanently publicly visible.
+
+================================================================================
+
+5. THIRD-PARTY SERVICES
+
+The Platform may link to or integrate with third-party services including:
+(a) Solana RPC providers (for blockchain connectivity)
+(b) Jupiter Protocol (for secondary market navigation)
+(c) Vercel (hosting infrastructure)
+(d) Groq (AI chat functionality, if enabled)
+
+Each third party operates under its own privacy policy. The Company is not
+responsible for the privacy practices of third-party services.
+
+================================================================================
+
+6. COOKIES
+
+The Platform uses minimal browser storage (localStorage) for functional purposes
+such as theme preferences and draft data. We do not use third-party advertising
+cookies or tracking pixels.
+
+================================================================================
+
+7. DATA RETENTION
+
+Usage logs are retained for up to 90 days for security and operational purposes.
+Browser-stored preferences (localStorage) remain on your device until you clear
+your browser data. We have no control over on-chain data, which is permanent.
+
+================================================================================
+
+8. CHILDREN'S PRIVACY
+
+The Platform is not directed at individuals under the age of 18. We do not
+knowingly collect information from anyone under 18. If you believe a minor has
+used the Platform, contact us at the address below.
+
+================================================================================
+
+9. INTERNATIONAL USERS
+
+The Platform is operated from the United States. If you access the Platform from
+outside the United States, your information may be transferred to and processed
+in the United States. By using the Platform, you consent to this transfer.
+
+European Union users: We do not have a legal basis to process personal data of
+EU residents under GDPR at this time, and accordingly the Platform is not
+directed at EU residents. If you are an EU resident, do not use the Platform.
+[Attorney Note: Review if this exclusion is sufficient or if a proper GDPR
+compliance framework is required.]
+
+================================================================================
+
+10. SECURITY
+
+We implement reasonable technical and organizational measures to protect
+information we handle. However, no system is completely secure. We cannot
+guarantee the absolute security of data transmitted to the Platform.
+
+================================================================================
+
+11. YOUR RIGHTS
+
+Depending on your jurisdiction, you may have rights regarding your personal data,
+including the right to access, correct, or delete certain data we hold. To
+exercise any such rights, contact us at the address below. Note that on-chain
+data is beyond our ability to modify or delete.
+
+================================================================================
+
+12. CHANGES TO THIS POLICY
+
+We may update this Privacy Policy from time to time. Changes will be posted on
+the Platform with a revised "Last Updated" date. Continued use of the Platform
+after changes are posted constitutes your acceptance.
+
+================================================================================
+
+13. CONTACT
+
+For privacy-related inquiries:
+Kelvinsinferno Studio LLC
+[Registered Address — To Be Added Upon LLC Formation]
+privacy@mammoth-protocol.io [Placeholder — To Be Configured]
+
+================================================================================
+
+ATTORNEY REVIEW NOTES:
+- Confirm GDPR exclusion approach or implement proper compliance framework
+- Confirm CCPA applicability and add disclosure if California users expected
+- Review Groq data handling practices if AI chat is enabled
+- Confirm Vercel data processing agreement is in place
+- Add cookie consent banner if analytics tracking is added in future
+================================================================================
