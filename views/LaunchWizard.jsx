@@ -35,7 +35,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(() => ({
     name: '', ticker: '', description: '', website: '', twitter: '', discord: '', image: null, imagePreview: null,
-    supplyMode: 'elastic', initialAllocation: 1000000, hardCapSupply: 0, curveType: 'bonding', startPrice: 0.001,
+    supplyMode: 'elastic', initialAllocation: 1000000, hardCapSupply: 0, curveType: 'linear', startPrice: 0.001,
     stepSize: 5000, stepIncrement: 0.00022, creatorAlloc: 10, treasuryAlloc: 15, protocolFee: 2,
     // Pre-fill from draft if provided
     ...(initialData ? {
@@ -45,7 +45,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       supplyMode: initialData.supplyMode || 'elastic',
       initialAllocation: initialData.initialAllocation || 1000000,
       hardCapSupply: initialData.hardCapSupply || 0,
-      curveType: initialData.curveType || 'bonding',
+      curveType: initialData.curveType || 'linear',
       startPrice: initialData.startPrice || 0.001,
       creatorAlloc: initialData.creatorAlloc || 10,
       treasuryAlloc: initialData.treasuryAlloc || 15,
@@ -333,15 +333,66 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
             </div>
             <div style={{ marginBottom:16 }}>
               <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:8, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Bonding curve</label>
-              {['bonding','stepwise'].map(c => (
-                <div key={c} onClick={() => handleChange({ target:{ name:'curveType', value:c } })} style={{ display:'flex', alignItems:'center', padding:'10px 12px', background:formData.curveType===c?'rgba(139,92,246,0.15)':'var(--panel-alt)', border:formData.curveType===c?'1px solid #8B5CF6':'1px solid var(--border)', borderRadius:6, cursor:'pointer', marginBottom:6, transition:'all 0.12s' }}>
-                  <div style={{ width:16, height:16, borderRadius:'50%', border:formData.curveType===c?'4px solid #8B5CF6':'2px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', marginRight:10, flexShrink:0 }}>
-                    {formData.curveType===c && <div style={{ width:6, height:6, borderRadius:'50%', background:'#8B5CF6' }}/>}
+              {[
+                { key:'linear', label:'Linear', color:'#A78BFA', desc:'Price rises smoothly with every token sold. Predictable, no surprises.' },
+                { key:'step',   label:'Step',   color:'#22D3EE', desc:'Price jumps at fixed intervals. Creates urgency — buyers see the next price cliff.' },
+                { key:'exp',    label:'Exp-Lite', color:'#FF9F1C', desc:'Slow start, accelerating finish. Maximum asymmetry for early buyers.' },
+              ].map(c => (
+                <div key={c.key}>
+                  <div onClick={() => handleChange({ target:{ name:'curveType', value:c.key } })}
+                    style={{ display:'flex', alignItems:'center', padding:'10px 12px', background:formData.curveType===c.key?'rgba(139,92,246,0.12)':'var(--panel-alt)', border:formData.curveType===c.key?`1px solid ${c.color}`:'1px solid var(--border)', borderRadius:6, cursor:'pointer', marginBottom: formData.curveType===c.key ? 0 : 6, transition:'all 0.12s', borderBottomLeftRadius: formData.curveType===c.key ? 0 : 6, borderBottomRightRadius: formData.curveType===c.key ? 0 : 6 }}>
+                    <div style={{ width:16, height:16, borderRadius:'50%', border:formData.curveType===c.key?`4px solid ${c.color}`:'2px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', marginRight:10, flexShrink:0 }}>
+                      {formData.curveType===c.key && <div style={{ width:6, height:6, borderRadius:'50%', background:c.color }}/>}
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color: formData.curveType===c.key ? c.color : 'var(--text)' }}>{c.label}</span>
+                      </div>
+                      <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:2 }}>{c.desc}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'var(--text)' }}>{c.charAt(0).toUpperCase()+c.slice(1)}</div>
-                    <div style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:2 }}>{c==='bonding'?'Smooth exponential curve':'Stepped price jumps'}</div>
-                  </div>
+                  {/* Inline params panel — expands when selected */}
+                  {formData.curveType === c.key && (
+                    <div style={{ background:'var(--panel-alt)', border:`1px solid ${c.color}`, borderTop:'none', borderBottomLeftRadius:6, borderBottomRightRadius:6, padding:'12px 12px 14px', marginBottom:6, animation:'fadeUp 0.15s ease' }}>
+                      <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:c.color, fontWeight:700, letterSpacing:'0.06em', marginBottom:10, textTransform:'uppercase' }}>Configure {c.label}</div>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                        {/* Start price — always shown */}
+                        <div>
+                          <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Start price (SOL)</label>
+                          <input type="number" name="startPrice" value={formData.startPrice} onChange={handleChange} step={0.00001} min={0.000001}
+                            style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                            onFocus={e => e.currentTarget.style.borderColor=c.color}
+                            onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                        </div>
+                        {/* Step-specific: step size */}
+                        {c.key === 'step' && (
+                          <div>
+                            <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Tokens per step</label>
+                            <input type="number" name="stepSize" value={formData.stepSize} onChange={handleChange} step={100} min={100}
+                              style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                              onFocus={e => e.currentTarget.style.borderColor=c.color}
+                              onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                          </div>
+                        )}
+                        {/* Step-specific: price increment */}
+                        {c.key === 'step' && (
+                          <div>
+                            <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Price jump per step (SOL)</label>
+                            <input type="number" name="stepIncrement" value={formData.stepIncrement} onChange={handleChange} step={0.00001} min={0.000001}
+                              style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                              onFocus={e => e.currentTarget.style.borderColor=c.color}
+                              onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                          </div>
+                        )}
+                      </div>
+                      {/* Hint text */}
+                      <div style={{ marginTop:10, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.7 }}>
+                        {c.key === 'linear' && 'Price increases proportionally with every token sold. Equal advantage at all points.'}
+                        {c.key === 'step' && `Price holds at ${formData.startPrice} SOL for every ${Number(formData.stepSize).toLocaleString()} tokens, then jumps +${formData.stepIncrement} SOL. Buyers race to beat the next step.`}
+                        {c.key === 'exp' && 'Price accelerates exponentially as supply fills. First buyers get the deepest discount. No manual parameters needed — the curve does the work.'}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -489,76 +540,88 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
           </div>
         )}
 
-        <div style={{ display:'flex', gap:8, marginTop:18 }}>
-          {step > 1 && (
-            <button onClick={() => setStep(step-1)} disabled={isProcessing}
-              style={{ flex:1, padding:'11px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
-              BACK
-            </button>
-          )}
-          {step < 3 ? (
-            <button onClick={handleNext} disabled={isProcessing}
-              style={{ flex:1, padding:'11px 0', background:'#8B5CF6', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
-              NEXT
-            </button>
-          ) : txState === 'scheduled' ? null : (
-            <div style={{ flex:1, display:'flex', flexDirection:'column', gap:8 }}>
+        {/* Step navigation */}
+        <div style={{ marginTop:18, display:'flex', flexDirection:'column', gap:8 }}>
 
-              {/* Launch mode selector */}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
-                {[
-                  { key:'now', icon:'🚀', label:'Launch now' },
-                  { key:'schedule', icon:'⏰', label:'Schedule' },
-                  { key:'draft', icon:'📝', label:'Save draft' },
-                ].map(m => (
-                  <button key={m.key} onClick={() => setLaunchMode(m.key)} disabled={isProcessing}
-                    style={{ padding:'8px 6px', background:launchMode===m.key?'rgba(139,92,246,0.18)':'var(--panel-alt)', border:`1px solid ${launchMode===m.key?'#8B5CF6':'var(--border)'}`, borderRadius:6, cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, transition:'all 0.12s' }}>
-                    <span style={{ fontSize:14 }}>{m.icon}</span>
-                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:launchMode===m.key?'#22D3EE':'var(--text-muted)', fontWeight:600, letterSpacing:'0.03em' }}>{m.label}</span>
-                  </button>
-                ))}
+          {/* Steps 1 & 2: back + next */}
+          {step < 3 && (
+            <div style={{ display:'flex', gap:8 }}>
+              {step > 1 && (
+                <button onClick={() => setStep(step-1)} disabled={isProcessing}
+                  style={{ padding:'11px 16px', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:12, color:'var(--text-dim)', cursor:'pointer', opacity:isProcessing?0.5:1, flexShrink:0 }}>
+                  ← Back
+                </button>
+              )}
+              <button onClick={handleNext} disabled={isProcessing}
+                style={{ flex:1, padding:'11px 0', background:'#8B5CF6', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:'pointer', opacity:isProcessing?0.5:1, minHeight:46 }}>
+                NEXT →
+              </button>
+            </div>
+          )}
+
+          {/* Step 3: launch options (not shown when already scheduled) */}
+          {step === 3 && txState !== 'scheduled' && (
+            <>
+              {/* Primary actions row */}
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={() => setStep(2)} disabled={isProcessing}
+                  style={{ padding:'11px 14px', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:12, color:'var(--text-dim)', cursor:'pointer', flexShrink:0 }}>
+                  ← Back
+                </button>
+                <button onClick={handleLaunch} disabled={isProcessing}
+                  style={{ flex:1, padding:'11px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:46 }}>
+                  {isProcessing ? 'LAUNCHING...' : '🚀 LAUNCH NOW'}
+                </button>
               </div>
 
-              {/* Schedule date/time picker */}
+              {/* Secondary actions row */}
+              <div style={{ display:'flex', gap:8 }}>
+                {/* Save draft */}
+                <button onClick={handleSaveDraft}
+                  style={{ flex:1, padding:'9px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:11, color:'var(--text-dim)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:5 }}>
+                  💾 Save draft
+                </button>
+                {/* Schedule toggle */}
+                <button onClick={() => setLaunchMode(launchMode === 'schedule' ? 'now' : 'schedule')}
+                  style={{ flex:1, padding:'9px 0', background:launchMode==='schedule'?'rgba(139,92,246,0.12)':'transparent', border:`1px solid ${launchMode==='schedule'?'rgba(139,92,246,0.4)':'var(--border)'}`, borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:11, color:launchMode==='schedule'?'#A78BFA':'var(--text-dim)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:5 }}>
+                  ⏰ Schedule
+                </button>
+              </div>
+
+              {/* Schedule date/time picker — shown when schedule is active */}
               {launchMode === 'schedule' && (
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, animation:'fadeUp 0.15s ease' }}>
-                  <div>
-                    <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4, textTransform:'uppercase', letterSpacing:'0.05em' }}>Date</label>
-                    <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
-                      style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
-                      onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                      onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                <div style={{ animation:'fadeUp 0.15s ease', background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:8, padding:'12px 14px' }}>
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#A78BFA', fontWeight:600, marginBottom:10, textTransform:'uppercase', letterSpacing:'0.05em' }}>⏰ Set launch time</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
+                    <div>
+                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Date</label>
+                      <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                    </div>
+                    <div>
+                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Time</label>
+                      <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4, textTransform:'uppercase', letterSpacing:'0.05em' }}>Time</label>
-                    <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                      style={{ width:'100%', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
-                      onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                      onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={handleSaveDraft}
+                      style={{ flex:1, padding:'9px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:11, color:'var(--text-dim)', cursor:'pointer' }}>
+                      💾 Save draft
+                    </button>
+                    <button onClick={handleSchedule} disabled={!scheduleDate || !scheduleTime}
+                      style={{ flex:2, padding:'9px 0', background:(!scheduleDate||!scheduleTime)?'var(--border)':'rgba(139,92,246,0.18)', border:`1px solid ${(!scheduleDate||!scheduleTime)?'var(--border)':'rgba(139,92,246,0.4)'}`, borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:(!scheduleDate||!scheduleTime)?'var(--text-muted)':'#A78BFA', cursor:(!scheduleDate||!scheduleTime)?'not-allowed':'pointer' }}>
+                      ⏰ SIGN & LOCK LAUNCH
+                    </button>
                   </div>
                 </div>
               )}
-
-              {/* Action button */}
-              {launchMode === 'now' && (
-                <button onClick={handleLaunch} disabled={isProcessing}
-                  style={{ width:'100%', padding:'12px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:48 }}>
-                  🚀 LAUNCH NOW
-                </button>
-              )}
-              {launchMode === 'schedule' && (
-                <button onClick={handleSchedule} disabled={isProcessing||!scheduleDate||!scheduleTime}
-                  style={{ width:'100%', padding:'12px 0', background:'rgba(139,92,246,0.2)', border:'1px solid rgba(139,92,246,0.4)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#A78BFA', cursor:(!scheduleDate||!scheduleTime||isProcessing)?'not-allowed':'pointer', opacity:(!scheduleDate||!scheduleTime)?0.5:1, minHeight:48 }}>
-                  ⏰ SCHEDULE LAUNCH
-                </button>
-              )}
-              {launchMode === 'draft' && (
-                <button onClick={handleSaveDraft} disabled={isProcessing}
-                  style={{ width:'100%', padding:'12px 0', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:'pointer', minHeight:48 }}>
-                  📝 SAVE AS DRAFT
-                </button>
-              )}
-            </div>
+            </>
           )}
         </div>
       </div>
