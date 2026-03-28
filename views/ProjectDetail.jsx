@@ -185,6 +185,9 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   });
   const solNum = parseFloat(sol) || 0;
 
+  // Mock projects have a numeric id — must be declared first, used below
+  const isMockProject = mintAddress && /^\d+$/.test(String(mintAddress));
+
   const quote = solNum > 0 ? computeStepCurve({ solIn:solNum, sold:cycle.sold, allocation:cycle.allocation, startPrice:cycle.currentPrice, stepSize:cycle.stepSize||5000, stepIncrement:cycle.stepIncrement||0.00022, feeBps:200 }) : null;
   const tokensOut = quote?.tokensOut ?? 0;
   const exceedsRights = walletConnected && cycle.userRights > 0 && tokensOut > (cycle.userRights - (cycle.userRightsUsed||0));
@@ -198,9 +201,6 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
     : exceedsAllocation ? 'Amount exceeds remaining cycle allocation'
     : !slippageOk && solNum > 0 ? `Price impact too high (${priceImpactPct.toFixed(1)}%) — tap ⚙ to raise slippage tolerance`
     : null;
-
-  // Mock projects have a numeric id — allow buy without wallet for demo purposes
-  const isMockProject = mintAddress && /^\d+$/.test(String(mintAddress));
   const canSubmit = (walletConnected || isMockProject) && solNum > 0 && !hasError && txState === 'idle';
   const btnLabel = {
     idle: solNum > 0 ? 'CONFIRM PURCHASE' : 'ENTER AMOUNT',
