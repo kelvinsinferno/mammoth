@@ -57,6 +57,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
   const [draftSaved, setDraftSaved] = useState(false);
+  const [showScheduleWarning, setShowScheduleWarning] = useState(false);
   const [countdown, setCountdown] = useState(null); // seconds remaining until launch unlocks
   const [scheduledAt, setScheduledAt] = useState(() => {
     // Restore scheduled time from draft on resume
@@ -151,10 +152,50 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
     if (!scheduleDate || !scheduleTime) { setErrors({ form: 'Pick a date and time to schedule' }); return; }
     const launchAt = new Date(`${scheduleDate}T${scheduleTime}`);
     if (launchAt <= new Date()) { setErrors({ form: 'Schedule time must be in the future' }); return; }
-    // Save as draft with scheduled time
-    saveDraft({ ...formData, scheduledFor: launchAt.toISOString() });
-    setScheduledAt(launchAt);
-    setTxState('scheduled');
+    // Show irreversibility warning before proceeding
+    setShowScheduleWarning(true);
+  };
+
+  const handleScheduleConfirm = async () => {
+    setShowScheduleWarning(false);
+    if (!validate()) return;
+    const launchAt = new Date(`${scheduleDate}T${scheduleTime}`);
+    // Deploy the token on-chain NOW with the launch_at timestamp baked in
+    // The contract will reject open_cycle until that time arrives
+    setTxState('awaiting');
+    try {
+      setTxState('loading');
+      const walletAdapter = getWalletAdapter?.();
+      const launchAtUnix = Math.floor(launchAt.getTime() / 1000);
+      let deployResult;
+      if (walletAdapter) {
+        deployResult = await deployProject({
+          connection,
+          walletAdapter,
+          form: {
+            supplyMode: formData.supplyMode,
+            totalSupply: formData.supplyMode === 'fixed'
+              ? parseInt(formData.hardCapSupply) || 1_000_000_000
+              : parseInt(formData.initialAllocation) || 1_000_000_000,
+            publicAllocationBps: Math.floor((100 - formData.creatorAlloc - formData.protocolFee) * 100),
+            creatorBps: Math.floor(formData.creatorAlloc * 100),
+            reserveBps: Math.floor(formData.treasuryAlloc * 100),
+            sinkBps: Math.floor((98 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
+            launchAt: launchAtUnix,
+          },
+        });
+      } else {
+        deployResult = { mint: 'SCHEDULED_' + Date.now(), mock: true };
+      }
+      saveDraft({ ...formData, scheduledFor: launchAt.toISOString(), mint: deployResult.mint, deployed: true });
+      setScheduledAt(launchAt);
+      setTxState('scheduled');
+    } catch(e) {
+      const userMsg = parseTransactionError ? parseTransactionError(e) : null;
+      if (userMsg === null) { setTxState('idle'); return; }
+      setErrors({ form: userMsg || e?.message || 'Failed to schedule launch' });
+      setTxState('error');
+    }
   };
 
   const handleLaunch = async () => {
@@ -398,6 +439,41 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
             </div>
           );
         })()}
+
+        {/* Irreversibility warning modal — shown before scheduling */}
+        {showScheduleWarning && (
+          <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)', zIndex:600, display:'flex', alignItems:'center', justifyContent:'center', padding:20, backdropFilter:'blur(6px)' }}>
+            <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:14, padding:'24px 20px', width:'100%', maxWidth:360, animation:'fadeUp 0.18s ease' }}>
+              <div style={{ textAlign:'center', marginBottom:16 }}>
+                <div style={{ fontSize:36, marginBottom:10 }}>⚠️</div>
+                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, color:'#F43F5E', marginBottom:6 }}>This cannot be undone.</div>
+                <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)', lineHeight:1.75 }}>
+                  You are about to sign a transaction that deploys your token on-chain with a scheduled launch time of:
+                </div>
+              </div>
+              <div style={{ background:'rgba(248,113,113,0.07)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:8, padding:'12px 14px', marginBottom:16, textAlign:'center' }}>
+                <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:15, color:'#F43F5E' }}>
+                  {scheduleDate} at {scheduleTime}
+                </div>
+              </div>
+              <div style={{ background:'rgba(255,159,28,0.07)', border:'1px solid rgba(255,159,28,0.2)', borderRadius:8, padding:'12px 14px', marginBottom:20 }}>
+                <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#FF9F1C', lineHeight:1.75 }}>
+                  Once signed, <strong>the contract is set in stone.</strong> Your token will launch at this time whether you want it to or not. You cannot change the date, cancel the transaction, or delay it. There is no override.
+                </div>
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                <button onClick={handleScheduleConfirm}
+                  style={{ width:'100%', padding:'13px 0', background:'rgba(248,113,113,0.15)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:8, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#F43F5E', cursor:'pointer', letterSpacing:'0.04em' }}>
+                  I UNDERSTAND — SIGN & LOCK THE LAUNCH
+                </button>
+                <button onClick={() => setShowScheduleWarning(false)}
+                  style={{ width:'100%', padding:'11px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:8, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:'pointer' }}>
+                  GO BACK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {draftSaved && (
           <div style={{ background:'rgba(16,185,129,0.07)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:6, padding:'10px 12px', marginBottom:12, display:'flex', alignItems:'center', gap:8 }}>
