@@ -93,8 +93,27 @@ export default function WidgetPage() {
   const pct = cycle ? Math.round((cycle.sold / cycle.allocation) * 100) : 0;
   const remaining = cycle ? (cycle.allocation - cycle.sold).toLocaleString() : '—';
 
+  // Inject CSS variable overrides so child components (PriceChart etc.) pick up the right theme
+  const cssVars = isDark ? {} : {
+    '--page-bg': '#ffffff',
+    '--panel': '#f6f8fa',
+    '--panel-alt': '#eaeef2',
+    '--border': '#d0d7de',
+    '--border-sub': '#d0d7de',
+    '--text': '#1f2328',
+    '--text-secondary': '#2d333b',
+    '--text-dim': '#444c56',
+    '--text-muted': '#656d76',
+    '--badge-bg': '#eaeef2',
+    '--badge-border': '#d0d7de',
+    '--bar-empty': '#d0d7de',
+    '--header-bg': '#f6f8fa',
+    '--header-border': '#d0d7de',
+    '--overlay': 'rgba(0,0,0,0.4)',
+  };
+
   return (
-    <div style={{ minHeight:'100vh', background:bg, display:'flex', alignItems:'center', justifyContent:'center', padding:0, fontFamily:"'IBM Plex Mono', monospace" }}>
+    <div style={{ minHeight:'100vh', background:bg, display:'flex', alignItems:'center', justifyContent:'center', padding:0, fontFamily:"'IBM Plex Mono', monospace", ...cssVars }}>
       <div style={{ width:'100%', maxWidth: size === 'compact' ? 320 : 400, background:panel, border:`1px solid ${border}`, borderRadius:12, overflow:'hidden' }}>
 
         {/* Header */}
@@ -112,7 +131,7 @@ export default function WidgetPage() {
 
         {/* Price chart */}
         {size !== 'compact' && project.chartData?.length > 0 && (
-          <div style={{ padding:'8px 8px 4px', borderBottom:`1px solid ${border}` }}>
+          <div style={{ padding:'8px 8px 4px', borderBottom:`1px solid ${border}`, background:panel }}>
             <PriceChart data={project.chartData} cycleStart={Math.floor(project.chartData.length * 0.62)} />
           </div>
         )}
