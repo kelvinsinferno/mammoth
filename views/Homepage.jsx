@@ -44,7 +44,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
     {key:'raised',label:'Most Raised'},
     {key:'ending',label:'Ending Soon'},
     {key:'between',label:'Between Cycles'},
-    ...(comingSoon.length > 0 ? [{key:'coming',label:`Coming Soon (${comingSoon.length})`}] : []),
+    {key:'coming', label: comingSoon.length > 0 ? `Coming Soon (${comingSoon.length})` : 'Coming Soon'},
   ];
   const sorted = {
     new: [...publicProjects].sort((a,b) => Number(b.id)-Number(a.id)),
@@ -277,6 +277,12 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
                 )}
               </div>
             ))}
+          </div>
+        ) : tab === 'coming' && !search ? (
+          <div style={{ textAlign:'center', padding:'56px 0', animation:'fadeUp 0.2s ease' }}>
+            <div style={{ fontSize:36, marginBottom:12 }}>📅</div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--text)', marginBottom:8 }}>Nothing scheduled yet.</div>
+            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)', lineHeight:1.7 }}>Projects that schedule a reveal date will appear here before going public.</div>
           </div>
         ) : search ? (
           <div style={{ textAlign:'center', padding:'56px 0', color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", fontSize:12 }}>no tokens found</div>
