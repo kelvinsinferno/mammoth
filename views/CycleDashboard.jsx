@@ -10,6 +10,166 @@ import { SkeletonList } from '../components/ui/Skeleton';
 
 const BASE = 'https://mammoth-protocol.vercel.app';
 
+function TelegramSetupModal({ project, onClose }) {
+  const mint = project.mint || project.id;
+  const miniUrl = `${BASE}/mini/${mint}`;
+  const [copied, setCopied] = React.useState(null);
+
+  const copy = (text, key) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(key);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  };
+
+  const CopyBtn = ({ text, id }) => (
+    <button onClick={() => copy(text, id)}
+      style={{ background: copied===id ? 'rgba(16,185,129,0.12)' : 'transparent', border: `1px solid ${copied===id ? 'rgba(16,185,129,0.3)' : 'rgba(41,182,246,0.3)'}`, borderRadius: 4, padding: '3px 10px', fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, fontWeight: 700, color: copied===id ? '#10B981' : '#29B6F6', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}>
+      {copied === id ? '✓ COPIED' : 'COPY'}
+    </button>
+  );
+
+  const steps = [
+    {
+      n: '01',
+      title: 'Create your bot',
+      desc: 'Open Telegram and message @BotFather. Send the command below to create a new bot. BotFather will ask for a name and username, then give you a token — save it, you\'ll need it in step 4.',
+      cmd: '/newbot',
+      cmdNote: 'Send this to @BotFather',
+      link: 'https://t.me/BotFather',
+      linkLabel: 'Open @BotFather →',
+    },
+    {
+      n: '02',
+      title: 'Register your Mini App',
+      desc: 'After creating the bot, send /newapp to BotFather. It will ask for your bot, then prompt for a title, description, photo, and the web app URL. Use your Mammoth mini app URL below.',
+      cmd: '/newapp',
+      cmdNote: 'Send this to @BotFather after /newbot',
+      extra: { label: 'Your Mini App URL (paste when BotFather asks)', value: miniUrl },
+    },
+    {
+      n: '03',
+      title: 'Set the menu button (optional)',
+      desc: 'Add a persistent button to your bot\'s chat that opens the mini app. This makes it one tap to buy from inside your Telegram community.',
+      cmd: '/setmenubutton',
+      cmdNote: 'Send this to @BotFather, then follow the prompts',
+    },
+    {
+      n: '04',
+      title: 'Share a direct open link',
+      desc: 'Once your bot is set up, anyone can open your mini app directly using this link format. Replace YOUR_BOT_USERNAME with your bot\'s @username.',
+      extra: { label: 'Direct Mini App link', value: `https://t.me/YOUR_BOT_USERNAME/YOUR_APP_NAME` },
+    },
+    {
+      n: '05',
+      title: 'Share as a message button',
+      desc: 'To send a message with a "Buy Now" button that opens the mini app, use the Telegram Bot API. This is the code to send in your bot\'s sendMessage call.',
+      code: `{
+  "chat_id": "YOUR_CHAT_ID",
+  "text": "🦣 ${project.name} ($${project.ticker}) — new cycle is OPEN!",
+  "reply_markup": {
+    "inline_keyboard": [[
+      {
+        "text": "🚀 Buy $${project.ticker} on Mammoth",
+        "web_app": { "url": "${miniUrl}" }
+      }
+    ]]
+  }
+}`,
+    },
+  ];
+
+  return (
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(6px)' }}>
+      <div onClick={e=>e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:540, padding:'24px 20px', maxHeight:'90vh', overflowY:'auto', animation:'slideUp 0.18s ease' }}>
+
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+          <div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Telegram Mini App Setup</div>
+            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>{project.name} · ${project.ticker}</div>
+          </div>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:18 }}>✕</button>
+        </div>
+
+        {/* Intro */}
+        <div style={{ background:'rgba(41,182,246,0.06)', border:'1px solid rgba(41,182,246,0.2)', borderRadius:8, padding:'10px 14px', marginBottom:20 }}>
+          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#29B6F6', lineHeight:1.75 }}>
+            Your mini app is already live at the URL below. These steps connect it to a Telegram bot so buyers can open it full-screen inside Telegram with a single tap. You do this once per token — takes about 5 minutes.
+          </div>
+        </div>
+
+        {/* Mini app URL callout */}
+        <div style={{ marginBottom:20 }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:5 }}>
+            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'#29B6F6', textTransform:'uppercase', letterSpacing:'0.06em' }}>Your Mini App URL</span>
+            <CopyBtn text={miniUrl} id="miniUrl" />
+          </div>
+          <div style={{ background:'var(--panel-alt)', border:'1px solid rgba(41,182,246,0.2)', borderRadius:6, padding:'9px 12px', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#22D3EE', wordBreak:'break-all' }}>
+            {miniUrl}
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          {steps.map((s, i) => (
+            <div key={s.n} style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:9, padding:'14px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+                <div style={{ width:22, height:22, borderRadius:'50%', background:'rgba(41,182,246,0.15)', border:'1px solid rgba(41,182,246,0.3)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'#29B6F6' }}>{s.n}</span>
+                </div>
+                <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)' }}>{s.title}</span>
+                {s.link && (
+                  <a href={s.link} target="_blank" rel="noopener noreferrer"
+                    style={{ marginLeft:'auto', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#29B6F6', textDecoration:'none', flexShrink:0 }}>
+                    {s.linkLabel}
+                  </a>
+                )}
+              </div>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', lineHeight:1.75, marginBottom: (s.cmd||s.extra||s.code) ? 10 : 0 }}>
+                {s.desc}
+              </div>
+              {s.cmd && (
+                <div style={{ marginBottom: s.extra ? 8 : 0 }}>
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginBottom:4 }}>{s.cmdNote}</div>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, background:'var(--panel)', border:'1px solid #252848', borderRadius:6, padding:'8px 12px' }}>
+                    <code style={{ flex:1, fontFamily:"'IBM Plex Mono',monospace", fontSize:13, fontWeight:700, color:'#29B6F6' }}>{s.cmd}</code>
+                    <CopyBtn text={s.cmd} id={`cmd-${i}`} />
+                  </div>
+                </div>
+              )}
+              {s.extra && (
+                <div>
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginBottom:4 }}>{s.extra.label}</div>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, background:'var(--panel)', border:'1px solid #252848', borderRadius:6, padding:'8px 12px' }}>
+                    <code style={{ flex:1, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#22D3EE', wordBreak:'break-all' }}>{s.extra.value}</code>
+                    <CopyBtn text={s.extra.value} id={`extra-${i}`} />
+                  </div>
+                </div>
+              )}
+              {s.code && (
+                <div style={{ position:'relative' }}>
+                  <pre style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:6, padding:'10px 12px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#22D3EE', overflowX:'auto', whiteSpace:'pre', margin:0, lineHeight:1.7 }}>
+                    {s.code}
+                  </pre>
+                  <div style={{ position:'absolute', top:8, right:8 }}>
+                    <CopyBtn text={s.code} id={`code-${i}`} />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Footer note */}
+        <div style={{ marginTop:16, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.7, textAlign:'center' }}>
+          Your mini app URL never changes — set it up once and it works for all future cycles.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EmbedModal({ project, onClose }) {
   const mint = project.mint || project.id;
   const [theme, setTheme] = React.useState('dark');
@@ -339,6 +499,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
   const [expandedId, setExpandedId] = useState(null);
   const [manageModal, setManageModal] = useState(null);
   const [embedModal, setEmbedModal] = useState(null);
+  const [tgModal, setTgModal] = useState(null);
   const [activeTab, setActiveTab] = useState('tokens'); // 'tokens' | 'drafts' | 'portfolio'
   const [drafts, setDrafts] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
@@ -547,6 +708,13 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                       title="Get embed code">
                       {'</>'}
                     </button>
+                    <button onClick={e => { e.stopPropagation(); setTgModal(p); }}
+                      style={{ padding:'10px 12px', background:'transparent', border:'1px solid var(--border)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:'pointer', transition:'all 0.12s', flexShrink:0 }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor='#29B6F6'; e.currentTarget.style.color='#29B6F6'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.color='var(--text-dim)'; }}
+                      title="Telegram Mini App setup">
+                      ✈️
+                    </button>
                   </div>
                 </div>
               )}
@@ -710,6 +878,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
         <CycleManagerModal cycle={manageModal.cycleData} project={manageModal} onClose={() => setManageModal(null)} onLaunchCycle={onLaunchCycle} onTerminate={() => onTerminateProject?.(manageModal.id)}/>
       )}
       {embedModal && <EmbedModal project={embedModal} onClose={() => setEmbedModal(null)} />}
+      {tgModal && <TelegramSetupModal project={tgModal} onClose={() => setTgModal(null)} />}
     </div>
   );
 }
