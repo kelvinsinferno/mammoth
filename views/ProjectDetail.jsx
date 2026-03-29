@@ -661,16 +661,25 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
                 <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{p.volume.toLocaleString()} vol · creator: {p.creator}</div>
               </div>
             </div>
-            {p.status !== 'COMING_SOON' && (
+            {p.status === 'COMING_SOON' ? (
+              <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'0 8px 8px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'center', minHeight:160 }}>
+                <div style={{ textAlign:'center', padding:'32px 0' }}>
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginBottom:6 }}>Chart unlocks at launch</div>
+                  <div style={{ display:'flex', gap:3, alignItems:'flex-end', justifyContent:'center', height:40 }}>
+                    {Array.from({length:24},(_,i)=>(<div key={i} style={{ width:6, borderRadius:2, background:'var(--border)', height:`${15+Math.sin(i*0.7)*10+Math.random()*8}px`, opacity:0.3 }}/>))}
+                  </div>
+                </div>
+              </div>
+            ) : (
               <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'12px 8px 8px', marginBottom:12 }}>
                 <PriceChart data={p.chartData} cycleStart={Math.floor(p.chartData.length*0.62)}/>
               </div>
             )}
-            {p.status !== 'COMING_SOON' && <div className="desktop-only"><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>}
+            <div className="desktop-only"><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
           </div>
 
           <div style={{ position:'sticky', top:68 }}>
-            {p.status !== 'COMING_SOON' && <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>}
+            <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
 
             {/* ── Your Position panel ── */}
             {wallet && (() => {
