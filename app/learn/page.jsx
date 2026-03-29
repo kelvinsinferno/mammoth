@@ -244,6 +244,27 @@ Mammoth automatically generates a Jupiter deeplink for each token. Hit "Trade on
     ]
   },
   {
+    id: 'mini-app',
+    icon: '📱',
+    title: 'Mini App & Social Sharing',
+    audience: 'creators',
+    content: [
+      {
+        type: 'text',
+        body: `Every Mammoth token automatically gets a shareable mini app page at /mini/[mint]. It's a full mobile-optimised version of the project page — chart, cycle stats, your position, buy form — designed to be shared on any platform.`,
+      },
+      {
+        type: 'highlight',
+        label: 'What it includes',
+        body: 'Full project page · Price chart · Cycle panel · Your position + P&L · Buy form with wallet connect · Coming Soon countdown · Dark & light mode · Telegram Mini App integration · Farcaster Frame meta tags · Auto-generated OG share image',
+      },
+      {
+        type: 'text',
+        body: `To share: hit ↗ SHARE MINI APP on any project page, or copy the URL from your Creator Dashboard.\n\nThe page auto-generates a 1200×630 OG image for rich previews on Twitter/X, Discord, iMessage, and Farcaster.\n\nWhen opened inside Telegram, it runs as a full Telegram Mini App — expands to full screen, back button wired, native share sheet.\n\nFor Farcaster: post the /mini/[mint] URL as a cast and it becomes an interactive Frame with a "View on Mammoth" button.`,
+      },
+    ],
+  },
+  {
     id: 'embed-sdk',
     icon: '🧩',
     title: 'Embed Widget SDK',
@@ -330,6 +351,7 @@ export default function LearnPage() {
             <div style={{ height: 1, background: 'var(--border)', margin: '6px 4px' }} />
             {[
               { href:'/sdk',        icon:'🧩', label:'Embed SDK' },
+              { href:'/mini',       icon:'📱', label:'Mini App' },
               { href:'/whitepaper', icon:'📄', label:'Whitepaper' },
             ].map(({ href, icon, label }) => (
               <a key={href} href={href}

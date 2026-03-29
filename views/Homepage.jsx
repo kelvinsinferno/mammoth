@@ -142,6 +142,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
             { icon:'📊', color:'#FF9F1C', title:'Predictable Pricing', desc:'Step, Linear, or Exp-Lite curves. You always know what drives the next price change.', href:'/learn' },
             { icon:'💰', color:'#10B981', title:'On-Chain Treasury', desc:'Proceeds split automatically at cycle close. Creator, reserve, and sink shares are set in stone.', href:'/learn' },
             { icon:'🧩', color:'#F472B6', title:'Embed SDK', desc:'Drop a live buy widget onto any website. Two lines of code. Dark + light mode. No API key.', href:'/sdk' },
+              { icon:'📱', color:'#29B6F6', title:'Mini App', desc:'Share your token on Telegram, Farcaster, X. Full buy page. OG previews. Works everywhere.', href:'/mini' },
           ];
           const carouselRef = useRef(null);
           const scroll = (dir) => {
@@ -325,7 +326,7 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
             Mammoth Protocol · permissionless issuance · 2% fee on Mammoth-routed trades<br/>not a curator · not a guarantor · not financial advice
           </div>
           <div style={{ display:'flex', gap:16, justifyContent:'center', flexWrap:'wrap' }}>
-            {[['/terms','Terms of Service'],['/privacy','Privacy Policy'],['/risk','Risk Disclosure'],['/learn','Learn'],['/whitepaper','Whitepaper'],['/sdk','Embed SDK']].map(([href, label]) => (
+            {[['/terms','Terms of Service'],['/privacy','Privacy Policy'],['/risk','Risk Disclosure'],['/learn','Learn'],['/whitepaper','Whitepaper'],['/sdk','Embed SDK'],['/mini','Mini App']].map(([href, label]) => (
               <a key={href} href={href} style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', textDecoration:'none', transition:'color 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.color='#A78BFA'}
                 onMouseLeave={e => e.currentTarget.style.color='var(--text-muted)'}>
