@@ -104,6 +104,48 @@ const LINK_DEFS = [
   { key:'docs',      label:'Docs',      color:'#A78BFA' },
 ];
 
+function ShareAfterBuyMini({ tokensOut, ticker, mint }) {
+  const [copied, setCopied] = useState(false);
+  const shareUrl  = `${BASE}/mini/${mint}`;
+  const shareText = `Just bought ${tokensOut?.toLocaleString()} $${ticker} on Mammoth Protocol 🦣`;
+  const enc = encodeURIComponent;
+  const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+
+  const openShare = (href) => window.open(href, '_blank', 'noopener,noreferrer');
+
+  return (
+    <div style={{ background:'linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.05))', border:'1px solid rgba(139,92,246,0.2)', borderRadius:9, padding:'13px', marginBottom:8 }}>
+      <div style={{ textAlign:'center', marginBottom:10 }}>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)', marginBottom:2 }}>🎉 Spread the word</div>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>You backed ${ticker}. Let your community know.</div>
+      </div>
+      {isTelegram ? (
+        <button onClick={() => window.Telegram.WebApp.openLink(`https://t.me/share/url?url=${enc(shareUrl)}&text=${enc(shareText)}`)}
+          style={{ width:'100%', padding:'10px 0', background:'rgba(41,182,246,0.15)', border:'1px solid rgba(41,182,246,0.3)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#29B6F6', cursor:'pointer' }}>
+          ✈️ Share on Telegram
+        </button>
+      ) : (
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
+          {[
+            { label:'𝕏 Post on X',          href:`https://twitter.com/intent/tweet?text=${enc(shareText)}&url=${enc(shareUrl)}` },
+            { label:'✈️ Share on Telegram',  href:`https://t.me/share/url?url=${enc(shareUrl)}&text=${enc(shareText)}` },
+            { label:'🟣 Cast on Farcaster',  href:`https://warpcast.com/~/compose?text=${enc(shareText + ' ' + shareUrl)}` },
+          ].map(({ label, href }) => (
+            <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+              style={{ padding:'9px 0', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'#A78BFA', textDecoration:'none', textAlign:'center', display:'block' }}>
+              {label}
+            </a>
+          ))}
+          <button onClick={async()=>{ await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`); setCopied(true); setTimeout(()=>setCopied(false),2500); }}
+            style={{ padding:'9px 0', background:copied?'rgba(16,185,129,0.1)':'var(--panel-alt)', border:`1px solid ${copied?'rgba(16,185,129,0.3)':'var(--border)'}`, borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:copied?'#10B981':'var(--text-muted)', cursor:'pointer' }}>
+            {copied?'✓ Copied!':'🔗 Copy link'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MiniPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -335,7 +377,8 @@ export default function MiniPage() {
                 ))}
                 {receipt.mock&&<div style={{ fontSize:9, color:'var(--text-muted)', marginTop:6, textAlign:'center' }}>demo — connect wallet for real trades</div>}
               </div>
-              <button onClick={()=>{setTxState('idle');setSol('');setReceipt(null);}} style={{ width:'100%', padding:'10px 0', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer' }}>BUY MORE</button>
+              <ShareAfterBuyMini tokensOut={receipt.tokensOut} ticker={p.ticker} mint={mint} />
+              <button onClick={()=>{setTxState('idle');setSol('');setReceipt(null);}} style={{ width:'100%', padding:'10px 0', background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer', marginTop:8 }}>BUY MORE</button>
             </div>
           ) : (
             <div style={{ background:'var(--panel)', border:`1px solid ${txState==='error'?'rgba(248,113,113,0.3)':'var(--border)'}`, borderRadius:10, padding:'16px', marginBottom:12 }}>

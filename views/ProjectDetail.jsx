@@ -333,6 +333,81 @@ function CyclePanelDetail({ cycle }) {
   );
 }
 
+const BASE_URL = 'https://mammoth-protocol.vercel.app';
+
+function ShareAfterBuy({ tokensOut, ticker, mintAddress, context }) {
+  const [shared, setShared] = useState(null);
+
+  const shareText = `Just bought ${tokensOut?.toLocaleString()} $${ticker} on Mammoth Protocol 🦣`;
+  const miniUrl   = `${BASE_URL}/mini/${mintAddress}`;
+  const pageUrl   = `${BASE_URL}/token/${mintAddress}`;
+  const shareUrl  = context === 'mini' ? miniUrl : pageUrl;
+
+  const handleShare = async (platform) => {
+    const encoded = encodeURIComponent;
+    const urls = {
+      twitter:   `https://twitter.com/intent/tweet?text=${encoded(shareText)}&url=${encoded(shareUrl)}`,
+      telegram:  `https://t.me/share/url?url=${encoded(shareUrl)}&text=${encoded(shareText)}`,
+      farcaster: `https://warpcast.com/~/compose?text=${encoded(shareText + ' ' + shareUrl)}`,
+      copy:      null,
+    };
+
+    if (platform === 'native' && navigator.share) {
+      await navigator.share({ title: `$${ticker} on Mammoth`, text: shareText, url: shareUrl });
+      setShared('native');
+    } else if (platform === 'tg-native' && typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openLink(`https://t.me/share/url?url=${encoded(shareUrl)}&text=${encoded(shareText)}`);
+      setShared('tg-native');
+    } else if (platform === 'copy') {
+      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      setShared('copy');
+      setTimeout(() => setShared(null), 2500);
+    } else if (urls[platform]) {
+      window.open(urls[platform], '_blank', 'noopener,noreferrer');
+      setShared(platform);
+    }
+  };
+
+  // In Telegram mini app — show single native share button
+  const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+
+  return (
+    <div style={{ background:'linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.05))', border:'1px solid rgba(139,92,246,0.2)', borderRadius:9, padding:'14px', marginBottom:8 }}>
+      <div style={{ textAlign:'center', marginBottom:12 }}>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)', marginBottom:3 }}>
+          🎉 Spread the word
+        </div>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', lineHeight:1.6 }}>
+          You just backed {ticker}. Let your community know.
+        </div>
+      </div>
+
+      {isTelegram ? (
+        <button onClick={() => handleShare('tg-native')}
+          style={{ width:'100%', padding:'10px 0', background:'rgba(41,182,246,0.15)', border:'1px solid rgba(41,182,246,0.3)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#29B6F6', cursor:'pointer', letterSpacing:'0.04em' }}>
+          ✈️ Share on Telegram
+        </button>
+      ) : (
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
+          {[
+            { key:'twitter',   icon:'𝕏',  label:'Post on X',       color:'var(--text)' },
+            { key:'telegram',  icon:'✈️', label:'Share on Telegram', color:'#29B6F6' },
+            { key:'farcaster', icon:'🟣', label:'Cast on Farcaster', color:'#855DCD' },
+            { key:'copy',      icon:'🔗', label: shared==='copy' ? '✓ Copied!' : 'Copy link', color: shared==='copy' ? '#10B981' : '#A78BFA' },
+          ].map(({ key, icon, label, color }) => (
+            <button key={key} onClick={() => handleShare(key)}
+              style={{ padding:'9px 0', background:'var(--panel-alt)', border:`1px solid ${shared===key&&key!=='copy'?'rgba(139,92,246,0.4)':'var(--border)'}`, borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, transition:'all 0.13s' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor='rgba(139,92,246,0.35)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor=shared===key&&key!=='copy'?'rgba(139,92,246,0.4)':'var(--border)'}>
+              <span>{icon}</span>{label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBalance, walletLoading, onConnect, onPurchaseComplete, comingSoon, goPublicAt }) {
   // Live countdown for coming soon state
   const [, csForce] = useState(0);
@@ -470,7 +545,11 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
       <div style={{ background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.18)', borderRadius:7, padding:'10px 12px', marginBottom:14, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'rgba(16,185,129,0.8)', lineHeight:1.6 }}>
         Your tokens are now in your wallet. Trading via Jupiter is available when the cycle ends. Check the Cycles tab for history.
       </div>
-      <button onClick={handleReset} style={{ width:'100%', padding:'11px 0', borderRadius:7, border:'1px solid rgba(16,185,129,0.3)', background:'rgba(16,185,129,0.08)', color:'#10B981', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, cursor:'pointer', letterSpacing:'0.04em' }}>BUY MORE</button>
+
+      {/* Share after buy */}
+      <ShareAfterBuy tokensOut={receipt.tokensOut} ticker={ticker} mintAddress={mintAddress} context="app" />
+
+      <button onClick={handleReset} style={{ width:'100%', padding:'11px 0', borderRadius:7, border:'1px solid rgba(16,185,129,0.3)', background:'rgba(16,185,129,0.08)', color:'#10B981', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, cursor:'pointer', letterSpacing:'0.04em', marginTop:8 }}>BUY MORE</button>
     </div>
   );
 

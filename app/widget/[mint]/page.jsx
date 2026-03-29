@@ -54,6 +54,35 @@ function WidgetCountdown({ goPublicAt, ticker, border, panel, panelAlt, accent, 
   );
 }
 
+function WidgetShare({ tokensOut, ticker, mint, accent, border, panelAlt, muted, text }) {
+  const [copied, setCopied] = useState(false);
+  const shareUrl = `https://mammoth-protocol.vercel.app/mini/${mint}`;
+  const shareText = `Just bought ${tokensOut?.toLocaleString()} $${ticker} on Mammoth Protocol 🦣`;
+  const enc = encodeURIComponent;
+
+  return (
+    <div style={{ background:`${accent}0d`, border:`1px solid ${accent}33`, borderRadius:8, padding:'12px', marginBottom:8 }}>
+      <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:text, marginBottom:3, textAlign:'center' }}>🎉 Spread the word</div>
+      <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:muted, textAlign:'center', marginBottom:10 }}>Let your community know you backed ${ticker}</div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+        {[
+          { label:'Post on X',        href:`https://twitter.com/intent/tweet?text=${enc(shareText)}&url=${enc(shareUrl)}` },
+          { label:'Share on Telegram', href:`https://t.me/share/url?url=${enc(shareUrl)}&text=${enc(shareText)}` },
+        ].map(({ label, href }) => (
+          <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+            style={{ padding:'8px 0', background:panelAlt, border:`1px solid ${border}`, borderRadius:5, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:accent, textDecoration:'none', textAlign:'center', display:'block' }}>
+            {label}
+          </a>
+        ))}
+        <button onClick={async ()=>{ await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`); setCopied(true); setTimeout(()=>setCopied(false),2500); }}
+          style={{ gridColumn:'1/-1', padding:'8px 0', background:copied?`rgba(16,185,129,0.12)`:panelAlt, border:`1px solid ${copied?'rgba(16,185,129,0.3)':border}`, borderRadius:5, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:copied?'#10B981':muted, cursor:'pointer' }}>
+          {copied ? '✓ Link copied!' : '🔗 Copy share link'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Minimal self-contained buy widget — designed for iframe embedding
 // URL params: theme=dark|light, accent=#hex, size=compact|full
 
@@ -226,8 +255,10 @@ export default function WidgetPage() {
                 ))}
                 {receipt.mock && <div style={{ color:muted, fontSize:9, marginTop:6, textAlign:'center' }}>demo — connect wallet for real trades</div>}
               </div>
+              {/* Share after buy */}
+              <WidgetShare tokensOut={receipt.tokensOut} ticker={project.ticker} mint={mint} accent={accent} border={border} panelAlt={panelAlt} muted={muted} text={text} />
               <button onClick={() => { setTxState('idle'); setSol(''); setReceipt(null); }}
-                style={{ width:'100%', padding:'10px 0', background:panelAlt, border:`1px solid ${border}`, borderRadius:7, fontSize:12, color:muted, cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace" }}>
+                style={{ width:'100%', padding:'9px 0', background:panelAlt, border:`1px solid ${border}`, borderRadius:7, fontSize:11, color:muted, cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", marginTop:8 }}>
                 BUY MORE
               </button>
             </div>
