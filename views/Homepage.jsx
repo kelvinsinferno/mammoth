@@ -142,12 +142,13 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(min(190px,100%),1fr))', gap:8 }}>
             {[
-              { icon:'🔄', color:'#22D3EE', title:'Cycle-Based Raises', desc:'Capital raised in discrete rounds. Fixed allocation, bounded price curve. No continuous emissions.' },
-              { icon:'🛡️', color:'#A78BFA', title:'Rights Protection', desc:'Existing holders get first access at launch price before each new cycle opens to the public.' },
-              { icon:'📊', color:'#FF9F1C', title:'Predictable Pricing', desc:'Step, Linear, or Exp-Lite curves. You always know what drives the next price change.' },
-              { icon:'💰', color:'#10B981', title:'On-Chain Treasury', desc:'Proceeds split automatically at cycle close. Creator, reserve, and sink shares are set in stone.' },
+              { icon:'🔄', color:'#22D3EE', title:'Cycle-Based Raises', desc:'Capital raised in discrete rounds. Fixed allocation, bounded price curve. No continuous emissions.', href:'/learn' },
+              { icon:'🛡️', color:'#A78BFA', title:'Rights Protection', desc:'Existing holders get first access at launch price before each new cycle opens to the public.', href:'/learn' },
+              { icon:'📊', color:'#FF9F1C', title:'Predictable Pricing', desc:'Step, Linear, or Exp-Lite curves. You always know what drives the next price change.', href:'/learn' },
+              { icon:'💰', color:'#10B981', title:'On-Chain Treasury', desc:'Proceeds split automatically at cycle close. Creator, reserve, and sink shares are set in stone.', href:'/learn' },
+              { icon:'🧩', color:'#F472B6', title:'Embed SDK', desc:'Drop a live buy widget onto any website. Two lines of code. Dark + light mode. No API key.', href:'/sdk' },
             ].map((card,i) => (
-              <a key={i} href="/learn" style={{ textDecoration:'none' }}>
+              <a key={i} href={card.href} style={{ textDecoration:'none' }}>
                 <div style={{ background:'var(--panel-alt)', border:`1px solid ${card.color}22`, borderRadius:8, padding:'12px 13px', cursor:'pointer', transition:'border-color 0.15s' }}
                   onMouseEnter={e => e.currentTarget.style.borderColor=`${card.color}55`}
                   onMouseLeave={e => e.currentTarget.style.borderColor=`${card.color}22`}>

@@ -326,6 +326,20 @@ export default function LearnPage() {
                 <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: activeSection === s.id ? '#22D3EE' : 'var(--text-dim)', fontWeight: activeSection === s.id ? 700 : 400, lineHeight: 1.3 }}>{s.title}</span>
               </button>
             ))}
+            {/* Quick links */}
+            <div style={{ height: 1, background: 'var(--border)', margin: '6px 4px' }} />
+            {[
+              { href:'/sdk',        icon:'🧩', label:'Embed SDK' },
+              { href:'/whitepaper', icon:'📄', label:'Whitepaper' },
+            ].map(({ href, icon, label }) => (
+              <a key={href} href={href}
+                style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 10px', borderRadius:6, textDecoration:'none', transition:'background 0.12s' }}
+                onMouseEnter={e => e.currentTarget.style.background='rgba(139,92,246,0.06)'}
+                onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                <span style={{ fontSize:14 }}>{icon}</span>
+                <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{label} ↗</span>
+              </a>
+            ))}
           </div>
         </div>
 
