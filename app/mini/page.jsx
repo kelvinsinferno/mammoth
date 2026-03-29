@@ -219,6 +219,46 @@ export default function MiniAppPage() {
             ))}
           </div>
 
+          {/* Coinbase Mini App callout */}
+          <div style={{ marginBottom: 56 }}>
+            <div style={{ background: 'linear-gradient(135deg,rgba(0,82,255,0.06),rgba(0,82,255,0.02))', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 12, padding: '24px 24px', display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ fontSize: 36, flexShrink: 0 }}>🔵</div>
+              <div style={{ flex: 1, minWidth: 240 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, color: 'var(--text)' }}>Coinbase Mini App</span>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, fontWeight: 700, color: '#0052FF', background: 'rgba(0,82,255,0.1)', border: '1px solid rgba(0,82,255,0.25)', borderRadius: 3, padding: '2px 7px' }}>BUILT IN</span>
+                </div>
+                <p style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.8, margin: '0 0 16px' }}>
+                  Every token launched on Mammoth is automatically available inside Coinbase Wallet as a full mini app — no extra setup required. Coinbase Wallet users get a dedicated discovery feed, portfolio tracker, and project pages, all accessible from within the wallet they already use.
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(180px,100%),1fr))', gap: 8, marginBottom: 16 }}>
+                  {[
+                    { icon: '🔍', label: 'Discover feed',       desc: 'Your token appears in the Mammoth discovery feed inside Coinbase Wallet' },
+                    { icon: '📊', label: 'Portfolio tracking',  desc: 'Buyers can track their position and P&L from within their wallet' },
+                    { icon: '🛒', label: 'In-wallet buying',    desc: 'Full buy form — presets, quote, receipt — without leaving Coinbase Wallet' },
+                    { icon: '🔔', label: 'New cycle alerts',    desc: 'Backed holders see new cycle notifications when they open the app' },
+                  ].map(({ icon, label, desc }) => (
+                    <div key={label} style={{ background: 'var(--panel-alt)', border: '1px solid rgba(0,82,255,0.12)', borderRadius: 8, padding: '11px 12px' }}>
+                      <div style={{ fontSize: 16, marginBottom: 5 }}>{icon}</div>
+                      <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 12, color: '#0052FF', marginBottom: 4 }}>{label}</div>
+                      <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, color: 'var(--text-muted)', lineHeight: 1.65 }}>{desc}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <a href="/coinbase" target="_blank" rel="noopener noreferrer"
+                    style={{ background: '#0052FF', borderRadius: 7, padding: '9px 18px', fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 11, color: '#fff', textDecoration: 'none', letterSpacing: '0.04em', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    🔵 OPEN COINBASE APP ↗
+                  </a>
+                  <a href={`${BASE}/coinbase-manifest.json`} target="_blank" rel="noopener noreferrer"
+                    style={{ background: 'transparent', border: '1px solid rgba(0,82,255,0.3)', borderRadius: 7, padding: '9px 18px', fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 11, color: '#0052FF', textDecoration: 'none', letterSpacing: '0.04em' }}>
+                    VIEW MANIFEST
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* CTA */}
           <div style={{ background: 'linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.05))', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, padding: '28px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
             <div>
