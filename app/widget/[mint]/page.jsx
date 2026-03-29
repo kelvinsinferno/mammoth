@@ -5,6 +5,7 @@ import { MOCK_PROJECTS } from '../../../lib/data';
 import { computeStepCurve } from '../../../lib/curves';
 import { useApp } from '../../../lib/AppContext';
 import WalletModal from '../../../components/wallet/WalletModal';
+import PriceChart from '../../../components/charts/PriceChart';
 
 // Minimal self-contained buy widget — designed for iframe embedding
 // URL params: theme=dark|light, accent=#hex, size=compact|full
@@ -108,6 +109,13 @@ export default function WidgetPage() {
             <div style={{ fontSize:9, color:muted }}>SOL</div>
           </div>
         </div>
+
+        {/* Price chart */}
+        {size !== 'compact' && project.chartData?.length > 0 && (
+          <div style={{ padding:'8px 8px 4px', borderBottom:`1px solid ${border}` }}>
+            <PriceChart data={project.chartData} cycleStart={Math.floor(project.chartData.length * 0.62)} />
+          </div>
+        )}
 
         {/* Cycle progress */}
         {size !== 'compact' && cycle && (

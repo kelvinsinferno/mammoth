@@ -22,7 +22,7 @@ function EmbedModal({ project, onClose }) {
   const iframeCode = `<iframe
   src="${widgetUrl}"
   width="${size === 'compact' ? '340' : '420'}"
-  height="${size === 'compact' ? '220' : '420'}"
+  height="${size === 'compact' ? '220' : '560'}"
   frameborder="0"
   style="border-radius:12px;overflow:hidden;"
   allow="clipboard-write"
@@ -34,7 +34,7 @@ function EmbedModal({ project, onClose }) {
     var iframe = document.createElement('iframe');
     iframe.src = "${widgetUrl}";
     iframe.width = "${size === 'compact' ? '340' : '420'}";
-    iframe.height = "${size === 'compact' ? '220' : '420'}";
+    iframe.height = "${size === 'compact' ? '220' : '560'}";
     iframe.frameBorder = "0";
     iframe.style.cssText = "border-radius:12px;overflow:hidden;";
     document.getElementById('mammoth-widget').appendChild(iframe);
@@ -58,7 +58,7 @@ function EmbedModal({ project, onClose }) {
 
         {/* Live preview */}
         <div style={{ marginBottom:16, borderRadius:10, overflow:'hidden', border:'1px solid #1d2540', background:'#0d1117', display:'flex', justifyContent:'center', padding:12 }}>
-          <iframe src={widgetUrl} width={size === 'compact' ? 320 : 400} height={size === 'compact' ? 200 : 400} frameBorder="0" style={{ borderRadius:10, display:'block' }}/>
+          <iframe src={widgetUrl} width={size === 'compact' ? 320 : 400} height={size === 'compact' ? 200 : 560} frameBorder="0" style={{ borderRadius:10, display:'block' }}/>
         </div>
 
         {/* Customisation */}
