@@ -251,7 +251,9 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
             {filtered.map((p,i) => (
               <div key={p.id} style={{ animation:'fadeUp 0.2s ease both', animationDelay:`${i*0.033}s` }}>
                 {p.status === 'COMING_SOON' ? (
-                  <div style={{ background:'var(--panel)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:10, padding:'16px', position:'relative', overflow:'hidden', opacity:0.85 }}>
+                  <div onClick={() => onSelectProject(p)} style={{ background:'var(--panel)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:10, padding:'16px', position:'relative', overflow:'hidden', opacity:0.85, cursor:'pointer', transition:'border-color 0.15s, opacity 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(139,92,246,0.6)'; e.currentTarget.style.opacity='1'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(139,92,246,0.3)'; e.currentTarget.style.opacity='0.85'; }}>
                     {/* Blur overlay hint */}
                     <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,rgba(139,92,246,0.04),rgba(34,211,238,0.04))', pointerEvents:'none' }}/>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>

@@ -550,6 +550,55 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   );
 }
 
+function ComingSoonPanel({ goPublicAt, ticker }) {
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => forceUpdate(n => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = Math.max(0, new Date(goPublicAt) - Date.now());
+  const days = Math.floor(diff / 86400000);
+  const hrs  = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  const pad  = n => String(n).padStart(2, '0');
+  const gone = diff === 0;
+
+  return (
+    <div style={{ background:'var(--panel)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:10, padding:'20px 16px' }}>
+      <div style={{ textAlign:'center', marginBottom:20 }}>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'#A78BFA', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:6 }}>
+          {gone ? '🚀 Launching now' : '📅 Not yet open'}
+        </div>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:4 }}>
+          ${ticker} goes public on
+        </div>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'#A78BFA' }}>
+          {new Date(goPublicAt).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}
+          {' at '}
+          {new Date(goPublicAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}
+        </div>
+      </div>
+
+      {/* Countdown */}
+      {!gone && (
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:6, marginBottom:16 }}>
+          {[[days,'DAYS'],[hrs,'HRS'],[mins,'MIN'],[secs,'SEC']].map(([val, label]) => (
+            <div key={label} style={{ background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:7, padding:'10px 6px', textAlign:'center' }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:20, color:'#A78BFA', lineHeight:1 }}>{pad(val)}</div>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'var(--text-muted)', marginTop:4, letterSpacing:'0.06em' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.15)', borderRadius:7, padding:'10px 14px', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', lineHeight:1.75, textAlign:'center' }}>
+        Buying opens when the cycle launches. Check back then — or come back to this page and the buy panel will appear automatically.
+      </div>
+    </div>
+  );
+}
+
 export default function ProjectDetail({ project: p, onBack, wallet, walletState, onOpenModal, onDisconnect, onConnect, onPurchase, onManageCycles, theme, onToggleTheme, rpcError }) {
   const [tab, setTab] = useState('About');
   const tabsRef = useRef(null);
@@ -612,14 +661,16 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
                 <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{p.volume.toLocaleString()} vol · creator: {p.creator}</div>
               </div>
             </div>
-            <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'12px 8px 8px', marginBottom:12 }}>
-              <PriceChart data={p.chartData} cycleStart={Math.floor(p.chartData.length*0.62)}/>
-            </div>
-            <div className="desktop-only"><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
+            {p.status !== 'COMING_SOON' && (
+              <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'12px 8px 8px', marginBottom:12 }}>
+                <PriceChart data={p.chartData} cycleStart={Math.floor(p.chartData.length*0.62)}/>
+              </div>
+            )}
+            {p.status !== 'COMING_SOON' && <div className="desktop-only"><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>}
           </div>
 
           <div style={{ position:'sticky', top:68 }}>
-            <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
+            {p.status !== 'COMING_SOON' && <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>}
 
             {/* ── Your Position panel ── */}
             {wallet && (() => {
@@ -670,7 +721,10 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
               );
             })()}
 
-            <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} walletBalance={walletState?.balance} walletLoading={walletState?.status === 'connecting'} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
+            {p.status === 'COMING_SOON' && p.goPublicAt
+              ? <ComingSoonPanel goPublicAt={p.goPublicAt} ticker={p.ticker} />
+              : <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} walletBalance={walletState?.balance} walletLoading={walletState?.status === 'connecting'} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
+            }
             {p._mine && onManageCycles && (
               <button onClick={onManageCycles} style={{ marginTop:8, width:'100%', padding:'9px 0', background:'transparent', border:'1px solid #252848', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer', fontWeight:500, letterSpacing:'0.04em', transition:'all 0.13s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor='#8B5CF6'; e.currentTarget.style.color='#22D3EE'; }}
