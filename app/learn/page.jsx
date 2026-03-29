@@ -242,6 +242,36 @@ Mammoth automatically generates a Jupiter deeplink for each token. Hit "Trade on
         body: 'Mammoth tokens are standard SPL tokens. You can trade them on any DEX that supports Solana at any time — you\'re never locked in.'
       }
     ]
+  },
+  {
+    id: 'embed-sdk',
+    icon: '🧩',
+    title: 'Embed Widget SDK',
+    audience: 'creators',
+    content: [
+      {
+        type: 'text',
+        body: `Mammoth tokens can be bought directly from any website — yours, your community's, your landing page — with no extra setup. The embed widget is a self-contained buy panel that works with two lines of code.`
+      },
+      {
+        type: 'highlight',
+        label: 'What the widget includes',
+        body: 'Live price chart · Cycle progress bar · Allocation remaining · Curve type · Launch & current price · Quick-buy presets (5% / 10% / 25% / 50%) · SOL input with quote preview · Wallet connect (Phantom, Solflare) · Dark mode + light mode · Custom accent colour'
+      },
+      {
+        type: 'text',
+        body: `The widget is an iframe that loads from mammoth-protocol.vercel.app. Buyers connect their wallet inside the widget and buy on-chain — no API key, no backend, no integration work required.
+
+To get your embed code: launch your token → open Creator Dashboard → expand your token → hit the </> button.
+
+To preview both themes live or grab a demo snippet, visit the SDK page.`
+      },
+      {
+        type: 'highlight',
+        label: 'URL parameters',
+        body: 'theme=dark|light  ·  accent=#hexcolor (URL-encoded)  ·  size=full|compact\n\nExample: /widget/MINT_ADDRESS?theme=light&accent=%238B5CF6&size=full'
+      }
+    ]
   }
 ];
 
