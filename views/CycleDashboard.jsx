@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAllPositions } from './ProjectDetail';
 import { fmtTokens } from '../lib/utils';
 import { closeCycleOnChain } from '../lib/curves';
@@ -355,6 +355,67 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                       </div>
                     ))}
                   </div>
+                  {/* ── Visibility / reveal date editor ── */}
+                  {(() => {
+                    const isScheduled = p.status === 'COMING_SOON' && p.goPublicAt;
+                    const isPast = p.goPublicAt && new Date(p.goPublicAt) <= new Date();
+                    const [editingReveal, setEditingReveal] = React.useState(false);
+                    const [revealDate, setRevealDate] = React.useState(p.goPublicAt ? new Date(p.goPublicAt).toISOString().split('T')[0] : '');
+                    const [revealTime, setRevealTime] = React.useState(p.goPublicAt ? new Date(p.goPublicAt).toTimeString().slice(0,5) : '00:00');
+                    return (
+                      <div style={{ marginBottom:10, background: isScheduled && !isPast ? 'rgba(139,92,246,0.06)' : 'var(--panel-alt)', border:`1px solid ${isScheduled && !isPast ? 'rgba(139,92,246,0.25)' : 'var(--border)'}`, borderRadius:7, padding:'10px 12px' }}>
+                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: editingReveal ? 10 : 0 }}>
+                          <div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', fontWeight:600, marginBottom:2 }}>
+                              {isScheduled && !isPast ? '📅 Scheduled reveal' : '🌐 Publicly visible'}
+                            </div>
+                            {isScheduled && !isPast && (
+                              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#A78BFA' }}>
+                                {new Date(p.goPublicAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} · {new Date(p.goPublicAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}
+                              </div>
+                            )}
+                          </div>
+                          <button onClick={e => { e.stopPropagation(); setEditingReveal(v => !v); }}
+                            style={{ background:'none', border:'1px solid var(--border)', borderRadius:4, padding:'3px 9px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', cursor:'pointer' }}>
+                            {editingReveal ? 'CANCEL' : 'EDIT'}
+                          </button>
+                        </div>
+                        {editingReveal && (
+                          <div style={{ animation:'fadeUp 0.12s ease' }}>
+                            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
+                              <div>
+                                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', marginBottom:3 }}>Reveal date</label>
+                                <input type="date" value={revealDate} onChange={e => setRevealDate(e.target.value)}
+                                  min={new Date().toISOString().split('T')[0]}
+                                  style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'6px 8px', color:'var(--text)', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}/>
+                              </div>
+                              <div>
+                                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', marginBottom:3 }}>Reveal time</label>
+                                <input type="time" value={revealTime} onChange={e => setRevealTime(e.target.value)}
+                                  style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'6px 8px', color:'var(--text)', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}/>
+                              </div>
+                            </div>
+                            <div style={{ display:'flex', gap:6 }}>
+                              <button onClick={e => { e.stopPropagation();
+                                  const dt = revealDate ? new Date(`${revealDate}T${revealTime||'00:00'}`).toISOString() : null;
+                                  p.goPublicAt = dt; p.status = dt && new Date(dt) > new Date() ? 'COMING_SOON' : 'BETWEEN';
+                                  setEditingReveal(false); }}
+                                style={{ flex:1, padding:'7px 0', background:'rgba(139,92,246,0.15)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:5, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:10, color:'#A78BFA', cursor:'pointer' }}>
+                                SAVE DATE
+                              </button>
+                              {p.goPublicAt && (
+                                <button onClick={e => { e.stopPropagation(); p.goPublicAt = null; p.status = 'BETWEEN'; setEditingReveal(false); }}
+                                  style={{ padding:'7px 12px', background:'transparent', border:'1px solid var(--border)', borderRadius:5, fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#F43F5E', cursor:'pointer' }}>
+                                  MAKE PUBLIC NOW
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
                   <button onClick={e => { e.stopPropagation(); setManageModal(p); }}
                     style={{ width:'100%', padding:'10px 0', background:'rgba(139,92,246,0.15)', border:'1px solid rgba(139,92,246,0.28)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#22D3EE', cursor:'pointer', letterSpacing:'0.04em', transition:'all 0.12s' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor='#8B5CF6'}

@@ -38,6 +38,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
     supplyMode: 'elastic', initialAllocation: 1000000, hardCapSupply: 0, curveType: 'linear', startPrice: 0.001,
     stepSize: 5000, stepIncrement: 0.00022, endPrice: 0.01, expMultiplier: 10,
     creatorAlloc: 70, treasuryAlloc: 20, burnAlloc: 8, protocolFee: 2,
+    visibility: 'public', goPublicDate: '', goPublicTime: '',
     // Pre-fill from draft if provided
     ...(initialData ? {
       name: initialData.name || '',
@@ -235,17 +236,24 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         deployResult = await mockDeployToken(formData);
       }
 
+      const goPublicAt = formData.visibility === 'scheduled' && formData.goPublicDate
+        ? new Date(`${formData.goPublicDate}T${formData.goPublicTime || '00:00'}`).toISOString()
+        : null;
       const newProject = {
         id: deployResult.mint,
         mint: deployResult.mint,
         name: formData.name,
         ticker: formData.ticker.toUpperCase(),
         description: formData.description,
+        website: formData.website, twitter: formData.twitter, telegram: formData.telegram,
+        discord: formData.discord, github: formData.github, farcaster: formData.farcaster,
+        youtube: formData.youtube, docs: formData.docs,
         creator: walletState.short || 'anon',
         image: formData.imagePreview,
         supplyMode: formData.supplyMode,
         totalSupply: formData.supplyMode === 'fixed' ? formData.hardCapSupply : formData.initialAllocation,
-        status: 'BETWEEN',
+        status: goPublicAt && new Date(goPublicAt) > new Date() ? 'COMING_SOON' : 'BETWEEN',
+        goPublicAt,
         price: formData.startPrice,
         change: 0,
         volume: 0,
@@ -788,22 +796,69 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
         {step === 3 && (
           <div style={{ animation:'fadeUp 0.2s ease' }}>
-            {[
-              formData.supplyMode==='fixed' && { name:'hardCapSupply', label:'Hard cap supply', suffix:'tokens', hint:'Total tokens that can ever exist.' },
-            ].filter(Boolean).map(f => (
-              <div key={f.name} style={{ marginBottom:14 }}>
-                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>{f.label}</label>
+            {formData.supplyMode === 'fixed' && (
+              <div style={{ marginBottom:14 }}>
+                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', marginBottom:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Hard cap supply</label>
                 <div style={{ position:'relative' }}>
-                  <input type="number" name={f.name} value={formData[f.name]} onChange={handleChange} step={f.step||1}
-                    style={{ width:'100%', background:'var(--panel-alt)', border:errors[f.name]?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 12px 9px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', opacity:isProcessing?0.6:1, boxSizing:'border-box', minHeight:44 }}
+                  <input type="number" name="hardCapSupply" value={formData.hardCapSupply} onChange={handleChange} step={1}
+                    style={{ width:'100%', background:'var(--panel-alt)', border:errors.hardCapSupply?'1px solid #F43F5E':'1px solid var(--border)', borderRadius:6, padding:'9px 52px 9px 12px', color:'var(--text)', fontSize:14, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
                     onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                    onBlur={e => e.currentTarget.style.borderColor=errors[f.name]?'#F43F5E':'var(--border)'}/>
-                  {f.suffix && <span style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)' }}>{f.suffix}</span>}
+                    onBlur={e => e.currentTarget.style.borderColor=errors.hardCapSupply?'#F43F5E':'var(--border)'}/>
+                  <span style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)' }}>tokens</span>
                 </div>
-                {f.hint && !errors[f.name] && <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>{f.hint}</div>}
-                {errors[f.name] && <div style={{ fontSize:10, color:'#F43F5E', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>⚠ {errors[f.name]}</div>}
+                <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:4, fontFamily:"'IBM Plex Mono',monospace" }}>Total tokens that can ever exist.</div>
               </div>
-            ))}
+            )}
+
+            {/* ── Public Visibility ── */}
+            <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-dim)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:10 }}>Public Visibility</div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom: formData.visibility === 'scheduled' ? 10 : 0 }}>
+                {[
+                  { key:'public', icon:'🌐', label:'Public now', desc:'Visible to everyone immediately after launch.' },
+                  { key:'scheduled', icon:'📅', label:'Schedule reveal', desc:'Hidden until your chosen date. You can change this anytime.' },
+                ].map(v => (
+                  <div key={v.key} onClick={() => handleChange({ target:{ name:'visibility', value:v.key } })}
+                    style={{ padding:'10px 12px', background:formData.visibility===v.key?'rgba(139,92,246,0.12)':'var(--panel)', border:`1px solid ${formData.visibility===v.key?'#8B5CF6':'var(--border)'}`, borderRadius:7, cursor:'pointer', transition:'all 0.12s' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:4 }}>
+                      <div style={{ width:13, height:13, borderRadius:'50%', border:formData.visibility===v.key?'4px solid #8B5CF6':'2px solid var(--border)', flexShrink:0 }}/>
+                      <span style={{ fontSize:12 }}>{v.icon}</span>
+                      <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:formData.visibility===v.key?'#A78BFA':'var(--text)' }}>{v.label}</span>
+                    </div>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.6, paddingLeft:20 }}>{v.desc}</div>
+                  </div>
+                ))}
+              </div>
+              {formData.visibility === 'scheduled' && (
+                <div style={{ animation:'fadeUp 0.15s ease' }}>
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#A78BFA', marginBottom:8 }}>
+                    Your project will appear in "Coming Soon" on this date — not before.
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                    <div>
+                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Reveal date</label>
+                      <input type="date" name="goPublicDate" value={formData.goPublicDate} onChange={handleChange}
+                        min={new Date().toISOString().split('T')[0]}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                    </div>
+                    <div>
+                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Reveal time</label>
+                      <input type="time" name="goPublicTime" value={formData.goPublicTime} onChange={handleChange}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                    </div>
+                  </div>
+                  {formData.goPublicDate && (
+                    <div style={{ marginTop:8, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.7 }}>
+                      You can change or remove this date anytime from your Creator Dashboard before it goes live.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

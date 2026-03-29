@@ -29,19 +29,30 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
       setBackedNewCycles(alerts);
     } catch { setBackedNewCycles([]); }
   }, [wallet, projects]);
+  const now = Date.now();
+  // Resolve COMING_SOON status in real-time (goPublicAt may have passed since launch)
+  const liveProjects = projects.map(p => {
+    if (p.goPublicAt && new Date(p.goPublicAt) <= new Date()) return { ...p, status: p.status === 'COMING_SOON' ? 'BETWEEN' : p.status };
+    return p;
+  });
+  const comingSoon = liveProjects.filter(p => p.status === 'COMING_SOON').sort((a,b) => new Date(a.goPublicAt) - new Date(b.goPublicAt));
+  const publicProjects = liveProjects.filter(p => p.status !== 'COMING_SOON');
+
   const TABS = [
     {key:'new',label:'New'},
     {key:'trending',label:'Trending ⚡'},
     {key:'raised',label:'Most Raised'},
     {key:'ending',label:'Ending Soon'},
     {key:'between',label:'Between Cycles'},
+    ...(comingSoon.length > 0 ? [{key:'coming',label:`Coming Soon (${comingSoon.length})`}] : []),
   ];
   const sorted = {
-    new: [...projects].sort((a,b) => Number(b.id)-Number(a.id)),
-    trending: [...projects].sort((a,b) => b.change-a.change),
-    raised: [...projects].sort((a,b) => parseFloat(b.raised)-parseFloat(a.raised)),
-    ending: [...projects].filter(p => p.status==='ACTIVE').sort((a,b) => b.progress-a.progress),
-    between: [...projects].filter(p => p.status==='BETWEEN'||p.status==='CLOSED'||p.status==='ENDED'),
+    new: [...publicProjects].sort((a,b) => Number(b.id)-Number(a.id)),
+    trending: [...publicProjects].sort((a,b) => b.change-a.change),
+    raised: [...publicProjects].sort((a,b) => parseFloat(b.raised)-parseFloat(a.raised)),
+    ending: [...publicProjects].filter(p => p.status==='ACTIVE').sort((a,b) => b.progress-a.progress),
+    between: [...publicProjects].filter(p => p.status==='BETWEEN'||p.status==='CLOSED'||p.status==='ENDED'),
+    coming: comingSoon,
   };
   const filtered = (sorted[tab]||sorted.new).filter(p => !search||p.name.toLowerCase().includes(search.toLowerCase())||p.ticker.toLowerCase().includes(search.toLowerCase()));
 
@@ -239,7 +250,31 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(min(290px,100%),1fr))', gap:8 }}>
             {filtered.map((p,i) => (
               <div key={p.id} style={{ animation:'fadeUp 0.2s ease both', animationDelay:`${i*0.033}s` }}>
-                <ProjectCard p={p} onClick={() => onSelectProject(p)} theme={theme}/>
+                {p.status === 'COMING_SOON' ? (
+                  <div style={{ background:'var(--panel)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:10, padding:'16px', position:'relative', overflow:'hidden', opacity:0.85 }}>
+                    {/* Blur overlay hint */}
+                    <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,rgba(139,92,246,0.04),rgba(34,211,238,0.04))', pointerEvents:'none' }}/>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
+                      <div>
+                        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:3 }}>{p.name}</div>
+                        <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'1px 6px' }}>${p.ticker}</span>
+                      </div>
+                      <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'#A78BFA', background:'rgba(139,92,246,0.12)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:3, padding:'2px 8px', flexShrink:0 }}>COMING SOON</span>
+                    </div>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', lineHeight:1.6, marginBottom:12 }}>
+                      {p.description?.slice(0, 80)}{p.description?.length > 80 ? '...' : ''}
+                    </div>
+                    <div style={{ background:'rgba(139,92,246,0.08)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:6, padding:'8px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                      <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>Goes public</span>
+                      <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, fontWeight:700, color:'#A78BFA' }}>
+                        {new Date(p.goPublicAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                        {' · '}{new Date(p.goPublicAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <ProjectCard p={p} onClick={() => onSelectProject(p)} theme={theme}/>
+                )}
               </div>
             ))}
           </div>
