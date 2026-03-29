@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { MOCK_PROJECTS } from '../../../lib/data';
 import { useApp } from '../../../lib/AppContext';
 import PriceChart from '../../../components/charts/PriceChart';
@@ -106,7 +106,10 @@ const LINK_DEFS = [
 
 export default function MiniPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const mint = params?.mint;
+  // forceTheme lets the showcase page display dark/light previews independently of user's theme
+  const forceTheme = searchParams?.get('forceTheme');
   const { walletState, setWalletState, theme, toggleTheme, connection, getWalletAdapter } = useApp();
   const [project, setProject] = useState(null);
   const [tab, setTab] = useState('About');
@@ -132,6 +135,31 @@ export default function MiniPage() {
       tg.BackButton.onClick(()=>window.history.back());
     }
   }, []);
+
+  // When forceTheme is set (e.g. from the showcase iframe), override CSS vars regardless of user preference
+  const effectiveTheme = forceTheme || theme;
+  const lightOverrides = effectiveTheme === 'light' ? {
+    '--page-bg': '#ffffff',
+    '--panel': '#f6f8fa',
+    '--panel-alt': '#eaeef2',
+    '--border': '#d0d7de',
+    '--border-sub': '#d0d7de',
+    '--text': '#1f2328',
+    '--text-secondary': '#2d333b',
+    '--text-dim': '#444c56',
+    '--text-muted': '#656d76',
+    '--badge-bg': '#eaeef2',
+    '--badge-border': '#d0d7de',
+    '--bar-empty': '#d0d7de',
+    '--header-bg': 'rgba(246,248,250,0.9)',
+    '--header-border': '#d0d7de',
+    '--header-shadow': '0 1px 0 #d0d7de',
+    '--hero-bg': '#eaeef2',
+    '--hero-border': '#d0d7de',
+    '--overlay': 'rgba(0,0,0,0.4)',
+    '--stats-bg': '#f6f8fa',
+    '--stats-border': '#d0d7de',
+  } : {};
 
   const wallet = walletState.status === 'connected';
   const isProcessing = txState === 'awaiting' || txState === 'loading';
@@ -196,7 +224,7 @@ export default function MiniPage() {
   return (
     <>
       <script src="https://telegram.org/js/telegram-web-app.js" async/>
-      <div style={{ minHeight:'100vh', background:'var(--page-bg)', color:'var(--text)', fontFamily:"'IBM Plex Mono',monospace" }}>
+      <div style={{ minHeight:'100vh', background:'var(--page-bg)', color:'var(--text)', fontFamily:"'IBM Plex Mono',monospace", ...lightOverrides }}>
 
         {/* Header — same style as project page, no main nav */}
         <header style={{ background:'var(--header-bg)', backdropFilter:'blur(20px)', borderBottom:'1px solid var(--header-border)', position:'sticky', top:0, zIndex:50, boxShadow:'var(--header-shadow)' }}>
@@ -213,7 +241,7 @@ export default function MiniPage() {
               <button onClick={handleShare} style={{ background:shared?'rgba(16,185,129,0.12)':'rgba(139,92,246,0.1)', border:`1px solid ${shared?'rgba(16,185,129,0.3)':'rgba(139,92,246,0.25)'}`, borderRadius:5, padding:'4px 10px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:shared?'#10B981':'#A78BFA', cursor:'pointer' }}>
                 {shared?'✓':'↗'} SHARE
               </button>
-              <ThemeToggle theme={theme} onToggle={toggleTheme}/>
+              <ThemeToggle theme={effectiveTheme} onToggle={toggleTheme}/>
               <WalletButton walletState={walletState} onOpenModal={()=>setShowWallet(true)} onDisconnect={()=>setWalletState({status:'disconnected',address:null,short:null,balance:0,adapter:null,error:null})}/>
             </div>
           </div>
