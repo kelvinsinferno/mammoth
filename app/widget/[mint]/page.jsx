@@ -163,6 +163,34 @@ export default function WidgetPage() {
             </div>
           ) : (
             <>
+              {/* Quick buy presets */}
+              {(() => {
+                const total = cycle?.allocation || 0;
+                const remaining = cycle ? (cycle.allocation - cycle.sold) : 0;
+                const currentPrice = cycle?.currentPrice || project.price || 0.001;
+                const cycleValue = remaining * currentPrice;
+                const presets = [0.05, 0.10, 0.25, 0.50].map(pct => {
+                  const raw = cycleValue * pct;
+                  const decimals = raw < 0.01 ? Math.max(2, Math.ceil(-Math.log10(raw)) + 1) : 2;
+                  return parseFloat(raw.toFixed(decimals));
+                });
+                const labels = ['5%','10%','25%','50%'];
+                return (
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:5, marginBottom:10 }}>
+                    {presets.map((v, i) => {
+                      const active = sol === String(v);
+                      return (
+                        <button key={i} onClick={() => setSol(String(v))} disabled={isProcessing}
+                          style={{ background: active ? `${accent}22` : panelAlt, border:`1px solid ${active ? accent : border}`, borderRadius:5, padding:'5px 0', fontFamily:"'IBM Plex Mono',monospace", cursor:'pointer', opacity:isProcessing?0.5:1, minHeight:38, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:1, transition:'all 0.12s' }}>
+                          <span style={{ fontSize:10, color: active ? accent : muted, fontWeight:700 }}>{labels[i]}</span>
+                          <span style={{ fontSize:8, color: active ? accent : muted, opacity:0.8 }}>{v} SOL</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
               <div style={{ position:'relative', marginBottom:10 }}>
                 <input type="number" value={sol} onChange={e => setSol(e.target.value)} placeholder="0.00" disabled={isProcessing}
                   style={{ width:'100%', background:panelAlt, border:`1px solid ${border}`, borderRadius:7, padding:'11px 46px 11px 12px', color:text, fontSize:15, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', minHeight:44 }}
