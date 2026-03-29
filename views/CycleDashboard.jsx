@@ -8,6 +8,122 @@ import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
 import { SkeletonList } from '../components/ui/Skeleton';
 
+const BASE = 'https://mammoth-protocol.vercel.app';
+
+function EmbedModal({ project, onClose }) {
+  const mint = project.mint || project.id;
+  const [theme, setTheme] = React.useState('dark');
+  const [accent, setAccent] = React.useState('8B5CF6');
+  const [size, setSize] = React.useState('full');
+  const [copied, setCopied] = React.useState(null);
+
+  const widgetUrl = `${BASE}/widget/${mint}?theme=${theme}&accent=${encodeURIComponent('#'+accent.replace('#',''))}&size=${size}`;
+
+  const iframeCode = `<iframe
+  src="${widgetUrl}"
+  width="${size === 'compact' ? '340' : '420'}"
+  height="${size === 'compact' ? '220' : '420'}"
+  frameborder="0"
+  style="border-radius:12px;overflow:hidden;"
+  allow="clipboard-write"
+></iframe>`;
+
+  const scriptCode = `<div id="mammoth-widget"></div>
+<script>
+  (function() {
+    var iframe = document.createElement('iframe');
+    iframe.src = "${widgetUrl}";
+    iframe.width = "${size === 'compact' ? '340' : '420'}";
+    iframe.height = "${size === 'compact' ? '220' : '420'}";
+    iframe.frameBorder = "0";
+    iframe.style.cssText = "border-radius:12px;overflow:hidden;";
+    document.getElementById('mammoth-widget').appendChild(iframe);
+  })();
+</script>`;
+
+  const copy = (text, key) => {
+    navigator.clipboard.writeText(text).then(() => { setCopied(key); setTimeout(() => setCopied(null), 2000); });
+  };
+
+  return (
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(6px)' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:520, padding:'24px 20px', maxHeight:'90vh', overflowY:'auto', animation:'slideUp 0.18s ease' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+          <div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)' }}>Embed Widget</div>
+            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>{project.name} · ${project.ticker}</div>
+          </div>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:18 }}>✕</button>
+        </div>
+
+        {/* Live preview */}
+        <div style={{ marginBottom:16, borderRadius:10, overflow:'hidden', border:'1px solid #1d2540', background:'#0d1117', display:'flex', justifyContent:'center', padding:12 }}>
+          <iframe src={widgetUrl} width={size === 'compact' ? 320 : 400} height={size === 'compact' ? 200 : 400} frameBorder="0" style={{ borderRadius:10, display:'block' }}/>
+        </div>
+
+        {/* Customisation */}
+        <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px', marginBottom:14 }}>
+          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:10 }}>Customise</div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
+            {/* Theme */}
+            <div>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginBottom:5, textTransform:'uppercase' }}>Theme</label>
+              {['dark','light'].map(t => (
+                <div key={t} onClick={() => setTheme(t)} style={{ display:'flex', alignItems:'center', gap:5, padding:'4px 0', cursor:'pointer' }}>
+                  <div style={{ width:12, height:12, borderRadius:'50%', border: theme===t ? '4px solid #8B5CF6' : '2px solid var(--border)', flexShrink:0 }}/>
+                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color: theme===t ? '#A78BFA' : 'var(--text-dim)' }}>{t}</span>
+                </div>
+              ))}
+            </div>
+            {/* Size */}
+            <div>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginBottom:5, textTransform:'uppercase' }}>Size</label>
+              {['full','compact'].map(s => (
+                <div key={s} onClick={() => setSize(s)} style={{ display:'flex', alignItems:'center', gap:5, padding:'4px 0', cursor:'pointer' }}>
+                  <div style={{ width:12, height:12, borderRadius:'50%', border: size===s ? '4px solid #8B5CF6' : '2px solid var(--border)', flexShrink:0 }}/>
+                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color: size===s ? '#A78BFA' : 'var(--text-dim)' }}>{s}</span>
+                </div>
+              ))}
+            </div>
+            {/* Accent */}
+            <div>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginBottom:5, textTransform:'uppercase' }}>Accent</label>
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                <input type="color" value={'#'+accent.replace('#','')} onChange={e => setAccent(e.target.value.replace('#',''))}
+                  style={{ width:28, height:28, borderRadius:4, border:'1px solid var(--border)', cursor:'pointer', padding:2, background:'none' }}/>
+                <input type="text" value={accent.replace('#','')} onChange={e => setAccent(e.target.value.replace('#',''))} maxLength={6}
+                  style={{ flex:1, background:'var(--panel)', border:'1px solid var(--border)', borderRadius:4, padding:'4px 6px', color:'var(--text)', fontSize:10, fontFamily:"'IBM Plex Mono',monospace", outline:'none' }}/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Code snippets */}
+        {[
+          { label:'iframe (recommended)', key:'iframe', code: iframeCode },
+          { label:'Script tag', key:'script', code: scriptCode },
+          { label:'Widget URL', key:'url', code: widgetUrl },
+        ].map(({ label, key, code }) => (
+          <div key={key} style={{ marginBottom:10 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:5 }}>
+              <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>{label}</span>
+              <button onClick={() => copy(code, key)}
+                style={{ background: copied===key ? 'rgba(16,185,129,0.15)' : 'transparent', border:`1px solid ${copied===key ? 'rgba(16,185,129,0.3)' : 'var(--border)'}`, borderRadius:4, padding:'3px 10px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color: copied===key ? '#10B981' : 'var(--text-muted)', cursor:'pointer', transition:'all 0.15s' }}>
+                {copied === key ? '✓ COPIED' : 'COPY'}
+              </button>
+            </div>
+            <pre style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:6, padding:'10px 12px', fontSize:9, color:'#22D3EE', fontFamily:"'IBM Plex Mono',monospace", overflowX:'auto', whiteSpace:'pre-wrap', wordBreak:'break-all', margin:0, lineHeight:1.7 }}>{code}</pre>
+          </div>
+        ))}
+
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.7, marginTop:4 }}>
+          The widget connects to Mammoth Protocol on-chain. Buyers need a Solana wallet (Phantom, Solflare). No API key required.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate }) {
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
@@ -222,6 +338,7 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
 export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme, loading, onLaunchNew, onResumeDraft }) {
   const [expandedId, setExpandedId] = useState(null);
   const [manageModal, setManageModal] = useState(null);
+  const [embedModal, setEmbedModal] = useState(null);
   const [activeTab, setActiveTab] = useState('tokens'); // 'tokens' | 'drafts' | 'portfolio'
   const [drafts, setDrafts] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
@@ -416,12 +533,21 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                     );
                   })()}
 
-                  <button onClick={e => { e.stopPropagation(); setManageModal(p); }}
-                    style={{ width:'100%', padding:'10px 0', background:'rgba(139,92,246,0.15)', border:'1px solid rgba(139,92,246,0.28)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#22D3EE', cursor:'pointer', letterSpacing:'0.04em', transition:'all 0.12s' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor='rgba(139,92,246,0.28)'}>
-                    MANAGE CYCLES →
-                  </button>
+                  <div style={{ display:'flex', gap:6 }}>
+                    <button onClick={e => { e.stopPropagation(); setManageModal(p); }}
+                      style={{ flex:1, padding:'10px 0', background:'rgba(139,92,246,0.15)', border:'1px solid rgba(139,92,246,0.28)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#22D3EE', cursor:'pointer', letterSpacing:'0.04em', transition:'all 0.12s' }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor='rgba(139,92,246,0.28)'}>
+                      MANAGE CYCLES →
+                    </button>
+                    <button onClick={e => { e.stopPropagation(); setEmbedModal(p); }}
+                      style={{ padding:'10px 12px', background:'transparent', border:'1px solid var(--border)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color:'var(--text-dim)', cursor:'pointer', transition:'all 0.12s', flexShrink:0 }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor='#FF9F1C'; e.currentTarget.style.color='#FF9F1C'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.color='var(--text-dim)'; }}
+                      title="Get embed code">
+                      {'</>'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -583,6 +709,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
       {manageModal && (
         <CycleManagerModal cycle={manageModal.cycleData} project={manageModal} onClose={() => setManageModal(null)} onLaunchCycle={onLaunchCycle} onTerminate={() => onTerminateProject?.(manageModal.id)}/>
       )}
+      {embedModal && <EmbedModal project={embedModal} onClose={() => setEmbedModal(null)} />}
     </div>
   );
 }
