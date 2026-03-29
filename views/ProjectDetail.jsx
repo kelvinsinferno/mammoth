@@ -375,7 +375,7 @@ function ShareAfterBuy({ tokensOut, ticker, mintAddress, context }) {
     <div style={{ background:'linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.05))', border:'1px solid rgba(139,92,246,0.2)', borderRadius:9, padding:'14px', marginBottom:8 }}>
       <div style={{ textAlign:'center', marginBottom:12 }}>
         <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)', marginBottom:3 }}>
-          🎉 Spread the word
+          🎉 Pump your bags
         </div>
         <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', lineHeight:1.6 }}>
           You just backed {ticker}. Let your community know.

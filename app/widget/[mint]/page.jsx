@@ -62,7 +62,7 @@ function WidgetShare({ tokensOut, ticker, mint, accent, border, panelAlt, muted,
 
   return (
     <div style={{ background:`${accent}0d`, border:`1px solid ${accent}33`, borderRadius:8, padding:'12px', marginBottom:8 }}>
-      <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:text, marginBottom:3, textAlign:'center' }}>🎉 Spread the word</div>
+      <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:text, marginBottom:3, textAlign:'center' }}>🎉 Pump your bags</div>
       <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:muted, textAlign:'center', marginBottom:10 }}>Let your community know you backed ${ticker}</div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
         {[

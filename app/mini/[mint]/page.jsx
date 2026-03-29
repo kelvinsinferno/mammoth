@@ -116,7 +116,7 @@ function ShareAfterBuyMini({ tokensOut, ticker, mint }) {
   return (
     <div style={{ background:'linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.05))', border:'1px solid rgba(139,92,246,0.2)', borderRadius:9, padding:'13px', marginBottom:8 }}>
       <div style={{ textAlign:'center', marginBottom:10 }}>
-        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)', marginBottom:2 }}>🎉 Spread the word</div>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)', marginBottom:2 }}>🎉 Pump your bags</div>
         <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>You backed ${ticker}. Let your community know.</div>
       </div>
       {isTelegram ? (
