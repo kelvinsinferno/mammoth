@@ -7,6 +7,7 @@ import PriceChart from '../../../components/charts/PriceChart';
 import TokenLogo, { getTokenPalette } from '../../../components/ui/TokenLogo';
 import WalletModal from '../../../components/wallet/WalletModal';
 import WalletButton from '../../../components/wallet/WalletButton';
+import ThemeToggle from '../../../components/ui/ThemeToggle';
 import { computeStepCurve } from '../../../lib/curves';
 import { getPositionForMint, savePurchase } from '../../../views/ProjectDetail';
 
@@ -106,7 +107,7 @@ const LINK_DEFS = [
 export default function MiniPage() {
   const params = useParams();
   const mint = params?.mint;
-  const { walletState, setWalletState, connection, getWalletAdapter } = useApp();
+  const { walletState, setWalletState, theme, setTheme, connection, getWalletAdapter } = useApp();
   const [project, setProject] = useState(null);
   const [tab, setTab] = useState('About');
   const tabsRef = useRef(null);
@@ -212,6 +213,7 @@ export default function MiniPage() {
               <button onClick={handleShare} style={{ background:shared?'rgba(16,185,129,0.12)':'rgba(139,92,246,0.1)', border:`1px solid ${shared?'rgba(16,185,129,0.3)':'rgba(139,92,246,0.25)'}`, borderRadius:5, padding:'4px 10px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:shared?'#10B981':'#A78BFA', cursor:'pointer' }}>
                 {shared?'✓':'↗'} SHARE
               </button>
+              <ThemeToggle theme={theme} onToggle={()=>setTheme(t=>t==='dark'?'light':'dark')}/>
               <WalletButton walletState={walletState} onOpenModal={()=>setShowWallet(true)} onDisconnect={()=>setWalletState({status:'disconnected',address:null,short:null,balance:0,adapter:null,error:null})}/>
             </div>
           </div>
