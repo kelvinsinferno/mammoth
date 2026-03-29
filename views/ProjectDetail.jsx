@@ -814,6 +814,26 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
             })()}
 
             <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} walletBalance={walletState?.balance} walletLoading={walletState?.status === 'connecting'} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)} comingSoon={p.status === 'COMING_SOON'} goPublicAt={p.goPublicAt}/>
+            {/* Share as Mini App */}
+            {(() => {
+              const [shared, setShared] = useState(false);
+              const miniUrl = `https://mammoth-protocol.vercel.app/mini/${p.mint||p.id}`;
+              const handleShare = async () => {
+                if (navigator.share) {
+                  await navigator.share({ title:`${p.name} ($${p.ticker}) on Mammoth`, url: miniUrl });
+                } else {
+                  await navigator.clipboard.writeText(miniUrl);
+                  setShared(true); setTimeout(()=>setShared(false), 2000);
+                }
+              };
+              return (
+                <button onClick={handleShare}
+                  style={{ marginTop:8, width:'100%', padding:'9px 0', background: shared?'rgba(16,185,129,0.1)':'transparent', border:`1px solid ${shared?'rgba(16,185,129,0.3)':'rgba(139,92,246,0.25)'}`, borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, fontWeight:700, color:shared?'#10B981':'#A78BFA', cursor:'pointer', letterSpacing:'0.04em', transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+                  {shared ? '✓ LINK COPIED' : '↗ SHARE MINI APP'}
+                </button>
+              );
+            })()}
+
             {p._mine && onManageCycles && (
               <button onClick={onManageCycles} style={{ marginTop:8, width:'100%', padding:'9px 0', background:'transparent', border:'1px solid #252848', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer', fontWeight:500, letterSpacing:'0.04em', transition:'all 0.13s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor='#8B5CF6'; e.currentTarget.style.color='#22D3EE'; }}
