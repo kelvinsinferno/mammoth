@@ -394,6 +394,9 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                   // Look up current price from all projects if available
                   const liveProject = myProjects?.find(p => String(p.mint || p.id) === String(pos.mintAddress));
                   const currentPrice = liveProject?.price || pos.avgPrice;
+                  const currentCycle = liveProject?.cycle || liveProject?.cycleData?.id || 0;
+                  const hasNewCycle = currentCycle > (pos.lastBuy?.cycleId || 0);
+                  const newCycleOpen = hasNewCycle && liveProject?.status === 'ACTIVE';
                   const currentValue = pos.totalTokens * currentPrice;
                   const pnlSol = currentValue - pos.totalSol;
                   const pnlPct = pos.totalSol > 0 ? (pnlSol / pos.totalSol) * 100 : 0;
@@ -407,6 +410,11 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)' }}>{pos.name || pos.ticker}</span>
                             <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'1px 6px' }}>${pos.ticker}</span>
                             {cycleOpen && <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'#22D3EE', background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.25)', borderRadius:3, padding:'1px 6px', fontWeight:700 }}>CYCLE OPEN</span>}
+                            {hasNewCycle && !cycleOpen && (
+                              <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'#FF9F1C', background:'rgba(255,159,28,0.1)', border:'1px solid rgba(255,159,28,0.3)', borderRadius:3, padding:'1px 6px', fontWeight:700 }}>
+                                {newCycleOpen ? '🔔 NEW CYCLE OPEN' : '🔔 NEW CYCLE'}
+                              </span>
+                            )}
                           </div>
                           <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
                             {pos.buyCount} buy{pos.buyCount > 1 ? 's' : ''} · last {fmtDate(pos.lastBuy.ts)}

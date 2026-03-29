@@ -1,14 +1,34 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProjectCard from '../components/ui/ProjectCard';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import WalletButton from '../components/wallet/WalletButton';
 import { getTokenPalette } from '../components/ui/TokenLogo';
 import { SkeletonCardGrid } from '../components/ui/Skeleton';
+import { getAllPositions } from './ProjectDetail';
 
 export default function Homepage({ projects, onSelectProject, wallet, walletState, onOpenModal, onDisconnect, onLaunch, theme, onToggleTheme, loading, rpcError }) {
   const [tab, setTab] = useState('new');
   const [search, setSearch] = useState('');
+  const [backedNewCycles, setBackedNewCycles] = useState([]);
+
+  useEffect(() => {
+    if (!wallet) { setBackedNewCycles([]); return; }
+    try {
+      const positions = getAllPositions();
+      const alerts = [];
+      for (const pos of positions) {
+        const liveProject = projects.find(p => String(p.mint || p.id) === String(pos.mintAddress));
+        if (!liveProject) continue;
+        const currentCycle = liveProject.cycle || liveProject.cycleData?.id || 1;
+        const lastBoughtCycle = pos.lastBuy?.cycleId || 0;
+        if (currentCycle > lastBoughtCycle) {
+          alerts.push({ project: liveProject, pos, cycleOpen: liveProject.status === 'ACTIVE', currentCycle, lastBoughtCycle });
+        }
+      }
+      setBackedNewCycles(alerts);
+    } catch { setBackedNewCycles([]); }
+  }, [wallet, projects]);
   const TABS = [
     {key:'new',label:'New'},
     {key:'trending',label:'Trending ⚡'},
@@ -165,6 +185,49 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
           <div style={{ background:'rgba(251,146,60,0.08)', border:'1px solid rgba(251,146,60,0.22)', borderRadius:7, padding:'9px 14px', marginBottom:12, display:'flex', alignItems:'center', gap:8, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#FB923C' }}>
             <span>⚠️</span>
             <span>{rpcError}</span>
+          </div>
+        )}
+
+        {/* ── Backed projects with new cycles ── */}
+        {backedNewCycles.length > 0 && (
+          <div style={{ marginBottom:16, background:'rgba(255,159,28,0.05)', border:'1px solid rgba(255,159,28,0.25)', borderRadius:10, overflow:'hidden' }}>
+            <div style={{ padding:'9px 14px', borderBottom:'1px solid rgba(255,159,28,0.15)', display:'flex', alignItems:'center', gap:7 }}>
+              <span style={{ fontSize:14 }}>🔔</span>
+              <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'#FF9F1C', letterSpacing:'0.06em', textTransform:'uppercase' }}>
+                New cycles from projects you&apos;ve backed
+              </span>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
+              {backedNewCycles.map(({ project: p, pos, cycleOpen, currentCycle, lastBoughtCycle }, i) => (
+                <div key={p.id}
+                  onClick={() => onSelectProject(p)}
+                  style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 14px', cursor:'pointer', borderBottom: i < backedNewCycles.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', transition:'background 0.12s' }}
+                  onMouseEnter={e => e.currentTarget.style.background='rgba(255,159,28,0.06)'}
+                  onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                  {/* Token name + ticker */}
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:2 }}>
+                      <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</span>
+                      <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'1px 5px', flexShrink:0 }}>${p.ticker}</span>
+                    </div>
+                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
+                      You backed cycle {lastBoughtCycle} · now on cycle {currentCycle}
+                    </div>
+                  </div>
+                  {/* Status badge + holdings */}
+                  <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:3, flexShrink:0 }}>
+                    {cycleOpen
+                      ? <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'#22D3EE', background:'rgba(34,211,238,0.1)', border:'1px solid rgba(34,211,238,0.25)', borderRadius:3, padding:'2px 7px' }}>● OPEN NOW</span>
+                      : <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'#FF9F1C', background:'rgba(255,159,28,0.1)', border:'1px solid rgba(255,159,28,0.25)', borderRadius:3, padding:'2px 7px' }}>COMING SOON</span>
+                    }
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
+                      {pos.totalTokens.toLocaleString()} held
+                    </span>
+                  </div>
+                  <span style={{ color:'var(--text-muted)', fontSize:12, flexShrink:0 }}>→</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
