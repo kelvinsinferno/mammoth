@@ -335,7 +335,7 @@ function CyclePanelDetail({ cycle }) {
 
 const BASE_URL = 'https://mammoth-protocol.vercel.app';
 
-function ShareAfterBuy({ tokensOut, ticker, mintAddress, context }) {
+export function ShareAfterBuy({ tokensOut, ticker, mintAddress, context }) {
   const [shared, setShared] = useState(null);
 
   const shareText = `Just bought ${tokensOut?.toLocaleString()} $${ticker} on Mammoth Protocol 🦣`;

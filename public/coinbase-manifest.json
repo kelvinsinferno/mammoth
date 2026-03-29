@@ -1,0 +1,10 @@
+{
+  "name": "Mammoth Protocol",
+  "description": "Rights-based, cycle-driven token issuance on Solana. Launch tokens, participate in cycles, and trade with full transparency.",
+  "icon": "https://mammoth-protocol.vercel.app/mammoth-logo-dark.gif",
+  "url": "https://mammoth-protocol.vercel.app/coinbase",
+  "version": "1.0.0",
+  "categories": ["defi", "trading"],
+  "networks": ["solana"],
+  "permissions": ["wallet"]
+}
