@@ -589,6 +589,56 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   );
 }
 
+// Fake chart bars — stable across renders (seeded by index)
+const FAKE_BARS = Array.from({length:40}, (_,i) => 18 + Math.abs(Math.sin(i * 0.8 + 1.2) * 28 + Math.sin(i * 0.3) * 14));
+
+function CountdownChart({ goPublicAt, ticker }) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => tick(n => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = Math.max(0, new Date(goPublicAt) - Date.now());
+  const days = Math.floor(diff / 86400000);
+  const hrs  = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  const pad  = n => String(n).padStart(2,'0');
+
+  return (
+    <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, marginBottom:12, overflow:'hidden', position:'relative' }}>
+      {/* Blurred fake chart bars */}
+      <div style={{ padding:'12px 8px 8px', filter:'blur(1.5px)', opacity:0.18, pointerEvents:'none', userSelect:'none' }}>
+        <div style={{ display:'flex', alignItems:'flex-end', gap:2, height:80, padding:'0 4px' }}>
+          {FAKE_BARS.map((h,i) => (
+            <div key={i} style={{ flex:1, borderRadius:'2px 2px 0 0', background:`linear-gradient(180deg,#8B5CF6,#22D3EE)`, height:`${h}px`, opacity: i > FAKE_BARS.length * 0.62 ? 1 : 0.5 }}/>
+          ))}
+        </div>
+        {/* Fake x-axis */}
+        <div style={{ height:1, background:'var(--border)', margin:'4px 4px 0' }}/>
+      </div>
+
+      {/* Countdown overlay */}
+      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'rgba(8,12,20,0.72)', backdropFilter:'blur(2px)' }}>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'#A78BFA', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:10 }}>
+          ${ticker} launches in
+        </div>
+        <div style={{ display:'flex', gap:6, marginBottom:8 }}>
+          {[[days,'D'],[hrs,'H'],[mins,'M'],[secs,'S']].map(([val, label]) => (
+            <div key={label} style={{ textAlign:'center', minWidth:44 }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:22, color:'#fff', lineHeight:1, letterSpacing:'-0.02em' }}>{pad(val)}</div>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'var(--text-muted)', marginTop:3, letterSpacing:'0.1em' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
+          {new Date(goPublicAt).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · {new Date(goPublicAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ComingSoonPanel({ goPublicAt, ticker }) {
   const [, forceUpdate] = useState(0);
   useEffect(() => {
@@ -700,20 +750,14 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
                 <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{p.volume.toLocaleString()} vol · creator: {p.creator}</div>
               </div>
             </div>
-            {p.status === 'COMING_SOON' ? (
-              <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'0 8px 8px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'center', minHeight:160 }}>
-                <div style={{ textAlign:'center', padding:'32px 0' }}>
-                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginBottom:6 }}>Chart unlocks at launch</div>
-                  <div style={{ display:'flex', gap:3, alignItems:'flex-end', justifyContent:'center', height:40 }}>
-                    {Array.from({length:24},(_,i)=>(<div key={i} style={{ width:6, borderRadius:2, background:'var(--border)', height:`${15+Math.sin(i*0.7)*10+Math.random()*8}px`, opacity:0.3 }}/>))}
-                  </div>
+            {p.status === 'COMING_SOON' && p.goPublicAt
+              ? <CountdownChart goPublicAt={p.goPublicAt} ticker={p.ticker} />
+              : (
+                <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'12px 8px 8px', marginBottom:12 }}>
+                  <PriceChart data={p.chartData} cycleStart={Math.floor(p.chartData.length*0.62)}/>
                 </div>
-              </div>
-            ) : (
-              <div style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:10, padding:'12px 8px 8px', marginBottom:12 }}>
-                <PriceChart data={p.chartData} cycleStart={Math.floor(p.chartData.length*0.62)}/>
-              </div>
-            )}
+              )
+            }
             <div className="desktop-only"><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
           </div>
 

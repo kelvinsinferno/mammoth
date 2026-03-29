@@ -7,6 +7,53 @@ import { useApp } from '../../../lib/AppContext';
 import WalletModal from '../../../components/wallet/WalletModal';
 import PriceChart from '../../../components/charts/PriceChart';
 
+const FAKE_BARS_W = Array.from({length:36},(_,i)=>18+Math.abs(Math.sin(i*0.8+1.2)*28+Math.sin(i*0.3)*14));
+
+function WidgetCountdown({ goPublicAt, ticker, border, panel, panelAlt, accent, muted, text }) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => tick(n => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = Math.max(0, new Date(goPublicAt) - Date.now());
+  const days = Math.floor(diff / 86400000);
+  const hrs  = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  const pad  = n => String(n).padStart(2,'0');
+
+  return (
+    <div style={{ position:'relative', borderBottom:`1px solid ${border}`, background:panel, overflow:'hidden' }}>
+      {/* Fake blurred bars */}
+      <div style={{ padding:'10px 8px 6px', filter:'blur(1.5px)', opacity:0.15, pointerEvents:'none' }}>
+        <div style={{ display:'flex', alignItems:'flex-end', gap:2, height:70 }}>
+          {FAKE_BARS_W.map((h,i) => (
+            <div key={i} style={{ flex:1, borderRadius:'2px 2px 0 0', background:`linear-gradient(180deg,${accent},#22D3EE)`, height:`${h}px` }}/>
+          ))}
+        </div>
+        <div style={{ height:1, background:border, margin:'3px 2px 0' }}/>
+      </div>
+      {/* Overlay */}
+      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'rgba(13,17,23,0.75)', backdropFilter:'blur(2px)' }}>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:accent, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:8 }}>
+          ${ticker} launches in
+        </div>
+        <div style={{ display:'flex', gap:8, marginBottom:6 }}>
+          {[[days,'D'],[hrs,'H'],[mins,'M'],[secs,'S']].map(([val,label]) => (
+            <div key={label} style={{ textAlign:'center', minWidth:38 }}>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:20, color:'#ffffff', lineHeight:1 }}>{pad(val)}</div>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:muted, marginTop:2, letterSpacing:'0.1em' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:muted }}>
+          {new Date(goPublicAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})} · {new Date(goPublicAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Minimal self-contained buy widget — designed for iframe embedding
 // URL params: theme=dark|light, accent=#hex, size=compact|full
 
@@ -129,11 +176,15 @@ export default function WidgetPage() {
           </div>
         </div>
 
-        {/* Price chart */}
-        {size !== 'compact' && project.chartData?.length > 0 && (
-          <div style={{ padding:'8px 8px 4px', borderBottom:`1px solid ${border}`, background:panel }}>
-            <PriceChart data={project.chartData} cycleStart={Math.floor(project.chartData.length * 0.62)} />
-          </div>
+        {/* Price chart / countdown overlay */}
+        {size !== 'compact' && (
+          project.status === 'COMING_SOON' && project.goPublicAt ? (
+            <WidgetCountdown goPublicAt={project.goPublicAt} ticker={project.ticker} border={border} panel={panel} panelAlt={panelAlt} accent={accent} muted={muted} text={text} />
+          ) : project.chartData?.length > 0 ? (
+            <div style={{ padding:'8px 8px 4px', borderBottom:`1px solid ${border}`, background:panel }}>
+              <PriceChart data={project.chartData} cycleStart={Math.floor(project.chartData.length * 0.62)} />
+            </div>
+          ) : null
         )}
 
         {/* Cycle progress */}
