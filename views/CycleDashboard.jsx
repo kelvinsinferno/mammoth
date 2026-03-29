@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { getAllPositions } from './ProjectDetail';
 import { fmtTokens } from '../lib/utils';
 import { closeCycleOnChain } from '../lib/curves';
 import { parseTransactionError, activateCycle } from '../lib/anchorClient';
@@ -221,8 +222,9 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
 export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme, loading, onLaunchNew, onResumeDraft }) {
   const [expandedId, setExpandedId] = useState(null);
   const [manageModal, setManageModal] = useState(null);
-  const [activeTab, setActiveTab] = useState('tokens'); // 'tokens' | 'drafts'
+  const [activeTab, setActiveTab] = useState('tokens'); // 'tokens' | 'drafts' | 'portfolio'
   const [drafts, setDrafts] = useState([]);
+  const [portfolio, setPortfolio] = useState([]);
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -230,6 +232,9 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
     try {
       const saved = JSON.parse(localStorage.getItem('mammoth_drafts') || '[]');
       setDrafts(saved);
+    } catch {}
+    try {
+      setPortfolio(getAllPositions());
     } catch {}
     // Tick every 30s to update countdowns
     const interval = setInterval(() => setNow(Date.now()), 30000);
@@ -288,7 +293,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
 
         {/* Tabs */}
         <div style={{ display:'flex', gap:2, background:'var(--panel-alt)', border:'1px solid #1a2438', borderRadius:7, padding:3, marginBottom:16 }}>
-          {[['tokens', `🪙 Tokens (${myProjects.length})`], ['drafts', `📝 Drafts${drafts.length > 0 ? ` (${drafts.length})` : ''}`]].map(([key, label]) => (
+          {[['tokens', `🪙 Tokens (${myProjects.length})`], ['portfolio', `📊 Portfolio${portfolio.length > 0 ? ` (${portfolio.length})` : ''}`], ['drafts', `📝 Drafts${drafts.length > 0 ? ` (${drafts.length})` : ''}`]].map(([key, label]) => (
             <button key={key} onClick={() => setActiveTab(key)}
               style={{ flex:1, background:activeTab===key?'#8B5CF6':'none', border:'none', cursor:'pointer', fontFamily:"'IBM Plex Mono',monospace", fontSize:11, fontWeight:600, padding:'7px 10px', borderRadius:5, color:activeTab===key?'#fff':'var(--text-dim)', transition:'all 0.12s', minHeight:36 }}>
               {label}
@@ -361,6 +366,80 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
             </div>
           ))}
         </div>}
+
+        {/* Portfolio tab */}
+        {activeTab === 'portfolio' && (
+          <div>
+            {portfolio.length === 0 ? (
+              <div style={{ textAlign:'center', padding:'32px 16px' }}>
+                <div style={{ fontSize:32, marginBottom:10 }}>📊</div>
+                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:6 }}>No holdings yet</div>
+                <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)', lineHeight:1.6 }}>Tokens you buy on Mammoth will appear here.</div>
+              </div>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                {/* Portfolio summary */}
+                {(() => {
+                  const totalSpent = portfolio.reduce((s, p) => s + p.totalSol, 0);
+                  return (
+                    <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+                      <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>{portfolio.length} token{portfolio.length > 1 ? 's' : ''} held</span>
+                      <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>Total spent: <span style={{ color:'var(--text)', fontWeight:700 }}>{totalSpent.toFixed(4)} SOL</span></span>
+                    </div>
+                  );
+                })()}
+                {portfolio.map((pos) => {
+                  const fmtDate = (ts) => new Date(ts).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' });
+                  const fmt = (n) => n >= 0.01 ? n.toFixed(4) : n.toPrecision(3);
+                  // Look up current price from all projects if available
+                  const liveProject = myProjects?.find(p => String(p.mint || p.id) === String(pos.mintAddress));
+                  const currentPrice = liveProject?.price || pos.avgPrice;
+                  const currentValue = pos.totalTokens * currentPrice;
+                  const pnlSol = currentValue - pos.totalSol;
+                  const pnlPct = pos.totalSol > 0 ? (pnlSol / pos.totalSol) * 100 : 0;
+                  const up = pnlSol >= 0;
+                  const cycleOpen = pos.cycleStatus === 'ACTIVE';
+                  return (
+                    <div key={pos.mintAddress} style={{ background:'var(--panel)', border:'1px solid #1d2540', borderRadius:9, padding:'12px 14px' }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
+                        <div>
+                          <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:3 }}>
+                            <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'var(--text)' }}>{pos.name || pos.ticker}</span>
+                            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'1px 6px' }}>${pos.ticker}</span>
+                            {cycleOpen && <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'#22D3EE', background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.25)', borderRadius:3, padding:'1px 6px', fontWeight:700 }}>CYCLE OPEN</span>}
+                          </div>
+                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
+                            {pos.buyCount} buy{pos.buyCount > 1 ? 's' : ''} · last {fmtDate(pos.lastBuy.ts)}
+                          </div>
+                        </div>
+                        <div style={{ textAlign:'right' }}>
+                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:13, fontWeight:700, color: up ? '#10B981' : '#F43F5E' }}>
+                            {up ? '+' : ''}{fmt(pnlSol)} SOL
+                          </div>
+                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color: up ? '#10B981' : '#F43F5E' }}>
+                            {up ? '+' : ''}{pnlPct.toFixed(1)}% P&L
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
+                        {[
+                          { label:'Holdings', value:`${pos.totalTokens.toLocaleString()}` },
+                          { label:'Avg price', value:`${pos.avgPrice.toPrecision(3)} SOL` },
+                          { label:'Current val', value:`${fmt(currentValue)} SOL`, color:'#22D3EE' },
+                        ].map(({ label, value, color }) => (
+                          <div key={label} style={{ background:'var(--panel-alt)', borderRadius:5, padding:'7px 8px' }}>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'var(--text-muted)', marginBottom:2 }}>{label}</div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color: color || 'var(--text)' }}>{value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Drafts tab */}
         {activeTab === 'drafts' && (

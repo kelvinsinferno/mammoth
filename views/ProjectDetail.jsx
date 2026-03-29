@@ -1,5 +1,47 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+
+// ── Purchase history helpers ──────────────────────────────────────────────────
+const PURCHASES_KEY = 'mammoth_purchases';
+
+function loadPurchases() {
+  if (typeof window === 'undefined') return [];
+  try { return JSON.parse(localStorage.getItem(PURCHASES_KEY) || '[]'); } catch { return []; }
+}
+
+export function savePurchase({ mintAddress, ticker, name, tokensOut, solIn, price, cycleId, cycleStatus }) {
+  const all = loadPurchases();
+  all.unshift({ mintAddress, ticker, name, tokensOut, solIn, price, cycleId, cycleStatus, ts: Date.now() });
+  localStorage.setItem(PURCHASES_KEY, JSON.stringify(all.slice(0, 500)));
+}
+
+export function getPositionForMint(mintAddress) {
+  const all = loadPurchases();
+  const mine = all.filter(p => String(p.mintAddress) === String(mintAddress));
+  if (!mine.length) return null;
+  const totalTokens = mine.reduce((s, p) => s + (p.tokensOut || 0), 0);
+  const totalSol = mine.reduce((s, p) => s + (p.solIn || 0), 0);
+  const avgPrice = totalTokens > 0 ? totalSol / totalTokens : 0;
+  const firstBuy = mine[mine.length - 1];
+  const lastBuy = mine[0];
+  return { totalTokens, totalSol, avgPrice, firstBuy, lastBuy, buyCount: mine.length };
+}
+
+export function getAllPositions() {
+  const all = loadPurchases();
+  const byMint = {};
+  for (const p of all) {
+    if (!byMint[p.mintAddress]) byMint[p.mintAddress] = [];
+    byMint[p.mintAddress].push(p);
+  }
+  return Object.entries(byMint).map(([mintAddress, buys]) => {
+    const totalTokens = buys.reduce((s, p) => s + (p.tokensOut || 0), 0);
+    const totalSol = buys.reduce((s, p) => s + (p.solIn || 0), 0);
+    const avgPrice = totalTokens > 0 ? totalSol / totalTokens : 0;
+    const lastBuy = buys[0];
+    return { mintAddress, ticker: lastBuy.ticker, name: lastBuy.name, totalTokens, totalSol, avgPrice, lastBuy, buyCount: buys.length, cycleStatus: lastBuy.cycleStatus };
+  });
+}
 import { computeStepCurve, executeBuyTokens, executeExerciseRights } from '../lib/curves';
 import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
@@ -360,6 +402,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         });
         setReceipt(result);
         setTxState('success');
+        savePurchase({ mintAddress, ticker, name: ticker, tokensOut, solIn: solNum, price: solNum / tokensOut, cycleId: cycle?.id, cycleStatus: cycle?.status });
         toast.success(`Bought ${tokensOut.toLocaleString()} ${ticker}!`);
         onPurchaseComplete?.(result, quote);
       } else {
@@ -369,6 +412,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         const result = { tokensOut, solIn: solNum, fee: solNum * 0.02, signature: mockSig, mock: true };
         setReceipt(result);
         setTxState('success');
+        savePurchase({ mintAddress, ticker, name: ticker, tokensOut, solIn: solNum, price: solNum / tokensOut, cycleId: cycle?.id, cycleStatus: cycle?.status });
         toast.success(`Bought ${tokensOut.toLocaleString()} ${ticker}!`);
         onPurchaseComplete?.(result, quote);
       }
@@ -576,6 +620,56 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
 
           <div style={{ position:'sticky', top:68 }}>
             <div className="mobile-only" style={{ marginBottom:12 }}><CyclePanelDetail cycle={{ ...p.cycleData, launchPrice: p.chartData?.[0]?.p }}/></div>
+
+            {/* ── Your Position panel ── */}
+            {wallet && (() => {
+              const pos = getPositionForMint(p.mint || p.id);
+              if (!pos) return null;
+              const currentValue = pos.totalTokens * p.price;
+              const pnlSol = currentValue - pos.totalSol;
+              const pnlPct = pos.totalSol > 0 ? (pnlSol / pos.totalSol) * 100 : 0;
+              const up = pnlSol >= 0;
+              const fmt = (n) => n >= 1 ? n.toFixed(4) : n.toPrecision(4);
+              const fmtDate = (ts) => new Date(ts).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+              return (
+                <div style={{ background:'var(--panel)', border:`1px solid ${up ? 'rgba(16,185,129,0.3)' : 'rgba(244,63,94,0.3)'}`, borderRadius:10, padding:'14px', marginBottom:10 }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.07em' }}>Your Position</span>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>{pos.buyCount} buy{pos.buyCount > 1 ? 's' : ''}</span>
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
+                    {[
+                      { label:'Holdings', value:`${pos.totalTokens.toLocaleString()} ${p.ticker}`, color:'var(--text)' },
+                      { label:'Current value', value:`${fmt(currentValue)} SOL`, color:'#22D3EE' },
+                      { label:'Avg buy price', value:`${pos.avgPrice.toPrecision(4)} SOL`, color:'var(--text-secondary)' },
+                      { label:'Total spent', value:`${fmt(pos.totalSol)} SOL`, color:'var(--text-secondary)' },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} style={{ background:'var(--panel-alt)', borderRadius:6, padding:'8px 10px' }}>
+                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginBottom:3 }}>{label}</div>
+                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, fontWeight:700, color }}>{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* P&L row */}
+                  <div style={{ background: up ? 'rgba(16,185,129,0.07)' : 'rgba(244,63,94,0.07)', border:`1px solid ${up ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}`, borderRadius:7, padding:'9px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>Unrealized P&L</span>
+                    <div style={{ textAlign:'right' }}>
+                      <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:13, fontWeight:700, color: up ? '#10B981' : '#F43F5E' }}>
+                        {up ? '+' : ''}{fmt(pnlSol)} SOL
+                      </div>
+                      <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color: up ? '#10B981' : '#F43F5E' }}>
+                        {up ? '+' : ''}{pnlPct.toFixed(1)}%
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop:8, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', display:'flex', justifyContent:'space-between' }}>
+                    <span>First buy: {fmtDate(pos.firstBuy.ts)}</span>
+                    <span>Last buy: {fmtDate(pos.lastBuy.ts)}</span>
+                  </div>
+                </div>
+              );
+            })()}
+
             <BuyPanel cycle={p.cycleData} price={p.price} ticker={p.ticker} mintAddress={p.mint || p.id} walletConnected={wallet} walletBalance={walletState?.balance} walletLoading={walletState?.status === 'connecting'} onConnect={onConnect} onPurchaseComplete={(r,q) => onPurchase?.(r,q)}/>
             {p._mine && onManageCycles && (
               <button onClick={onManageCycles} style={{ marginTop:8, width:'100%', padding:'9px 0', background:'transparent', border:'1px solid #252848', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-dim)', cursor:'pointer', fontWeight:500, letterSpacing:'0.04em', transition:'all 0.13s' }}
