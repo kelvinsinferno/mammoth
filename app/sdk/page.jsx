@@ -44,7 +44,7 @@ function CopyButton({ text, small }) {
 
 export default function SDKPage() {
   const router = useRouter();
-  const { walletState, setWalletState, theme, setTheme } = useApp();
+  const { walletState, setWalletState, theme, toggleTheme } = useApp();
   const [showWallet, setShowWallet] = useState(false);
   const [widgetTheme, setWidgetTheme] = useState('dark');
   const [widgetAccent, setWidgetAccent] = useState('#8B5CF6');
@@ -75,7 +75,7 @@ export default function SDKPage() {
               <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, background: 'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', whiteSpace: 'nowrap' }}>Mammoth SDK</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ThemeToggle theme={theme} onToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} />
+              <ThemeToggle theme={theme} onToggle={toggleTheme} />
               <WalletButton walletState={walletState} onOpenModal={() => setShowWallet(true)} onDisconnect={() => setWalletState({ status: 'disconnected', address: null, short: null, balance: 0, adapter: null, error: null })} />
             </div>
           </div>
