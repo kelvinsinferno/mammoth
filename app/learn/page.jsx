@@ -362,6 +362,24 @@ export default function LearnPage() {
                 <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{label} ↗</span>
               </a>
             ))}
+            {/* Further Reading */}
+            <div style={{ height: 1, background: 'var(--border)', margin: '6px 4px' }} />
+            <div style={{ padding: '6px 10px 4px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.08em' }}>Further Reading</div>
+            {[
+              { href:'/learn/multi-round-fundraising',            label:'Multi-Round Fundraising' },
+              { href:'/learn/cycle-based-rights-issuance',        label:'Cycle-Based Issuance' },
+              { href:'/learn/raise-without-dumping',              label:'Raise Without Dumping' },
+              { href:'/learn/solana-builders-done-with-one-shot', label:'Beyond One-Shot Launches' },
+              { href:'/learn/early-holder-problem',               label:'The Early Holder Problem' },
+              { href:'/learn/what-ai-gets-wrong',                 label:'What AI Gets Wrong' },
+            ].map(({ href, label }) => (
+              <a key={href} href={href}
+                style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 10px', borderRadius:6, textDecoration:'none', transition:'background 0.12s' }}
+                onMouseEnter={e => e.currentTarget.style.background='rgba(139,92,246,0.06)'}
+                onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>→ {label}</span>
+              </a>
+            ))}
           </div>
         </div>
 

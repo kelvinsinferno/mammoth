@@ -1,0 +1,110 @@
+MAMMOTH PROTOCOL — CONTENT ARTICLE 3
+=====================================
+Title: How to Raise Capital With a Token Without Dumping the Price
+Status: Draft — update CTA link when domain finalized
+Target keywords: how to raise capital with a token without dumping price, token fundraising without price dump, token issuance supply shock, cycle-based token issuance, bonding curve token raise, anti-dilution token rights, bounded token supply minting, token capital raise holder protection, Solana token issuance framework
+Meta description: Raising more capital with your token doesn't have to wreck the price. Learn how cycle-based issuance structurally eliminates supply shock and protects existing holders.
+Word count: ~1,580
+=====================================
+
+How to Raise Capital With a Token Without Dumping the Price
+
+THE MOMENT EVERY TOKEN FOUNDER DREADS
+
+You need capital. The project is real. The team is working. You've got traction, or at least a clear path to it — but the treasury is thin and the runway is shorter than it should be.
+
+So you start thinking about going back to the market.
+
+Then you check the chart. You remember what happened the last time a project you followed announced new supply. The price started sliding before the transaction was even confirmed. Holders who had been quiet for months suddenly appeared in Discord asking if it was a rug. The announcement that was supposed to be a milestone read like a red flag. Within 72 hours, the floor had moved down 30%.
+
+That wasn't a bad project. That was a structural problem.
+
+
+WHY NEW TOKEN SUPPLY KILLS PRICE (IT'S NOT BAD LUCK — IT'S MECHANICS)
+
+When a token project announces new supply on a standard platform, the secondary market reacts to what it knows — which is almost nothing.
+
+No cap on how much will be minted. No price floor set in advance. No guarantee of who gets access first. The announcement contains a rough number, a vague timeline, and a treasury address. The rest is interpretation. And the market interprets aggressively.
+
+Here's the chain of events every time:
+
+1. Holders sell in anticipation. New tokens in circulation means their share shrinks. If there's no mechanism protecting them from dilution, the rational move is to sell now before others do.
+
+2. Uncertainty amplifies the move. Nobody knows the ceiling. Is it a 10% supply increase? 40%? Will new tokens be sold at a discount? Without hard answers, participants assume the worst.
+
+3. New buyers hesitate. The people you wanted to raise from are now watching price fall. They could buy at secondary prices below your raise price — or wait for the bottom.
+
+4. The signal is all wrong. "We're minting more tokens" reads identically to "we're out of money and diluting you to survive." The market has no mechanism to distinguish a healthy expansion raise from a desperation raise. So it prices in distress.
+
+None of this is irrational. It's a correct response to a structure that provides no protection, no transparency, and no predictability. The problem isn't your community — it's the tool you're using.
+
+
+HOW BOUNDED CYCLES CHANGE THE EQUATION
+
+The core insight behind cycle-based issuance: supply shock is caused by uncertainty, not by supply itself.
+
+If your holders know exactly how many tokens can be minted, at what price, through what curve, and when the window closes — there is no shock. There is only an expected event.
+
+Mammoth issues tokens through discrete, bounded minting cycles. Each cycle has a defined supply cap, a bonding curve that determines price at every point, and a closing condition. Nothing mints outside a cycle. Nothing mints above a cycle's cap. When a cycle ends, it ends — the supply from that cycle is fixed, on-chain, and immutable.
+
+Holders can see it coming. They know the ceiling. They can model their dilution at maximum mint and act accordingly — either by exercising their rights, or choosing to hold through a fully disclosed event.
+
+Surprise is the enemy of price stability. Bounded cycles eliminate the surprise.
+
+
+THE THREE MECHANISMS THAT PROTECT PRICE ON MAMMOTH
+
+1. Bounded Cycles — Supply Shock Is Structurally Impossible
+
+Every cycle specifies its supply cap at creation, enforced on-chain. There is no mechanism for the issuer to mint above it. Holders know the worst-case dilution scenario before the cycle opens. That's a fundamentally different information environment than "new tokens announced, amount TBD."
+
+The cap also signals something important: the raise has a ceiling. It's not open-ended. Markets price bounded events differently than unbounded ones — because bounded events have a resolution point.
+
+2. Bonding Curve Pricing — Price Is Deterministic, Not Set by Panic
+
+Mammoth cycles operate on a bonding curve — Step, Linear, or Exp-Lite — configured at cycle creation. The curve defines the exact price at every point in the mint. Early participants pay less; later participants pay more. The pricing is mechanical, visible, and auditable in advance.
+
+New buyers aren't competing with secondary market collapse for price discovery. They're buying against a curve they can audit. The panic-driven repricing spiral doesn't happen because the price isn't set by sentiment.
+
+3. Rights Window — Existing Holders Get First Access
+
+The rug signal new supply sends isn't just about dilution — it's about exclusion. Existing holders feel like insiders when the project is small and outsiders the moment new capital is needed. The people who took the earliest risk get no structural advantage when new supply enters.
+
+Mammoth inverts this. Before each new cycle opens to the public, existing holders receive pro-rata rights to participate first. They can maintain their proportional position before new buyers enter.
+
+Instead of watching new supply arrive and calculating how much they've been cut, holders are offered a window to protect their position. The new cycle isn't something being done to them — it's something they're invited into first. Holders who trust the structure don't need to sell defensively.
+
+
+BEFORE AND AFTER: THE SAME RAISE, TWO VERY DIFFERENT OUTCOMES
+
+Standard platform — Project announces new supply:
+Announcement goes out. No supply cap specified. No curve published. Treasury address shared, routing unconfirmed. Secondary volume spikes within hours. Price falls 25% before the raise opens. New buyers delay, watching for the floor. The raise underperforms. Holders who stayed are down. Narrative shifts from "growing project" to "diluted holders."
+
+Mammoth — Project opens Cycle 2:
+Cycle 2 published with defined supply cap, linear bonding curve, rights window for existing holders, and treasury routing locked at creation. Existing holders receive their pro-rata rights. Some exercise, some don't — but all were offered first access. The cap is visible. The curve is visible. Secondary market participants can price the worst-case dilution without uncertainty-driven panic. Raise closes when the cap hits or window ends. Price action follows the curve, not sentiment.
+
+Same need. Completely different mechanics. Completely different outcome.
+
+
+THE "SECOND TOKEN" TRAP — AND HOW CYCLE ISSUANCE ENDS IT
+
+When founders hit the re-raise wall without a clean mechanism for issuing new supply, they often reach for the worst possible solution: launch a second token.
+
+Token B gets framed as a "utility token" or "governance token." What it actually is: a permanent fracture in your community's attention and capital, and a dilution event for Token A holders that comes with no rights, no curve, and no explanation that holds up to scrutiny.
+
+Token B splits your community. Some holders stay with Token A, others migrate. The bridge between them is always messy. Token A loses narrative gravity because the team is now talking about two things. New buyers have to choose which token to believe in — and many choose neither.
+
+The need for Token B doesn't come from ambition. It comes from structural limitations in Token A's issuance framework.
+
+Cycle-based issuance eliminates that design flaw. One token. Multiple cycles. Each one bounded, rights-protected, and curve-priced. No second token needed.
+
+
+BUILD ON A FRAMEWORK THAT PROTECTS THE CAP TABLE
+
+There is no tokenomics strategy, no vesting schedule, and no community management approach that compensates for a fundamentally broken issuance structure. If your framework creates supply shock by design, you'll fight it every time you need capital.
+
+Bounded cycles, deterministic pricing, and rights-first access aren't features layered on top of a standard token launch. They're the structure that makes additional raises viable in the first place.
+
+[Start building on Mammoth → DOMAIN PLACEHOLDER]
+
+Bounded cycles. Deterministic pricing. Rights-first access.

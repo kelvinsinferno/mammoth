@@ -1,0 +1,103 @@
+MAMMOTH PROTOCOL — CONTENT ARTICLE 2
+=====================================
+Title: Cycle-Based Rights Issuance: A New Framework for Token Capital Formation
+Status: Draft — pending edits (see notes at bottom)
+Target keywords: cycle-based rights issuance, structured token fundraising, token capital formation, bounded token issuance, pro-rata token rights, token minting cycles, anti-dilution token mechanics, Mammoth Protocol, Solana token issuance framework, multi-round token raise
+Meta description: Cycle-based rights issuance is a new framework for structured token capital formation. Learn how Mammoth Protocol defines discrete cycles, holder rights, and bounded issuance.
+Word count: ~1,580
+=====================================
+
+Cycle-Based Rights Issuance: A New Framework for Token Capital Formation
+
+Token fundraising has a vocabulary problem. The tools used to describe how projects raise capital through tokens are borrowed from two worlds that don't quite fit — and the mismatch creates real confusion for builders trying to build seriously.
+
+That's why cycle-based rights issuance needs to exist as a distinct term — and why Mammoth Protocol is where it was defined.
+
+
+THE VOCABULARY GAP IN TOKEN FUNDRAISING
+
+Most token projects raise capital once. If the project succeeds and needs more capital, it faces a structural problem with no clean answer.
+
+The most common workaround is launching a second token. Call it Token B. The team raises new capital through Token B, but the holders of Token A now hold a token competing for attention and capital from the same team. They weren't protected. They weren't included. Their position was effectively abandoned.
+
+This pattern isn't the result of bad intent — it's the result of an infrastructure gap. Existing token frameworks weren't designed for multi-raise protocols. They were designed for one launch event.
+
+Cycle-based rights issuance fills this gap. Same token, same holders protected, multiple raises — through discrete bounded cycles with defined access rights before each new round opens to the public.
+
+
+WHAT IS A CYCLE? DEFINING THE DISCRETE MINTING WINDOW
+
+A cycle is a bounded minting window — a defined period during which new tokens can be issued against a specific bonding curve, with a specific supply cap, with a specific set of access rules.
+
+Discrete means it has a clear beginning and end. A cycle opens, tokens are minted during that window, and when it closes — supply cap hit or window expired — minting stops. No tokens from that cycle can be issued outside of it.
+
+Bounded means the parameters are set at the start and cannot change mid-cycle. Supply available, bonding curve, access window — all fixed when the cycle opens. Whether it's a step function, linear ramp, or exp-lite curve, price discovery follows the math, not discretion.
+
+Each cycle is its own issuance event. They share the same token, the same supply ledger, the same holders. But they're structurally separate — each with its own parameters, its own curve, its own rights window.
+
+
+WHAT ARE RIGHTS? PRO-RATA ACCESS BEFORE THE PUBLIC
+
+Rights are the mechanism that protect existing holders when a new cycle opens.
+
+Before a new cycle opens to the general public, existing holders are granted a pro-rata right to participate. Pro-rata means proportional to current holdings — if you hold 2% of outstanding supply, you have the right to purchase up to 2% of the new cycle's issuance before anyone else can.
+
+Think of it like this: a building with ten residents adds a new floor with ten new apartments. Before advertising to the public, existing residents get first option to claim a new apartment proportional to how long they've been there. They're not forced to take it. But the option is theirs first. Their position is protected against dilution from new entrants, and they have the first opportunity to maintain their relative stake.
+
+In token terms: existing holders get a defined window — before the new cycle opens publicly — to purchase at the cycle's starting curve price, proportional to their holdings. If they exercise, their ownership percentage can remain constant despite new supply. If they choose not to, they've made an informed decision to dilute, not had it imposed on them without recourse.
+
+The rights window is time-bounded. It opens when the cycle opens to existing holders and closes when the public window begins.
+
+
+WHAT IS ISSUANCE? BOUNDED VS. CONTINUOUS EMISSIONS
+
+Most token frameworks that allow supply expansion use continuous emissions — a rate-based schedule that drips new tokens into circulation indefinitely. Supply grows continuously and holders experience dilution as a background condition.
+
+Bounded issuance works differently. New supply is only created during an active cycle. Between cycles, there is no issuance. The supply is static.
+
+This matters for two reasons.
+
+Holder clarity. In a continuous emissions environment, dilution is happening right now at a rate you can calculate but can't pause. In bounded issuance, nothing is happening to your position unless a cycle is active.
+
+Builder discipline. Continuous emissions require active management to prevent runaway inflation. Bounded issuance creates a forcing function: to issue new supply, the project must open a cycle, set parameters, and commit to the terms publicly before any tokens are minted. Procedural, not discretionary.
+
+Mammoth projects can operate under Fixed supply (hard cap at launch) or Elastic supply (cap set later, irreversible once set). Either way — issuance only happens in discrete cycles. Never a background drip.
+
+
+HOW CYCLE, RIGHTS, AND ISSUANCE WORK AS A SYSTEM
+
+Individually, each component addresses a different failure mode. Together they compose something coherent.
+
+The cycle creates the event horizon. Builders can't silently issue new supply. Every raise is a discrete, auditable event with observable terms.
+
+The rights mechanism creates continuity across cycles. Without rights, opening a new cycle structurally harms existing holders. With rights, existing holders are made whole before the public arrives. Cycle 2 is a legitimate continuation of the project's relationship with its holders — not an abandonment.
+
+Bounded issuance ties them together. Projects aren't dripping supply to pay for operations — they're opening a cycle, setting terms, honoring rights, and raising through a transparent on-chain process.
+
+Treasury routing is creator-configurable and enforced deterministically on-chain — whatever the creator sets at cycle creation is what executes. Verifiable from the start.
+
+
+WHAT THIS FRAMEWORK IS — AND ISN'T — BUILT FOR
+
+Well-suited for: Protocol builders who need runway beyond a single launch. Projects where holder trust and long-term alignment matter. Teams that want the discipline of structured issuance rather than discretionary supply management.
+
+Not suited for: Projects that want maximum flexibility to issue supply on demand. High-frequency liquidity-incentive systems where continuous emissions are the product. And it's not a shortcut to capital — opening a cycle doesn't guarantee buyers. The framework creates structure; the project still has to earn participation.
+
+If you're building something that needs one raise and nothing more, a simpler token launch may serve you better. Cycle-based rights issuance is infrastructure for projects planning beyond the first event. That said — one cycle on Mammoth still gives you better price mechanics, holder protection, and treasury verifiability than most alternatives. The door stays open if you need more later.
+
+
+BUILDING ON MAMMOTH
+
+Mammoth Protocol implements cycle-based rights issuance natively on Solana. Every mechanism described here — bounded cycles, rights windows, deterministic bonding curves, on-chain treasury routing — is built into the protocol and verifiable on-chain.
+
+[Learn more → DOMAIN PLACEHOLDER]
+
+Mammoth Protocol. Cycle-based rights issuance. Built for serious builders.
+
+
+=====================================
+PENDING EDITS BEFORE PUBLISH:
+1. Fix treasury routing language — remove any reference to specific default percentages; replace with "creator-configurable parameters, enforced deterministically on-chain" (DONE in this version)
+2. Soften single-raise framing — added "one cycle on Mammoth still gives you better mechanics" language (DONE in this version)
+3. Update CTA link when domain is finalized
+=====================================
