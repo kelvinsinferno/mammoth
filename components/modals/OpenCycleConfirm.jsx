@@ -68,7 +68,8 @@ function SectionBlock({ title, children }) {
 export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
-  const [step, setStep] = useState('review'); // 'review' | 'confirming' | 'success'
+  const [step, setStep] = useState('review'); // 'review' | 'snapshot' | 'confirming' | 'success'
+  const [snapshotStatus, setSnapshotStatus] = useState({ holders: 0, done: false, root: null });
   const [visible, setVisible] = useState(false);
 
   // Animate in
@@ -78,33 +79,66 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
   }, []);
 
   const handleConfirm = async () => {
+    const walletAdapter = getWalletAdapter();
+    const mintAddress = params.mintAddress;
+    const rightsEnabled = params.rightsEnabled;
+    const isReal = walletAdapter && mintAddress && mintAddress.length >= 32;
+
+    // ── Step 1: Holder snapshot (if rights enabled and real on-chain project) ──
+    let merkleRoot = null;
+    let snapshotEntries = [];
+    if (rightsEnabled && isReal) {
+      setStep('snapshot');
+      try {
+        const { getTokenHolders, buildRightsTree } = await import('../../lib/merkleUtils');
+        const holders = await getTokenHolders(connection, mintAddress);
+        setSnapshotStatus(s => ({ ...s, holders: holders.length }));
+
+        if (holders.length > 0) {
+          const cycleAllocation = params.cycleAllocation || params.allocation || 100000;
+          const tree = buildRightsTree(holders, cycleAllocation);
+          merkleRoot = tree.root;
+          snapshotEntries = tree.entries;
+          setSnapshotStatus({ holders: holders.length, done: true, root: Buffer.from(merkleRoot).toString('hex').slice(0, 16) + '...' });
+          // Store the tree in localStorage so holders can retrieve their proofs
+          try {
+            const treeJSON = tree.toJSON();
+            const stored = JSON.parse(localStorage.getItem('mammoth_merkle_trees') || '{}');
+            stored[`${mintAddress}_${params.cycleIndex || 'next'}`] = treeJSON;
+            localStorage.setItem('mammoth_merkle_trees', JSON.stringify(stored));
+          } catch { /* non-critical */ }
+        }
+      } catch (err) {
+        console.warn('[OpenCycleConfirm] Snapshot failed, proceeding without Merkle rights:', err.message);
+        // Non-fatal — proceed without Merkle root (falls back to create_holder_rights)
+      }
+      // Short pause so user sees snapshot complete before cycle opens
+      await new Promise(r => setTimeout(r, 600));
+    }
+
+    // ── Step 2: Open cycle on-chain ──
     setStep('confirming');
     try {
-      const walletAdapter = getWalletAdapter();
-      const mintAddress = params.mintAddress;
-
-      if (walletAdapter && mintAddress && mintAddress.length >= 32) {
-        // Real on-chain open_cycle
+      if (isReal) {
         await openCycleOnChain({
           connection,
           walletAdapter,
           mintAddress,
           params,
+          merkleRoot: merkleRoot ? Array.from(merkleRoot) : null,
         });
         toast.success('Cycle opened on-chain!');
       } else {
-        // Fallback mock (demo projects or no wallet)
         await new Promise(r => setTimeout(r, 1400));
       }
 
       setStep('success');
       setTimeout(() => {
-        if (onConfirm) onConfirm();
+        if (onConfirm) onConfirm(snapshotEntries.length > 0 ? { merkleRoot, entries: snapshotEntries } : null);
       }, 2000);
     } catch (err) {
       const userMsg = parseTransactionError(err);
       if (userMsg === null) {
-        // User rejected
         setStep('review');
         return;
       }
@@ -357,18 +391,18 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
             </button>
             <button
               onClick={handleConfirm}
-              disabled={step === 'confirming'}
+              disabled={step === 'confirming' || step === 'snapshot'}
               style={{
                 flex: 2,
                 padding: '12px 0',
-                background: step === 'confirming' ? 'rgba(255,159,28,0.5)' : '#FF9F1C',
+                background: (step === 'confirming' || step === 'snapshot') ? 'rgba(255,159,28,0.5)' : '#FF9F1C',
                 border: 'none',
                 borderRadius: 8,
                 fontFamily: "'IBM Plex Mono',monospace",
                 fontWeight: 700,
                 fontSize: 13,
                 color: '#0f1225',
-                cursor: step === 'confirming' ? 'not-allowed' : 'pointer',
+                cursor: (step === 'confirming' || step === 'snapshot') ? 'not-allowed' : 'pointer',
                 letterSpacing: '0.04em',
                 transition: 'opacity 0.15s, background 0.15s',
                 display: 'flex',
@@ -378,17 +412,14 @@ export default function OpenCycleConfirm({ params, onCancel, onConfirm }) {
                 minHeight: 48,
               }}
             >
-              {step === 'confirming' ? (
+              {step === 'snapshot' ? (
                 <>
-                  <span style={{
-                    display: 'inline-block',
-                    width: 14,
-                    height: 14,
-                    border: '2px solid rgba(15,18,37,0.4)',
-                    borderTopColor: '#0f1225',
-                    borderRadius: '50%',
-                    animation: 'spin 0.7s linear infinite',
-                  }} />
+                  <span style={{ display:'inline-block', width:14, height:14, border:'2px solid rgba(15,18,37,0.4)', borderTopColor:'#0f1225', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
+                  {snapshotStatus.done ? `✓ ${snapshotStatus.holders} HOLDERS SNAPSHOTTED` : `📸 SNAPSHOTTING ${snapshotStatus.holders > 0 ? snapshotStatus.holders + ' HOLDERS…' : 'HOLDERS…'}`}
+                </>
+              ) : step === 'confirming' ? (
+                <>
+                  <span style={{ display:'inline-block', width:14, height:14, border:'2px solid rgba(15,18,37,0.4)', borderTopColor:'#0f1225', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
                   OPENING…
                 </>
               ) : '🚀 OPEN CYCLE'}
