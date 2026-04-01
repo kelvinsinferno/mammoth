@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mammoth-protocol.vercel.app/sitemap.xml

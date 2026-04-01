@@ -7,6 +7,7 @@ import { parseTransactionError, activateCycle } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
 import { SkeletonList } from '../components/ui/Skeleton';
+import ConfigureAgentModal from '../components/modals/ConfigureAgentModal';
 
 const BASE = 'https://mammoth-protocol.vercel.app';
 
@@ -500,6 +501,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
   const [manageModal, setManageModal] = useState(null);
   const [embedModal, setEmbedModal] = useState(null);
   const [tgModal, setTgModal] = useState(null);
+  const [agentModal, setAgentModal] = useState(null);
   const [activeTab, setActiveTab] = useState('tokens'); // 'tokens' | 'drafts' | 'portfolio'
   const [drafts, setDrafts] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
@@ -715,6 +717,13 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                       title="Telegram Mini App setup">
                       ✈️
                     </button>
+                    <button onClick={e => { e.stopPropagation(); setAgentModal(p); }}
+                      style={{ padding:'10px 12px', background:'transparent', border:'1px solid var(--border)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-dim)', cursor:'pointer', transition:'all 0.12s', flexShrink:0 }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor='#22D3EE'; e.currentTarget.style.color='#22D3EE'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.color='var(--text-dim)'; }}
+                      title="Configure AI agent access">
+                      🤖
+                    </button>
                   </div>
                 </div>
               )}
@@ -879,6 +888,7 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
       )}
       {embedModal && <EmbedModal project={embedModal} onClose={() => setEmbedModal(null)} />}
       {tgModal && <TelegramSetupModal project={tgModal} onClose={() => setTgModal(null)} />}
+      {agentModal && <ConfigureAgentModal project={agentModal} onClose={() => setAgentModal(null)} />}
     </div>
   );
 }

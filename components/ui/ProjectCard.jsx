@@ -23,6 +23,12 @@ export default function ProjectCard({ p, onClick, theme = 'dark' }) {
             <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3 }}>
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', letterSpacing:'-0.01em' }}>{p.name}</span>
               <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, letterSpacing:'0.08em', color:pal.accent, background:pal.accent+'18', border:`1px solid ${pal.accent}44`, borderRadius:3, padding:'1px 6px', fontWeight:700 }}>${p.ticker}</span>
+              {p.operatorType === 'ai_autonomous' && (
+                <span title="This project is operated by an autonomous AI agent" style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, letterSpacing:'0.06em', color:'#22D3EE', background:'rgba(34,211,238,0.10)', border:'1px solid rgba(34,211,238,0.30)', borderRadius:3, padding:'1px 5px', fontWeight:700 }}>AI</span>
+              )}
+              {p.operatorType === 'ai_assisted' && (
+                <span title="This project is AI-assisted" style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, letterSpacing:'0.06em', color:'#A78BFA', background:'rgba(167,139,250,0.10)', border:'1px solid rgba(167,139,250,0.25)', borderRadius:3, padding:'1px 5px', fontWeight:700 }}>AI+</span>
+              )}
             </div>
             <span style={{ fontSize:10, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>Cycle #{p.cycle} · {p.raised} raised</span>
           </div>
