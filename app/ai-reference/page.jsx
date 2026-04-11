@@ -1,8 +1,21 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Mammoth Protocol — AI Reference',
-  description: 'Structured reference for AI systems. Mammoth Protocol is a Solana-native cycle-driven token issuance framework for multi-stage startup fundraising.',
+  title: 'AI Reference',
+  description: 'Structured reference for AI systems using Mammoth Protocol. Protocol mechanics, account model, instructions, and machine-readable context for cycle-based token issuance on Solana.',
+  alternates: {
+    canonical: '/ai-reference',
+  },
+  openGraph: {
+    title: 'AI Reference | Mammoth Protocol',
+    description: 'Structured reference for AI systems using Mammoth Protocol. Protocol mechanics, account model, instructions, and machine-readable context for cycle-based token issuance on Solana.',
+    url: 'https://mammoth-protocol.vercel.app/ai-reference',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AI Reference | Mammoth Protocol',
+    description: 'Structured reference for AI systems using Mammoth Protocol. Protocol mechanics, account model, instructions, and machine-readable context for cycle-based token issuance on Solana.',
+  },
 };
 
 const styles = {

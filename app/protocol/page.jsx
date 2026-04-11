@@ -1,8 +1,21 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Mammoth Protocol — Protocol Reference',
-  description: 'Machine-readable protocol parameter reference. Mammoth Protocol constants, cycle mechanics, bonding curves, treasury routing, and on-chain account definitions.',
+  title: 'Protocol Reference',
+  description: 'Machine-readable protocol reference for Mammoth Protocol. Review constants, cycle mechanics, bonding curves, treasury routing, and on-chain account definitions.',
+  alternates: {
+    canonical: '/protocol',
+  },
+  openGraph: {
+    title: 'Protocol Reference | Mammoth Protocol',
+    description: 'Machine-readable protocol reference for Mammoth Protocol. Review constants, cycle mechanics, bonding curves, treasury routing, and on-chain account definitions.',
+    url: 'https://mammoth-protocol.vercel.app/protocol',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Protocol Reference | Mammoth Protocol',
+    description: 'Machine-readable protocol reference for Mammoth Protocol. Review constants, cycle mechanics, bonding curves, treasury routing, and on-chain account definitions.',
+  },
 };
 
 const S = {
