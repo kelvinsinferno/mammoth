@@ -76,8 +76,8 @@ export default function WhatIsMammothProtocolPage() {
           </ul>
 
           <h2 style={styles.h2}>Who Mammoth Is For</h2>
-          <p style={styles.p}>Mammoth is for founders, protocol teams, and serious builders who may need to raise more than once. It is designed for projects that care about continuity, holder trust, and a token model that does not turn against them the moment more capital is needed.</p>
-          <p style={styles.p}>It is not optimized around the assumption that launch day is the whole story.</p>
+          <p style={styles.p}>Mammoth is for founders, protocol teams, and builders who may need to raise more than once. It is designed for projects that care about continuity, holder trust, and a token model that does not turn against them the moment more capital is needed.</p>
+          <p style={styles.p}>It is built for launch day and everything that can come after it.</p>
 
           <h2 style={styles.h2}>Why It Matters</h2>
           <p style={styles.p}>If a launch system only works once, it is not enough for a real founder. Mammoth exists to make repeat fundraising structurally possible without treating early holders as collateral damage.</p>
