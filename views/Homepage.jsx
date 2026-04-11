@@ -137,10 +137,10 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         {/* How it works — carousel */}
         {(() => {
           const HOW_CARDS = [
-            { icon:'🔄', color:'#22D3EE', title:'Cycle-Based Raises', desc:'Capital raised in discrete rounds. Fixed allocation, bounded price curve. No continuous emissions.', href:'/learn' },
-            { icon:'🛡️', color:'#A78BFA', title:'Rights Protection', desc:'Existing holders get first access at launch price before each new cycle opens to the public.', href:'/learn' },
-            { icon:'📊', color:'#FF9F1C', title:'Predictable Pricing', desc:'Step, Linear, or Exp-Lite curves. You always know what drives the next price change.', href:'/learn' },
-            { icon:'💰', color:'#10B981', title:'On-Chain Treasury', desc:'Proceeds split automatically at cycle close. Creator, reserve, and sink shares are set in stone.', href:'/learn' },
+            { icon:'🔄', color:'#22D3EE', title:'Cycle-Based Raises', desc:'Capital raised in discrete rounds. Fixed allocation, bounded price curve. No continuous emissions.', href:'/learn/cycle-based-token-issuance' },
+            { icon:'🛡️', color:'#A78BFA', title:'Rights Protection', desc:'Existing holders get first access at launch price before each new cycle opens to the public.', href:'/learn/rights-offerings-token-launches' },
+            { icon:'📊', color:'#FF9F1C', title:'Predictable Pricing', desc:'Step, Linear, or Exp-Lite curves. You always know what drives the next price change.', href:'/learn/how-to-raise-capital-without-destroying-token-price' },
+            { icon:'💰', color:'#10B981', title:'On-Chain Treasury', desc:'Proceeds split automatically at cycle close. Creator, reserve, and sink shares are set in stone.', href:'/protocol' },
             { icon:'🧩', color:'#F472B6', title:'Embed SDK', desc:'Drop a live buy widget onto any website. Two lines of code. Dark + light mode. No API key.', href:'/sdk' },
               { icon:'📱', color:'#29B6F6', title:'Mini App', desc:'Share your token on Telegram, Farcaster, X. Full buy page. OG previews. Works everywhere.', href:'/mini' },
           ];
