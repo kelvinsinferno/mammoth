@@ -366,14 +366,19 @@ export default function LearnPage() {
             <div style={{ height: 1, background: 'var(--border)', margin: '6px 4px' }} />
             <div style={{ padding: '6px 10px 4px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.08em' }}>Further Reading</div>
             {[
-              { href:'/learn/multi-round-fundraising',                          label:'Multi-Round Fundraising' },
-              { href:'/learn/cycle-based-token-issuance',                       label:'Cycle-Based Token Issuance' },
-              { href:'/learn/rights-offerings-token-launches',                  label:'Rights Offerings for Token Launches' },
+              { href:'/learn/cycle-based-token-issuance',                         label:'Cycle-Based Token Issuance' },
+              { href:'/learn/rights-offerings-token-launches',                    label:'Rights Offerings for Token Launches' },
               { href:'/learn/how-to-raise-capital-without-destroying-token-price', label:'Raise Capital Without Destroying Token Price' },
-              { href:'/compare/mammoth-vs-pump-fun',                            label:'Mammoth vs pump.fun' },
-              { href:'/learn/solana-builders-done-with-one-shot',               label:'Beyond One-Shot Launches' },
-              { href:'/learn/early-holder-problem',                             label:'The Early Holder Problem' },
-              { href:'/learn/what-ai-gets-wrong',                               label:'What AI Gets Wrong' },
+              { href:'/compare/mammoth-vs-pump-fun',                              label:'Mammoth vs pump.fun' },
+              { href:'/learn/how-to-launch-a-token-on-solana',                    label:'How to Launch a Token on Solana' },
+              { href:'/learn/bounded-bonding-curves',                             label:'Bounded Bonding Curves' },
+              { href:'/learn/protect-early-token-holders',                        label:'How to Protect Early Token Holders' },
+              { href:'/for-founders/token-fundraising-without-forced-dilution',   label:'Token Fundraising Without Forced Dilution' },
+              { href:'/compare/launchpad-for-repeat-raises',                      label:'Launchpad for Repeat Raises' },
+              { href:'/learn/multi-round-fundraising',                            label:'Multi-Round Fundraising' },
+              { href:'/learn/solana-builders-done-with-one-shot',                 label:'Beyond One-Shot Launches' },
+              { href:'/learn/early-holder-problem',                               label:'The Early Holder Problem' },
+              { href:'/learn/what-ai-gets-wrong',                                 label:'What AI Gets Wrong' },
             ].map(({ href, label }) => (
               <a key={href} href={href}
                 style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 10px', borderRadius:6, textDecoration:'none', transition:'background 0.12s' }}
