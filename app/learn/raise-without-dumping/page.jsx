@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FounderCtaBlock from '@/components/seo/FounderCtaBlock';
 
 export const metadata = {
   title: 'How to Raise Capital Without Destroying Token Price',
@@ -107,6 +108,8 @@ export default function RaiseWithoutDumpingPage() {
             <span style={styles.ctaText}>Bounded cycles. Deterministic pricing. Rights-first access.</span>
             <Link href="/" style={styles.ctaBtn}>Start building on Mammoth →</Link>
           </div>
+
+          <FounderCtaBlock title='Need a cleaner path for the next round?' text='Mammoth is built for founders who want future fundraising to be structured, legible, and less hostile to early holders.' />
         </article>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FounderCtaBlock from '@/components/seo/FounderCtaBlock';
 
 export const metadata = {
   title: 'Mammoth vs pump.fun',
@@ -64,6 +65,8 @@ export default function MammothVsPumpFunPage() {
 
           <h2 style={styles.h2}>Further Reading</h2>
           <p style={styles.p}><Link href="/compare/launchpad-for-repeat-raises" style={{ color: '#FF9F1C', textDecoration: 'none' }}>Launchpad for Repeat Raises</Link> · <Link href="/for-founders/is-mammoth-right-for-your-project" style={{ color: '#FF9F1C', textDecoration: 'none' }}>Is Mammoth Right for Your Project?</Link> · <Link href="/learn/how-to-launch-a-token-on-solana" style={{ color: '#FF9F1C', textDecoration: 'none' }}>How to Launch a Token on Solana</Link></p>
+
+          <FounderCtaBlock title='Looking for a launch model built for real founders?' text='If your project may need more than one round of capital, Mammoth gives you a cleaner structure for fundraising continuity and holder trust.' />
         </article>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FounderCtaBlock from '@/components/seo/FounderCtaBlock';
 
 export const metadata = {
   title: 'Rights Offerings for Token Launches',
@@ -65,6 +66,8 @@ export default function RightsOfferingsPage() {
             <span style={styles.ctaText}>See how Mammoth compares to one-shot launch systems.</span>
             <Link href="/compare/mammoth-vs-pump-fun" style={styles.ctaBtn}>Read Mammoth vs pump.fun →</Link>
           </div>
+
+          <FounderCtaBlock />
         </article>
       </div>
     </div>

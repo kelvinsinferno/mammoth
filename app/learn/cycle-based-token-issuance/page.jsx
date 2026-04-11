@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FounderCtaBlock from '@/components/seo/FounderCtaBlock';
 
 export const metadata = {
   title: 'Cycle-Based Token Issuance Explained',
@@ -65,6 +66,8 @@ export default function CycleBasedTokenIssuancePage() {
             <span style={styles.ctaText}>Understand how holder protection fits into future cycles.</span>
             <Link href="/learn/rights-offerings-token-launches" style={styles.ctaBtn}>Read rights offerings →</Link>
           </div>
+
+          <FounderCtaBlock />
         </article>
       </div>
     </div>
