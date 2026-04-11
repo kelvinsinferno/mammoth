@@ -29,6 +29,12 @@ export const metadata = {
     title: defaultTitle,
     description: defaultDescription,
   },
+  verification: {
+    google: 'C1zt_Rz0Et-81jZ1l0Qrs57NDrJf2JK1eYLSlvMuGTU',
+    other: {
+      'msvalidate.01': '9EE7608E5499D8FE38F77B9FA67134DB',
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
