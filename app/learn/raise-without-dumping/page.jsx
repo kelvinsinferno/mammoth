@@ -1,8 +1,14 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'How to Raise Capital With a Token Without Dumping the Price',
-  description: "Raising more capital with your token doesn't have to wreck the price. Learn how cycle-based issuance structurally eliminates supply shock and protects existing holders.",
+  title: 'How to Raise Capital Without Destroying Token Price',
+  description: 'Raising capital with a token usually creates dilution pressure and trust problems. Learn how Mammoth uses cycle-based issuance and rights protection to support repeat fundraising.',
+  alternates: { canonical: '/learn/how-to-raise-capital-without-destroying-token-price' },
+  openGraph: {
+    title: 'How to Raise Capital Without Destroying Token Price | Mammoth Protocol',
+    description: 'Raising capital with a token usually creates dilution pressure and trust problems. Learn how Mammoth uses cycle-based issuance and rights protection to support repeat fundraising.',
+    url: 'https://mammoth-protocol.vercel.app/learn/how-to-raise-capital-without-destroying-token-price',
+  },
 };
 
 const styles = {
