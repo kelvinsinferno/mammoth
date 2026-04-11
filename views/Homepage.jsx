@@ -138,9 +138,9 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         {(() => {
           const HOW_CARDS = [
             { icon:'🔄', color:'#22D3EE', title:'Cycle-Based Raises', desc:'Capital raised in discrete rounds. Fixed allocation, bounded price curve. No continuous emissions.', href:'/learn/cycle-based-token-issuance' },
-            { icon:'🛡️', color:'#A78BFA', title:'Rights Protection', desc:'Existing holders get first access at launch price before each new cycle opens to the public.', href:'/learn/rights-offerings-token-launches' },
+            { icon:'🛡️', color:'#A78BFA', title:'Rights Protection', desc:'Existing holders get first access at launch price before each new cycle opens to the public.', href:'/glossary/rights-offering' },
             { icon:'📊', color:'#FF9F1C', title:'Bounded Bonding Curves', desc:'Step, Linear, or Exp-Lite curves with explicit price logic. Founders and buyers can understand what drives the next move.', href:'/learn/bounded-bonding-curves' },
-            { icon:'💰', color:'#10B981', title:'Raise Without Forced Dilution', desc:'A cleaner structure for future fundraising so new rounds do not automatically punish early holders.', href:'/for-founders/token-fundraising-without-forced-dilution' },
+            { icon:'💰', color:'#10B981', title:'Founder Fit', desc:'See whether Mammoth is right for a serious project that may need multiple rounds of capital and better holder treatment.', href:'/for-founders/is-mammoth-right-for-your-project' },
             { icon:'🧩', color:'#F472B6', title:'Embed SDK', desc:'Drop a live buy widget onto any website. Two lines of code. Dark + light mode. No API key.', href:'/sdk' },
               { icon:'📱', color:'#29B6F6', title:'Mini App', desc:'Share your token on Telegram, Farcaster, X. Full buy page. OG previews. Works everywhere.', href:'/mini' },
           ];
