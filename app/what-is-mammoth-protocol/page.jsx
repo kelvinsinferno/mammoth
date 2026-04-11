@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FounderCtaBlock from '@/components/seo/FounderCtaBlock';
 
 export const metadata = {
   title: 'What Is Mammoth Protocol?',
@@ -85,6 +86,8 @@ export default function WhatIsMammothProtocolPage() {
             <span style={styles.ctaText}>Understand the mechanics behind Mammoth’s fundraising model.</span>
             <Link href="/learn/cycle-based-token-issuance" style={styles.ctaBtn}>Read cycle-based issuance →</Link>
           </div>
+
+          <FounderCtaBlock />
         </article>
       </div>
     </div>
