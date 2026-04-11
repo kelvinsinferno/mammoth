@@ -61,6 +61,9 @@ export default function MammothVsPumpFunPage() {
             <span style={styles.ctaText}>Understand the founder problem Mammoth is built to solve.</span>
             <Link href="/learn/how-to-raise-capital-without-destroying-token-price" style={styles.ctaBtn}>Read the founder guide →</Link>
           </div>
+
+          <h2 style={styles.h2}>Further Reading</h2>
+          <p style={styles.p}><Link href="/compare/launchpad-for-repeat-raises" style={{ color: '#FF9F1C', textDecoration: 'none' }}>Launchpad for Repeat Raises</Link> · <Link href="/for-founders/is-mammoth-right-for-your-project" style={{ color: '#FF9F1C', textDecoration: 'none' }}>Is Mammoth Right for Your Project?</Link> · <Link href="/learn/how-to-launch-a-token-on-solana" style={{ color: '#FF9F1C', textDecoration: 'none' }}>How to Launch a Token on Solana</Link></p>
         </article>
       </div>
     </div>
