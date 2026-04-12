@@ -87,7 +87,7 @@ const faqSchema = {
     {
       '@type': 'Question',
       name: 'Is Mammoth only for meme coins?',
-      acceptedAnswer: { '@type': 'Answer', text: 'No. Mammoth is designed for serious builders — startup founders and protocol teams who want structured, repeatable capital formation. It is not optimized for meme coins.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'No. Mammoth can support high-energy crypto launches, community-first tokens, and serious builder projects alike. The difference is structural: Mammoth is designed for projects that may need repeatable capital formation, bounded issuance cycles, and better holder treatment over time.' },
     },
     {
       '@type': 'Question',

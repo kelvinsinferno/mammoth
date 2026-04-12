@@ -3,6 +3,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../../lib/AppContext';
 import ThemeToggle from '../../components/ui/ThemeToggle';
 import WalletButton from '../../components/wallet/WalletButton';
+import BrandMark from '../../components/BrandMark';
 
 const TABS = [
   { path: '/coinbase',           icon: '🔍', label: 'Discover'  },
@@ -28,7 +29,7 @@ export default function CoinbaseShell({ children, onOpenModal }) {
             {isToken && (
               <button onClick={() => router.back()} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer', fontSize:18, padding:'4px 6px 4px 0', display:'flex', alignItems:'center' }}>←</button>
             )}
-            <img src="/mammoth-logo-dark.gif" alt="Mammoth" width={26} height={26} style={{ borderRadius:5, objectFit:'cover' }}/>
+            <BrandMark size={26} alt="Mammoth" rounded={5} />
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, background:'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
               {isToken ? 'Mammoth' : TABS.find(t=>t.path===pathname)?.label || 'Mammoth'}
             </span>

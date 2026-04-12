@@ -28,7 +28,7 @@ export default function WalletModal({ onClose, onConnected }) {
       });
       onClose();
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey, onConnected, onClose, wallet?.adapter?.name]);
 
   const handlePick = async (w) => {
     setChosen(w);

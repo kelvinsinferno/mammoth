@@ -182,8 +182,8 @@ export function AppProvider({ children }) {
       const rawProjects = await fetchAllProjects(program);
 
       if (rawProjects.length === 0) {
-        // No on-chain projects — show mock data for demo
-        setProjects(MOCK_PROJECTS);
+        // No on-chain projects — keep demo fallback only when nothing real has loaded yet
+        setProjects(prev => prev.length ? prev : MOCK_PROJECTS);
         setRpcError(null);
         setProjectsLoading(false);
         return;
@@ -194,7 +194,6 @@ export function AppProvider({ children }) {
         // Try to load active cycle
         let cycleAccount = null;
         if (account.currentCycle > 0) {
-          const [, ] = getCycleStatePDA(projPda, account.currentCycle - 1);
           cycleAccount = await fetchActiveCycle(program, projPda, account.currentCycle - 1);
         }
         return mapOnChainProject(account, mintAddress, cycleAccount);
@@ -218,9 +217,9 @@ export function AppProvider({ children }) {
       setOnChainLoaded(true);
     } catch (e) {
       console.warn('[mammoth] loadOnChainProjects failed:', e.message);
-      // Fall back to mock data, surface RPC warning
-      setProjects(MOCK_PROJECTS);
-      setRpcError('Connection issue — showing cached data');
+      // Preserve previously loaded data; only fall back to demo data if nothing exists yet
+      setProjects(prev => prev.length ? prev : MOCK_PROJECTS);
+      setRpcError('Connection issue — showing cached data when available');
     } finally {
       setProjectsLoading(false);
     }

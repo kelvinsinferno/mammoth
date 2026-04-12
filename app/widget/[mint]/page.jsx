@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { MOCK_PROJECTS } from '../../../lib/data';
@@ -194,7 +195,11 @@ export default function WidgetPage() {
 
         {/* Header */}
         <div style={{ padding:'14px 16px', borderBottom:`1px solid ${border}`, display:'flex', alignItems:'center', gap:10 }}>
-          {project.image && <img src={project.image} alt="" width={28} height={28} style={{ borderRadius:6, objectFit:'cover', flexShrink:0 }} onError={e=>e.currentTarget.style.display='none'}/>}
+          {project.image && (
+            <div style={{ width:28, height:28, position:'relative', borderRadius:6, overflow:'hidden', flexShrink:0 }}>
+              <Image src={project.image} alt="" fill unoptimized style={{ objectFit:'cover' }} />
+            </div>
+          )}
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:text, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{project.name}</div>
             <div style={{ fontSize:10, color:muted }}>${project.ticker} · {project.cycleData?.status === 'ACTIVE' ? <span style={{ color:'#22D3EE' }}>● OPEN</span> : 'BETWEEN CYCLES'}</div>

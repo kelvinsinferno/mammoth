@@ -17,8 +17,10 @@ export default function CreatorPage() {
   useEffect(() => {
     if (walletState.status !== 'connected') {
       setShowWalletModal(true);
+    } else {
+      setShowWalletModal(false);
     }
-  }, []);
+  }, [walletState.status]);
 
   return (
     <>

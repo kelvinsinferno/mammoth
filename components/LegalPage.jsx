@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import BrandMark from './BrandMark';
 
 export default function LegalPage({ title, subtitle, icon, warning, sections }) {
   const [open, setOpen] = useState(null);
@@ -10,7 +11,7 @@ export default function LegalPage({ title, subtitle, icon, warning, sections }) 
       <header style={{ background: 'var(--header-bg)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--header-border)', position: 'sticky', top: 0, zIndex: 50, boxShadow: 'var(--header-shadow)' }}>
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '0 16px', height: 52, display: 'flex', alignItems: 'center', gap: 10 }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-            <img src="/mammoth-logo-dark.gif" alt="Mammoth" width={28} height={28} style={{ borderRadius: 6, objectFit: 'cover' }} />
+            <BrandMark size={28} alt="Mammoth" rounded={6} />
             <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, background: 'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Mammoth</span>
           </a>
           <span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 4 }}>/ {title}</span>

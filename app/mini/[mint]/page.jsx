@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import BrandMark from '../../../components/BrandMark';
 import { MOCK_PROJECTS } from '../../../lib/data';
 import { useApp } from '../../../lib/AppContext';
 import PriceChart from '../../../components/charts/PriceChart';
@@ -273,7 +274,7 @@ export default function MiniPage() {
           <div style={{ maxWidth:600, margin:'0 auto', padding:'0 14px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flex:1, overflow:'hidden' }}>
               <a href="/" style={{ background:'none', border:'none', color:'var(--text-dim)', fontSize:16, padding:'4px 6px 4px 0', display:'flex', alignItems:'center', textDecoration:'none', flexShrink:0 }}>←</a>
-              <img src="/mammoth-logo-dark.gif" alt="" width={24} height={24} style={{ borderRadius:5, objectFit:'cover', flexShrink:0 }}/>
+              <BrandMark size={24} alt="Mammoth" rounded={5} />
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</span>
               <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', background:'var(--badge-bg)', border:'1px solid #252848', borderRadius:3, padding:'1px 6px', flexShrink:0 }}>${p.ticker}</span>
               {p.status==='ACTIVE' && <span style={{ display:'inline-flex', alignItems:'center', gap:3, fontSize:8, fontWeight:700, fontFamily:"'IBM Plex Mono',monospace", padding:'1px 6px', borderRadius:3, background:'rgba(139,92,246,0.13)', color:'#22D3EE', border:'1px solid rgba(139,92,246,0.28)', flexShrink:0 }}><span style={{ width:4, height:4, borderRadius:'50%', background:'#8B5CF6', display:'inline-block' }}/>OPEN</span>}

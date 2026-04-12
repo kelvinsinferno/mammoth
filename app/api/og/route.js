@@ -9,8 +9,9 @@ export async function GET(request) {
 
   const project = MOCK_PROJECTS.find(p => String(p.mint || p.id) === String(mint));
 
-  const name    = project?.name    || 'Mammoth Token';
-  const ticker  = project?.ticker  || '???';
+  const fallback = !project;
+  const name    = project?.name    || 'Mammoth Protocol';
+  const ticker  = project?.ticker  || 'MAMMOTH';
   const price   = project?.price   ? project.price.toFixed(5) : '—';
   const change  = project?.change  ?? 0;
   const status  = project?.status  || 'BETWEEN';
@@ -34,20 +35,27 @@ export async function GET(request) {
           fontFamily: 'monospace',
         }}>
 
-        {/* Top: Mammoth brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#8B5CF6', boxShadow: '0 0 12px #8B5CF6' }} />
           <span style={{ fontSize: 16, fontWeight: 700, color: '#7d8590', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Mammoth Protocol</span>
         </div>
 
-        {/* Center: Token info */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ fontSize: 52, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1 }}>{name}</span>
-            <span style={{ fontSize: 22, fontWeight: 700, color: '#30363d', background: '#161b22', border: '2px solid #252848', borderRadius: 8, padding: '4px 14px' }}>${ticker}</span>
+            {!fallback && (
+              <span style={{ fontSize: 22, fontWeight: 700, color: '#30363d', background: '#161b22', border: '2px solid #252848', borderRadius: 8, padding: '4px 14px' }}>${ticker}</span>
+            )}
           </div>
 
-          {comingSoon && goPublicAt ? (
+          {fallback ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+              <div style={{ background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.35)', borderRadius: 8, padding: '8px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16, color: '#22D3EE', fontWeight: 700, letterSpacing: '0.08em' }}>TOKEN PAGE</span>
+              </div>
+              <span style={{ fontSize: 16, color: '#7d8590' }}>Live preview unavailable for this mint</span>
+            </div>
+          ) : comingSoon && goPublicAt ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
               <div style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: 8, padding: '8px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 16, color: '#A78BFA', fontWeight: 700, letterSpacing: '0.08em' }}>📅 COMING SOON</span>
@@ -65,9 +73,13 @@ export async function GET(request) {
           )}
         </div>
 
-        {/* Bottom stats bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, background: '#0d1117', border: '1px solid #1d2540', borderRadius: 12, overflow: 'hidden' }}>
-          {comingSoon ? (
+          {fallback ? (
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontSize: 10, color: '#7d8590', letterSpacing: '0.1em', textTransform: 'uppercase' }}>STATUS</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#22D3EE' }}>MAMMOTH TOKEN PAGE</span>
+            </div>
+          ) : comingSoon ? (
             <div style={{ flex: 1, padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: 4 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ flex: 1, height: 6, background: '#1d2540', borderRadius: 3, overflow: 'hidden' }}>
@@ -90,13 +102,6 @@ export async function GET(request) {
                 </div>
               ))}
             </>
-          )}
-
-          {/* Cycle progress bar (full width bottom) */}
-          {!comingSoon && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#1d2540' }}>
-              <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#7C3AED,#8B5CF6,#22D3EE)' }} />
-            </div>
           )}
         </div>
       </div>

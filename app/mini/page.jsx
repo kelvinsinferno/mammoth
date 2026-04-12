@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '../../components/ui/ThemeToggle';
+import BrandMark from '../../components/BrandMark';
 import WalletButton from '../../components/wallet/WalletButton';
 import WalletModal from '../../components/wallet/WalletModal';
 import { useApp } from '../../lib/AppContext';
@@ -47,7 +48,7 @@ export default function MiniAppPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
               <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', fontSize: 18, padding: '4px 8px 4px 0', display: 'flex', alignItems: 'center' }}>←</button>
               <a href="/" style={{ display: 'flex', flexShrink: 0 }}>
-                <img src="/mammoth-logo-dark.gif" alt="Mammoth" width={28} height={28} style={{ borderRadius: 6, objectFit: 'cover', display: 'block' }} />
+                <BrandMark size={28} alt="Mammoth" rounded={6} />
               </a>
               <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, background: 'linear-gradient(90deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', whiteSpace: 'nowrap' }}>Mammoth Mini App</span>
             </div>

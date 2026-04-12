@@ -24,7 +24,7 @@ export function getPositionForMint(mintAddress) {
   const avgPrice = totalTokens > 0 ? totalSol / totalTokens : 0;
   const firstBuy = mine[mine.length - 1];
   const lastBuy = mine[0];
-  return { totalTokens, totalSol, avgPrice, firstBuy, lastBuy, buyCount: mine.length };
+  return { totalTokens, totalSol, avgPrice, firstBuy, lastBuy, buyCount: mine.length, source: 'local-history' };
 }
 
 export function getAllPositions() {
@@ -69,7 +69,7 @@ function JupiterPanel({ mintAddress, ticker }) {
           window.Jupiter.init({
             displayMode: 'integrated',
             integratedTargetId: 'jupiter-terminal-container',
-            endpoint: 'https://mainnet.helius-rpc.com/?api-key=demo',
+            endpoint: process.env.NEXT_PUBLIC_JUPITER_RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
             defaultExplorer: 'Solscan',
             formProps: {
               initialInputMint: 'So11111111111111111111111111111111111111112', // SOL
@@ -858,6 +858,9 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
                     <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.07em' }}>Your Position</span>
                     <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>{pos.buyCount} buy{pos.buyCount > 1 ? 's' : ''}</span>
+                  </div>
+                  <div style={{ background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.2)', borderRadius:7, padding:'8px 10px', marginBottom:10, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#F59E0B', lineHeight:1.6 }}>
+                    Local purchase history only — not authoritative wallet balance.
                   </div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
                     {[

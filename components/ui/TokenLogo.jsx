@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { useState } from 'react';
 
 export const TOKEN_PALETTES = [
@@ -28,8 +29,8 @@ export default function TokenLogo({ id, size = 44, image = null }) {
         {!imgLoaded && (
           <div style={{ position:'absolute', inset:0, borderRadius:10, background:`linear-gradient(135deg,${pal.bg},${pal.accent}22)`, animation:'shimmer 1.5s ease infinite' }}/>
         )}
-        <img src={image} alt="" onLoad={() => setImgLoaded(true)} onError={() => setImgError(true)}
-          style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', opacity:imgLoaded?1:0, transition:'opacity 0.2s' }}/>
+        <Image src={image} alt="" fill unoptimized onLoad={() => setImgLoaded(true)} onError={() => setImgError(true)}
+          style={{ objectFit:'cover', display:'block', opacity:imgLoaded?1:0, transition:'opacity 0.2s' }}/>
         <div style={{ position:'absolute', inset:0, borderRadius:10, border:`1.5px solid ${pal.accent}44`, pointerEvents:'none' }}/>
       </div>
     );
