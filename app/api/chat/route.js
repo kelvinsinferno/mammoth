@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireServerEnv } from '../../../lib/env';
 
 const MAMMOTH_CONTEXT = `
 You are the Mammoth Protocol AI assistant — an expert on the Mammoth token launch platform built on Solana.
@@ -95,9 +96,11 @@ export async function POST(request) {
   try {
     const { messages } = await request.json();
 
-    if (!process.env.GROQ_API_KEY) {
+    try {
+      requireServerEnv('chat');
+    } catch (err) {
       return NextResponse.json(
-        { error: 'Chat not configured. GROQ_API_KEY missing.' },
+        { error: err.message || 'Chat not configured.' },
         { status: 503 }
       );
     }
