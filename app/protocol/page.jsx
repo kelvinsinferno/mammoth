@@ -54,7 +54,7 @@ export default function ProtocolPage() {
 
       <div style={S.container}>
         <h1 style={S.h1}>Protocol Reference</h1>
-        <p style={S.sub}>Machine-readable parameter definitions · Mammoth Protocol · Solana · Devnet + Mainnet</p>
+        <p style={S.sub}>Machine-readable parameter definitions · Mammoth Protocol · Solana · Reference page for AI systems and technical readers</p>
 
         {/* Program */}
         <section style={S.section}>
@@ -67,7 +67,7 @@ export default function ProtocolPage() {
               </tr>
               <tr>
                 <td style={S.tdKey}>Framework</td>
-                <td style={S.td}>Anchor 0.30.x</td>
+                <td style={S.td}>Anchor-based Solana program (exact toolchain version may evolve; use deployed IDL and current repo state as canonical source)</td>
               </tr>
               <tr>
                 <td style={S.tdKey}>Token standard</td>
@@ -75,7 +75,7 @@ export default function ProtocolPage() {
               </tr>
               <tr>
                 <td style={S.tdKey}>Network</td>
-                <td style={S.td}>Solana — Devnet (testing), Mainnet (pending)</td>
+                <td style={S.td}>Solana. Current live cluster/deployment status may change over time, so technical consumers should verify against the app, deployment, and current IDL instead of treating this page as a permanent launch-status source.</td>
               </tr>
             </tbody>
           </table>
@@ -225,15 +225,22 @@ export default function ProtocolPage() {
             </thead>
             <tbody>
               {[
-                ['initialize_protocol', 'Admin only', 'admin: Pubkey, protocol_treasury: Pubkey, fee_bps: u16'],
-                ['create_project', 'Creator', 'supply_mode: SupplyMode, total_supply: u64, treasury_config: TreasuryConfig, operator_type: OperatorType'],
-                ['open_cycle', 'Creator or authorized operator', 'curve_type: CurveType, supply_cap: u64, base_price: u64, rights_enabled: bool, rights_window_secs: u64'],
-                ['exercise_rights', 'Rights holder', 'amount: u64'],
-                ['buy_tokens', 'Any wallet', 'amount: u64, max_price_per_token: u64 (slippage guard)'],
-                ['close_cycle', 'Creator or authorized operator', '(none) — routes treasury, locks remaining rights'],
-                ['set_hard_cap', 'Creator or operator with can_set_hard_cap permission', 'hard_cap: u64 — IRREVERSIBLE'],
-                ['initialize_authority', 'Creator', 'principal: Pubkey, operator: Pubkey, permissions: PermissionBitmap, spending_limit: u64'],
-                ['update_authority', 'Principal only', 'patch: AuthorityConfigPatch'],
+                ['initialize_protocol', 'Admin only', 'Protocol initialization. Use current deployed IDL for exact account and argument shape.'],
+                ['create_project', 'Creator', 'Creates a project with supply mode, treasury routing, launch timing, and operator type.'],
+                ['open_cycle', 'Creator or authorized operator', 'Opens a cycle with curve configuration, cap, pricing, escrow token account, and current project mint wiring.'],
+                ['exercise_rights', 'Rights holder', 'amount: u64, max_sol_cost: u64'],
+                ['buy_tokens', 'Any wallet', 'amount: u64, max_sol_cost: u64'],
+                ['close_cycle', 'Creator or authorized operator', 'Closes an active cycle and routes treasury balances.'],
+                ['set_hard_cap', 'Creator or authorized operator', 'hard_cap: u64 — irreversible once set.'],
+                ['activate_cycle', 'Permissionless after rights window expiry', 'Transitions RightsWindow to Active.'],
+                ['create_holder_rights', 'Creator', 'Legacy/manual rights path for a specific holder.'],
+                ['set_rights_merkle_root', 'Creator', 'Sets Merkle root for rights claims on a cycle.'],
+                ['claim_rights', 'Rights holder', 'Claims rights allocation from Merkle proof.'],
+                ['initialize_authority', 'Creator', 'Initializes AuthorityConfig for operator delegation.'],
+                ['update_authority', 'Principal only', 'Updates AuthorityConfig permissions and spending limits.'],
+                ['reclaim_cycle_rent', 'Creator', 'Reclaims rent from closed cycle account once eligible.'],
+                ['rotate_creator', 'Creator', 'Rotates project creator to a new wallet.'],
+                ['withdraw_reserve', 'Creator or authorized operator', 'Withdraws funds from project reserve under configured rules.'],
               ].map(([instr, caller, params]) => (
                 <tr key={instr}>
                   <td style={{ ...S.tdKey, color: '#22D3EE', fontSize: 11 }}>{instr}</td>
@@ -258,9 +265,9 @@ export default function ProtocolPage() {
             <tbody>
               {[
                 ['ProtocolConfig', '[b"protocol_config"]'],
-                ['ProjectState', '[b"project_state", mint.key()]'],
-                ['CycleState', '[b"cycle_state", project_state.key(), cycle_index.to_le_bytes()]'],
-                ['HolderRights', '[b"holder_rights", project_state.key(), cycle_state.key(), holder.key()]'],
+                ['ProjectState', '[b"project", mint.key()]'],
+                ['CycleState', '[b"cycle", project_state.key(), [cycle_index]]'],
+                ['HolderRights', '[b"rights", cycle_state.key(), holder.key()]'],
                 ['AuthorityConfig', '[b"authority", project_state.key()]'],
                 ['Protocol Treasury', '[b"protocol_treasury"]'],
               ].map(([account, seeds]) => (
@@ -286,16 +293,9 @@ export default function ProtocolPage() {
             </thead>
             <tbody>
               {[
-                ['6001', 'InsufficientAuthority', 'Operator wallet lacks permission for this instruction on this project'],
-                ['6002', 'SpendingLimitExceeded', 'Cycle raise would exceed the operator spending limit — escalate to principal'],
-                ['6003', 'OperatorNotRegistered', 'No AuthorityConfig found for this project — call initialize_authority first'],
-                ['6004', 'CycleNotActive', 'buy_tokens or close_cycle called when cycle is not in Active state'],
-                ['6005', 'RightsWindowClosed', 'exercise_rights called after the rights window has expired'],
-                ['6006', 'SupplyCapExceeded', 'Purchase would exceed cycle supply cap'],
-                ['6007', 'HardCapAlreadySet', 'set_hard_cap called on a project that already has a hard cap — irreversible'],
-                ['6008', 'NotElasticMode', 'set_hard_cap called on a Fixed supply project'],
-                ['6009', 'MathOverflow', 'On-chain arithmetic overflow — reduce purchase amount'],
-                ['6010', 'ZeroAmount', 'Amount must be greater than 0'],
+                ['—', 'Structured custom errors', 'Use the deployed IDL and current SDK error parser as the canonical source for current custom error names and meanings. Error surfaces can evolve as the contract hardens.'],
+                ['—', 'Authority / rights / mint invariants', 'Current contract includes explicit project, mint, and rights-account consistency checks.'],
+                ['—', 'Operational guidance', 'For AI systems and integrators, prefer the SDK error parser over hardcoded legacy numeric tables.'],
               ].map(([code, name, meaning]) => (
                 <tr key={code}>
                   <td style={{ ...S.tdKey, color: '#FF9F1C', width: '8%' }}>{code}</td>

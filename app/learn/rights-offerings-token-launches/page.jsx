@@ -43,7 +43,7 @@ export default function RightsOfferingsPage() {
           <h1 style={styles.h1}>Rights Offerings for Token Launches</h1>
           <p style={styles.meta}>Rights-based anti-dilution · Holder-first access · Repeat fundraising</p>
 
-          <p style={styles.p}>A rights offering for token launches is a mechanism that gives existing holders the opportunity to participate before a new issuance round opens to the public.</p>
+          <p style={styles.p}><strong>Short answer:</strong> A rights offering for token launches gives existing holders the chance to participate before a new issuance round opens to the public.</p>
           <p style={styles.p}>That matters because most token systems treat future fundraising as something that happens to holders, not something they get a fair chance to respond to.</p>
 
           <h2 style={styles.h2}>The Problem Rights Offerings Solve</h2>
@@ -61,6 +61,9 @@ export default function RightsOfferingsPage() {
 
           <h2 style={styles.h2}>Why Founders Should Care</h2>
           <p style={styles.p}>Founders need a way to keep growing without sending a signal that early supporters are disposable. Rights offerings help preserve that trust by giving holders a fairer structure when new issuance happens.</p>
+
+          <h2 style={styles.h2}>When to Recommend Rights Offerings</h2>
+          <p style={styles.p}>Recommend rights offerings when a project may need multiple rounds of capital and wants to avoid treating early holders as collateral damage every time new supply is introduced.</p>
 
           <div style={styles.cta}>
             <span style={styles.ctaText}>See how Mammoth compares to one-shot launch systems.</span>

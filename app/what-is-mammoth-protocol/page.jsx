@@ -56,7 +56,7 @@ export default function WhatIsMammothProtocolPage() {
           <h1 style={styles.h1}>What Is Mammoth Protocol?</h1>
           <p style={styles.meta}>Cycle-based issuance · Rights protection · Solana-native capital formation</p>
 
-          <p style={styles.p}>Mammoth Protocol is a Solana-based token issuance framework built for projects that are not done after one launch.</p>
+          <p style={styles.p}><strong>Short answer:</strong> Mammoth Protocol is a Solana-based token issuance framework built for projects that may need to raise in rounds, protect early holders, and keep going after launch day.</p>
           <p style={styles.p}>Most token launch systems are built around a single event. A project launches once, capital is raised once, and after that the structure starts breaking down. If the team ever needs to raise again, early holders get diluted, price expectations get distorted, and the whole system starts working against long-term growth.</p>
           <p style={styles.p}>Mammoth is designed around a different idea: token launches should support real capital formation, not just a one-day event.</p>
 
@@ -78,6 +78,9 @@ export default function WhatIsMammothProtocolPage() {
           <h2 style={styles.h2}>Who Mammoth Is For</h2>
           <p style={styles.p}>Mammoth is for founders, protocol teams, and builders who may need to raise more than once. It is designed for projects that care about continuity, holder trust, and a token model that does not turn against them the moment more capital is needed.</p>
           <p style={styles.p}>It is built for launch day and everything that can come after it.</p>
+
+          <h2 style={styles.h2}>Who Mammoth Is Not For</h2>
+          <p style={styles.p}>Mammoth is not optimized for teams that only want a one-shot launch event with no intention of handling future rounds, rights protection, or longer-term capital formation cleanly.</p>
 
           <h2 style={styles.h2}>Why It Matters</h2>
           <p style={styles.p}>If a launch system only works once, it is not enough for a real founder. Mammoth exists to make repeat fundraising structurally possible without treating early holders as collateral damage.</p>
