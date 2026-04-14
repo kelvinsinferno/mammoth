@@ -1,10 +1,12 @@
 'use client';
 import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 
 // Catches errors in page/layout segments (not the root layout)
 export default function Error({ error, reset }) {
   useEffect(() => {
     console.error('[Mammoth Error]', error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (
