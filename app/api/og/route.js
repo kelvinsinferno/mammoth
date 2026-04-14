@@ -1,13 +1,19 @@
 import { ImageResponse } from '@vercel/og';
-import { MOCK_PROJECTS } from '../../../lib/data';
 
 export const runtime = 'edge';
+
+// FIX (audit): Don't dress up mock data as real tokens in social previews.
+// Until on-chain project lookup is wired (launch checklist #3), always render
+// the neutral Mammoth fallback card. Real shared previews will get real data
+// once the SDK integration replaces mock state in production routes.
+const ENABLE_LIVE_LOOKUP = false;
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const mint = searchParams.get('mint') || '1';
 
-  const project = MOCK_PROJECTS.find(p => String(p.mint || p.id) === String(mint));
+  // Always null until live on-chain lookup is wired (#3 in launch checklist)
+  const project = ENABLE_LIVE_LOOKUP ? null : null;
 
   const fallback = !project;
   const name    = project?.name    || 'Mammoth Protocol';

@@ -1,10 +1,12 @@
-import { MOCK_PROJECTS } from '../../../lib/data';
+// FIX (audit): Don't dress up mock data as real tokens in social/Farcaster previews.
+// Until on-chain project lookup is wired (launch checklist #3), use neutral fallback values.
 
 const BASE = 'https://mammothprotocol.com';
 
 export async function generateMetadata({ params }) {
   const { mint } = params;
-  const project = MOCK_PROJECTS.find(p => String(p.mint || p.id) === String(mint));
+  // TODO (#3): replace with live SDK fetch once on-chain integration lands
+  const project = null;
 
   const name    = project?.name    || 'Mammoth Token';
   const ticker  = project?.ticker  || '???';
