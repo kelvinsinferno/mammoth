@@ -13,6 +13,16 @@ function getDrafts() {
 }
 function saveDraft(data) {
   const drafts = getDrafts();
+  // If data already carries an id (i.e. we're editing an existing draft),
+  // update it in place instead of creating a duplicate.
+  if (data.id != null) {
+    const idx = drafts.findIndex(d => d.id === data.id);
+    const updated = { ...(idx >= 0 ? drafts[idx] : {}), ...data, savedAt: new Date().toISOString() };
+    if (idx >= 0) drafts[idx] = updated;
+    else drafts.unshift(updated);
+    localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts.slice(0, 20)));
+    return updated;
+  }
   const draft = { id: Date.now(), savedAt: new Date().toISOString(), ...data };
   drafts.unshift(draft);
   localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts.slice(0, 20)));
@@ -60,6 +70,9 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
   }));
   const [errors, setErrors] = useState({});
   const [txState, setTxState] = useState('idle');
+  // Id of the draft currently being edited (if any). Reusing it on save
+  // keeps subsequent saves as updates instead of creating duplicates.
+  const [draftId, setDraftId] = useState(initialData?.id ?? null);
   const [launchMode, setLaunchMode] = useState(initialData?.launchMode || 'now'); // 'now' | 'draft' | 'schedule'
   const [scheduleDate, setScheduleDate] = useState(initialData?.scheduleDate || '');
   const [scheduleTime, setScheduleTime] = useState(initialData?.scheduleTime || '');
@@ -153,7 +166,8 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
   const handleSaveDraft = () => {
     if (!formData.name?.trim()) { setErrors({ form: 'Add a token name before saving' }); return; }
-    saveDraft({ ...formData, launchMode, scheduleDate, scheduleTime });
+    const saved = saveDraft({ id: draftId ?? undefined, ...formData, launchMode, scheduleDate, scheduleTime });
+    if (!draftId) setDraftId(saved.id);
     setDraftSaved(true);
     setTimeout(() => setDraftSaved(false), 3000);
   };
@@ -198,7 +212,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       } else {
         deployResult = { mint: 'SCHEDULED_' + Date.now(), mock: true };
       }
-      saveDraft({ ...formData, scheduledFor: launchAt.toISOString(), mint: deployResult.mint, deployed: true });
+      saveDraft({ id: draftId ?? undefined, ...formData, launchMode, scheduleDate, scheduleTime, scheduledFor: launchAt.toISOString(), mint: deployResult.mint, deployed: true });
       setScheduledAt(launchAt);
       setTxState('scheduled');
     } catch(e) {
