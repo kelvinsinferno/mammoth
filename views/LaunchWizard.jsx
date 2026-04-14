@@ -133,35 +133,37 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
   const validate = () => {
     const errs = {};
-    if (!formData.name?.trim()) errs.name = 'Required';
+    const missing = [];
+    if (!formData.name?.trim()) { errs.name = 'Required'; missing.push('token name'); }
     else if (formData.name.length > 32) errs.name = 'Max 32 chars';
-    if (!formData.ticker?.trim()) errs.ticker = 'Required';
+    if (!formData.ticker?.trim()) { errs.ticker = 'Required'; missing.push('ticker'); }
     else if (!/^[A-Z0-9]{1,6}$/.test(formData.ticker.toUpperCase())) errs.ticker = '1–6 alphanumeric';
-    if (!formData.description?.trim()) errs.description = 'Required';
+    if (!formData.description?.trim()) { errs.description = 'Required'; missing.push('description'); }
     else if (formData.description.length < 20) errs.description = 'Min 20 chars';
-    if (formData.supplyMode==='fixed' && (!formData.hardCapSupply||formData.hardCapSupply<=0)) errs.hardCapSupply = 'Required for fixed mode';
-    if (formData.startPrice <= 0) errs.startPrice = 'Must be > 0';
-    if (formData.initialAllocation <= 0) errs.initialAllocation = 'Must be > 0';
+    if (!formData.supplyMode) { errs.supplyMode = 'Pick supply mode'; missing.push('supply mode'); }
+    if (!formData.curveType) { errs.curveType = 'Pick a curve'; missing.push('curve type'); }
+    if (formData.supplyMode === 'fixed' && (!formData.hardCapSupply || formData.hardCapSupply <= 0)) {
+      errs.hardCapSupply = 'Required for fixed mode'; missing.push('hard cap supply');
+    }
+    if (formData.startPrice <= 0) { errs.startPrice = 'Must be > 0'; missing.push('start price'); }
+    if (formData.initialAllocation <= 0) { errs.initialAllocation = 'Must be > 0'; missing.push('initial allocation'); }
     const totalAlloc = Number(formData.creatorAlloc) + Number(formData.treasuryAlloc) + Number(formData.burnAlloc) + 2;
     if (totalAlloc > 100) errs.creatorAlloc = `Allocations total ${totalAlloc}% — must be ≤ 100%`;
+    if (missing.length) {
+      errs.form = missing.length === 1
+        ? `Missing: ${missing[0]}`
+        : `Missing: ${missing.slice(0, -1).join(', ')} and ${missing.slice(-1)}`;
+    } else if (Object.keys(errs).length) {
+      errs.form = 'Fix the highlighted fields';
+    }
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    return missing.length === 0 && Object.keys(errs).filter(k => k !== 'form').length === 0;
   };
 
+  // Next advances unconditionally — validation only fires when the user
+  // actually tries to Launch or Sign & Lock.
   const handleNext = () => {
-    if (step === 1) {
-      if (!formData.name?.trim() || !formData.ticker?.trim() || !formData.description?.trim()) {
-        setErrors({ form:'All fields required' });
-        return;
-      }
-      setStep(2);
-    } else if (step === 2) {
-      if (!formData.supplyMode || !formData.curveType) {
-        setErrors({ form:'Select options' });
-        return;
-      }
-      setStep(3);
-    }
+    if (step < 3) setStep(step + 1);
   };
 
   const handleSaveDraft = () => {
