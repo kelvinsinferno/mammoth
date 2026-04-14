@@ -4,6 +4,6 @@ export default function robots() {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://mammoth-protocol.vercel.app/sitemap.xml',
+    sitemap: 'https://mammothprotocol.com/sitemap.xml',
   };
 }

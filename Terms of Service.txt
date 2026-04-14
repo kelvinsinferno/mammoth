@@ -15,7 +15,7 @@ THESE TERMS. IF YOU DO NOT AGREE, DO NOT USE THE PLATFORM.
 These Terms of Service ("Terms") constitute a legally binding agreement between
 you ("User," "you," "your") and Kelvinsinferno Studio LLC ("Company," "we," "us,"
 "our"), the operator of Mammoth Protocol ("Platform," "Mammoth," "the Protocol"),
-accessible at mammoth-protocol.vercel.app and any associated domains.
+accessible at mammothprotocol.com and any associated domains.
 
 By connecting a wallet, accessing, or using the Platform in any capacity, you
 confirm that:

@@ -7,7 +7,7 @@ export const metadata = {
   openGraph: {
     title: 'Learn | Mammoth Protocol',
     description: 'Learn how Mammoth Protocol works: cycle-based token issuance, rights protection, bounded bonding curves, and founder-friendly capital formation on Solana.',
-    url: 'https://mammoth-protocol.vercel.app/learn',
+    url: 'https://mammothprotocol.com/learn',
   },
   twitter: {
     card: 'summary_large_image',

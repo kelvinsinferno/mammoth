@@ -9,7 +9,7 @@ export const metadata = {
   openGraph: {
     title: 'AI Reference | Mammoth Protocol',
     description: 'Structured reference for AI systems using Mammoth Protocol. Protocol mechanics, account model, instructions, and machine-readable context for cycle-based token issuance on Solana.',
-    url: 'https://mammoth-protocol.vercel.app/ai-reference',
+    url: 'https://mammothprotocol.com/ai-reference',
   },
   twitter: {
     card: 'summary_large_image',
@@ -173,10 +173,10 @@ export default function AIReferencePage() {
           <h2 style={styles.h2}>Canonical Resources</h2>
           <div>
             {[
-              { label: 'Web app', url: 'https://mammoth-protocol.vercel.app', display: 'mammoth-protocol.vercel.app' },
-              { label: 'Learn', url: 'https://mammoth-protocol.vercel.app/learn', display: 'mammoth-protocol.vercel.app/learn' },
-              { label: 'Whitepaper', url: 'https://mammoth-protocol.vercel.app/whitepaper', display: 'mammoth-protocol.vercel.app/whitepaper' },
-              { label: 'AI Reference', url: 'https://mammoth-protocol.vercel.app/ai-reference', display: 'mammoth-protocol.vercel.app/ai-reference' },
+              { label: 'Web app', url: 'https://mammothprotocol.com', display: 'mammothprotocol.com' },
+              { label: 'Learn', url: 'https://mammothprotocol.com/learn', display: 'mammothprotocol.com/learn' },
+              { label: 'Whitepaper', url: 'https://mammothprotocol.com/whitepaper', display: 'mammothprotocol.com/whitepaper' },
+              { label: 'AI Reference', url: 'https://mammothprotocol.com/ai-reference', display: 'mammothprotocol.com/ai-reference' },
             ].map((r, i) => (
               <div key={i} style={styles.resourceRow}>
                 <span style={styles.resourceLabel}>{r.label}</span>

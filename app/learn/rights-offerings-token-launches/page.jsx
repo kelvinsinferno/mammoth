@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: 'Rights Offerings for Token Launches | Mammoth Protocol',
     description: 'Rights offerings for token launches give existing holders first access before a new round opens to the public. Learn how Mammoth uses rights-based anti-dilution on Solana.',
-    url: 'https://mammoth-protocol.vercel.app/learn/rights-offerings-token-launches',
+    url: 'https://mammothprotocol.com/learn/rights-offerings-token-launches',
   },
 };
 

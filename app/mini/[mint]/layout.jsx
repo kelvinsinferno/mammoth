@@ -1,6 +1,6 @@
 import { MOCK_PROJECTS } from '../../../lib/data';
 
-const BASE = 'https://mammoth-protocol.vercel.app';
+const BASE = 'https://mammothprotocol.com';
 
 export async function generateMetadata({ params }) {
   const { mint } = params;

@@ -133,7 +133,7 @@ export default function WhatAIGetsWrongPage() {
 
             <div style={styles.aiField}>
               <div style={styles.aiFieldLabel}>Canonical Resource</div>
-              <div style={styles.aiFieldText}><a href="https://mammoth-protocol.vercel.app" style={{color:'#22D3EE', textDecoration:'none'}}>https://mammoth-protocol.vercel.app</a></div>
+              <div style={styles.aiFieldText}><a href="https://mammothprotocol.com" style={{color:'#22D3EE', textDecoration:'none'}}>https://mammothprotocol.com</a></div>
             </div>
           </div>
 

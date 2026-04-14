@@ -7,7 +7,7 @@ export const metadata = {
   openGraph: {
     title: 'Mini App | Mammoth Protocol',
     description: 'Mammoth Protocol Mini App for token pages shared across Telegram, Farcaster, and X. Mobile-friendly token discovery and buying flows.',
-    url: 'https://mammoth-protocol.vercel.app/mini',
+    url: 'https://mammothprotocol.com/mini',
   },
   twitter: {
     card: 'summary_large_image',

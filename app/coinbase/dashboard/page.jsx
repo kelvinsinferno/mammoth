@@ -5,7 +5,7 @@ import CoinbaseShell from '../CoinbaseShell';
 import WalletModal from '../../../components/wallet/WalletModal';
 import { useApp } from '../../../lib/AppContext';
 
-const BASE = 'https://mammoth-protocol.vercel.app';
+const BASE = 'https://mammothprotocol.com';
 
 export default function CoinbaseDashboard() {
   const router = useRouter();

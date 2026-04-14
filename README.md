@@ -8,8 +8,8 @@
 
 Fills the gap between meme-coin launchpads (high excitement, no repeatability) and DAO funding platforms (repeatable but kill speculation). Mammoth lets projects raise capital multiple times without structurally suppressing price.
 
-[![Live App](https://img.shields.io/badge/app-mammoth--protocol.vercel.app-8B5CF6?style=flat-square&logo=vercel)](https://mammoth-protocol.vercel.app)
-[![Whitepaper](https://img.shields.io/badge/whitepaper-read%20now-22D3EE?style=flat-square)](https://mammoth-protocol.vercel.app/whitepaper)
+[![Live App](https://img.shields.io/badge/app-mammoth--protocol.vercel.app-8B5CF6?style=flat-square&logo=vercel)](https://mammothprotocol.com)
+[![Whitepaper](https://img.shields.io/badge/whitepaper-read%20now-22D3EE?style=flat-square)](https://mammothprotocol.com/whitepaper)
 [![Solana Devnet](https://img.shields.io/badge/network-Solana%20Devnet-9945FF?style=flat-square&logo=solana)](https://explorer.solana.com/address/DUnfGXcmPJgjSHvrPxeqPPYjrx6brurKUBJ4cVGVFR31?cluster=devnet)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
@@ -159,7 +159,7 @@ HolderRights (per holder per cycle)
 
 ## Frontend
 
-**Live:** [mammoth-protocol.vercel.app](https://mammoth-protocol.vercel.app)
+**Live:** [mammothprotocol.com](https://mammothprotocol.com)
 
 Built with Next.js 14 (App Router), React 18, Anchor client, and Solana wallet adapter. Dark-first design. Mobile responsive down to 320px.
 
@@ -310,8 +310,8 @@ Dark mode is default. Light mode supported via CSS variable swap.
 
 | | |
 |---|---|
-| 🌐 **App** | [mammoth-protocol.vercel.app](https://mammoth-protocol.vercel.app) |
-| 📄 **Whitepaper** | [mammoth-protocol.vercel.app/whitepaper](https://mammoth-protocol.vercel.app/whitepaper) |
+| 🌐 **App** | [mammothprotocol.com](https://mammothprotocol.com) |
+| 📄 **Whitepaper** | [mammothprotocol.com/whitepaper](https://mammothprotocol.com/whitepaper) |
 | 🔍 **Program (Devnet)** | [Explorer →](https://explorer.solana.com/address/DUnfGXcmPJgjSHvrPxeqPPYjrx6brurKUBJ4cVGVFR31?cluster=devnet) |
 | 🐦 **X** | [@kelvinsinfernox](https://x.com/kelvinsinfernox) |
 | 🏗️ **Studio** | [Kelvinsinferno Studio](https://kelvinsinferno.wixsite.com/kelvinsinferno-studi) |

@@ -13,7 +13,7 @@ import { computeStepCurve } from '../../../../lib/curves';
 import { getPositionForMint, savePurchase, ShareAfterBuy } from '../../../../views/ProjectDetail';
 import { MOCK_PROJECTS } from '../../../../lib/data';
 
-const BASE = 'https://mammoth-protocol.vercel.app';
+const BASE = 'https://mammothprotocol.com';
 const FAKE_BARS = Array.from({length:36},(_,i)=>18+Math.abs(Math.sin(i*0.8+1.2)*28+Math.sin(i*0.3)*14));
 function pad(n) { return String(n).padStart(2,'0'); }
 

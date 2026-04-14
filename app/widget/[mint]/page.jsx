@@ -57,7 +57,7 @@ function WidgetCountdown({ goPublicAt, ticker, border, panel, panelAlt, accent, 
 
 function WidgetShare({ tokensOut, ticker, mint, accent, border, panelAlt, muted, text }) {
   const [copied, setCopied] = useState(false);
-  const shareUrl = `https://mammoth-protocol.vercel.app/mini/${mint}`;
+  const shareUrl = `https://mammothprotocol.com/mini/${mint}`;
   const shareText = `Just bought ${tokensOut?.toLocaleString()} $${ticker} on Mammoth Protocol 🦣`;
   const enc = encodeURIComponent;
 
@@ -325,13 +325,13 @@ export default function WidgetPage() {
               {wallet && (
                 <div style={{ display:'flex', justifyContent:'space-between', marginTop:8 }}>
                   <span style={{ fontSize:9, color:muted }}>Connected: {walletState.short}</span>
-                  <a href={`https://mammoth-protocol.vercel.app/token/${project.mint||project.id}`} target="_blank" rel="noopener noreferrer"
+                  <a href={`https://mammothprotocol.com/token/${project.mint||project.id}`} target="_blank" rel="noopener noreferrer"
                     style={{ fontSize:9, color:accent, textDecoration:'none' }}>View on Mammoth ↗</a>
                 </div>
               )}
               {!wallet && (
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <a href={`https://mammoth-protocol.vercel.app/token/${project.mint||project.id}`} target="_blank" rel="noopener noreferrer"
+                  <a href={`https://mammothprotocol.com/token/${project.mint||project.id}`} target="_blank" rel="noopener noreferrer"
                     style={{ fontSize:9, color:muted, textDecoration:'none' }}>View full page on Mammoth ↗</a>
                 </div>
               )}
@@ -341,7 +341,7 @@ export default function WidgetPage() {
 
         {/* Powered by footer */}
         <div style={{ padding:'8px 16px', borderTop:`1px solid ${border}`, display:'flex', justifyContent:'center', alignItems:'center', gap:5 }}>
-          <a href="https://mammoth-protocol.vercel.app" target="_blank" rel="noopener noreferrer"
+          <a href="https://mammothprotocol.com" target="_blank" rel="noopener noreferrer"
             style={{ display:'flex', alignItems:'center', gap:5, textDecoration:'none', opacity:0.6 }}>
             <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:muted }}>Powered by</span>
             <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:9, background:`linear-gradient(90deg,${accent},#22D3EE)`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Mammoth Protocol</span>

@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: 'Mammoth vs pump.fun | Mammoth Protocol',
     description: 'Mammoth keeps the speed, attention, and casino energy crypto loves while adding cycle-based fundraising, rights protection, and stronger tools for projects that want to keep going.',
-    url: 'https://mammoth-protocol.vercel.app/compare/mammoth-vs-pump-fun',
+    url: 'https://mammothprotocol.com/compare/mammoth-vs-pump-fun',
   },
 };
 

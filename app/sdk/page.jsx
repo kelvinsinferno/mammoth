@@ -8,7 +8,7 @@ import WalletModal from '../../components/wallet/WalletModal';
 import { useApp } from '../../lib/AppContext';
 
 const DEMO_MINT = '1';
-const BASE = 'https://mammoth-protocol.vercel.app';
+const BASE = 'https://mammothprotocol.com';
 
 const SNIPPET_IFRAME = (mint, theme, accent, size) => `<iframe
   src="${BASE}/widget/${mint}?theme=${theme}&accent=${encodeURIComponent(accent)}&size=${size}"

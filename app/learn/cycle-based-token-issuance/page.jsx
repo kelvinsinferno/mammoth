@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: 'Cycle-Based Token Issuance Explained | Mammoth Protocol',
     description: 'Cycle-based token issuance lets projects raise capital in discrete rounds instead of continuous emissions. Learn how Mammoth uses cycles to support repeat fundraising on Solana.',
-    url: 'https://mammoth-protocol.vercel.app/learn/cycle-based-token-issuance',
+    url: 'https://mammothprotocol.com/learn/cycle-based-token-issuance',
   },
 };
 

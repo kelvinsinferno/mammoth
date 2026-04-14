@@ -7,7 +7,7 @@ export const metadata = {
   openGraph: {
     title: 'SDK | Mammoth Protocol',
     description: 'Embed Mammoth Protocol with the SDK. Founder-friendly token issuance widgets, integrations, and developer entry points for Solana projects.',
-    url: 'https://mammoth-protocol.vercel.app/sdk',
+    url: 'https://mammothprotocol.com/sdk',
   },
   twitter: {
     card: 'summary_large_image',

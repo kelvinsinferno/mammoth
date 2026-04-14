@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const base = 'https://mammoth-protocol.vercel.app';
+  const base = 'https://mammothprotocol.com';
   const now = new Date().toISOString();
   const routes = [
     '/',

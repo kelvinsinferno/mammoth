@@ -333,7 +333,7 @@ function CyclePanelDetail({ cycle }) {
   );
 }
 
-const BASE_URL = 'https://mammoth-protocol.vercel.app';
+const BASE_URL = 'https://mammothprotocol.com';
 
 export function ShareAfterBuy({ tokensOut, ticker, mintAddress, context }) {
   const [shared, setShared] = useState(null);
@@ -899,7 +899,7 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
             {/* Share as Mini App */}
             {(() => {
               const [shared, setShared] = useState(false);
-              const miniUrl = `https://mammoth-protocol.vercel.app/mini/${p.mint||p.id}`;
+              const miniUrl = `https://mammothprotocol.com/mini/${p.mint||p.id}`;
               const handleShare = async () => {
                 if (navigator.share) {
                   await navigator.share({ title:`${p.name} ($${p.ticker}) on Mammoth`, url: miniUrl });

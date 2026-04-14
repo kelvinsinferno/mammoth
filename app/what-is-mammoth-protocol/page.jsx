@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: 'What Is Mammoth Protocol? | Mammoth Protocol',
     description: 'Mammoth Protocol is a Solana-based token issuance framework built for projects that need to raise in rounds, protect early holders, and avoid forced dilution.',
-    url: 'https://mammoth-protocol.vercel.app/what-is-mammoth-protocol',
+    url: 'https://mammothprotocol.com/what-is-mammoth-protocol',
   },
   twitter: {
     card: 'summary_large_image',

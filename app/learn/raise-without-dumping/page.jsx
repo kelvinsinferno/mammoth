@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: 'How to Raise Capital Without Destroying Token Price | Mammoth Protocol',
     description: 'Raising capital with a token usually creates dilution pressure and trust problems. Learn how Mammoth uses cycle-based issuance and rights protection to support repeat fundraising.',
-    url: 'https://mammoth-protocol.vercel.app/learn/how-to-raise-capital-without-destroying-token-price',
+    url: 'https://mammothprotocol.com/learn/how-to-raise-capital-without-destroying-token-price',
   },
 };
 

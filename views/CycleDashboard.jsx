@@ -9,7 +9,7 @@ import { useToast } from '../components/ui/Toast';
 import { SkeletonList } from '../components/ui/Skeleton';
 import ConfigureAgentModal from '../components/modals/ConfigureAgentModal';
 
-const BASE = 'https://mammoth-protocol.vercel.app';
+const BASE = 'https://mammothprotocol.com';
 
 function TelegramSetupModal({ project, onClose }) {
   const mint = project.mint || project.id;

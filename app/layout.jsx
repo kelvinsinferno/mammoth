@@ -2,7 +2,7 @@ import './globals.css';
 import Providers from '../components/Providers';
 import Supernova from '../components/ui/Supernova';
 
-const siteUrl = 'https://mammoth-protocol.vercel.app';
+const siteUrl = 'https://mammothprotocol.com';
 const defaultTitle = 'Mammoth Protocol | Cycle-Based Token Issuance on Solana';
 const defaultDescription = 'Mammoth Protocol is a Solana-based token issuance framework for projects that need to raise in rounds, protect early holders, and avoid forced dilution.';
 

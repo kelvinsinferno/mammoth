@@ -9,7 +9,7 @@ import { useApp } from '../../lib/AppContext';
 
 const DEMO_MINT_LIVE = '1';   // MegaTusk — active cycle
 const DEMO_MINT_SOON = '99';  // IronHide — coming soon
-const BASE = 'https://mammoth-protocol.vercel.app';
+const BASE = 'https://mammothprotocol.com';
 
 function CopyButton({ text, small }) {
   const [copied, setCopied] = useState(false);

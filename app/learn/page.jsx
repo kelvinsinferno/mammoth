@@ -282,7 +282,7 @@ Mammoth automatically generates a Jupiter deeplink for each token. Hit "Trade on
       },
       {
         type: 'text',
-        body: `The widget is an iframe that loads from mammoth-protocol.vercel.app. Buyers connect their wallet inside the widget and buy on-chain — no API key, no backend, no integration work required.
+        body: `The widget is an iframe that loads from mammothprotocol.com. Buyers connect their wallet inside the widget and buy on-chain — no API key, no backend, no integration work required.
 
 To get your embed code: launch your token → open Creator Dashboard → expand your token → hit the </> button.
 

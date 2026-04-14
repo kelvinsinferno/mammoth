@@ -9,7 +9,7 @@ export const metadata = {
   openGraph: {
     title: 'Protocol Reference | Mammoth Protocol',
     description: 'Machine-readable protocol reference for Mammoth Protocol. Review constants, cycle mechanics, bonding curves, treasury routing, and on-chain account definitions.',
-    url: 'https://mammoth-protocol.vercel.app/protocol',
+    url: 'https://mammothprotocol.com/protocol',
   },
   twitter: {
     card: 'summary_large_image',

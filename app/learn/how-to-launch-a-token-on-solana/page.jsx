@@ -7,7 +7,7 @@ export const metadata = {
   openGraph: {
     title: 'How to Launch a Token on Solana | Mammoth Protocol',
     description: 'Learn how to launch a token on Solana with a structure built for real projects, repeat fundraising, and early-holder protection.',
-    url: 'https://mammoth-protocol.vercel.app/learn/how-to-launch-a-token-on-solana',
+    url: 'https://mammothprotocol.com/learn/how-to-launch-a-token-on-solana',
   },
 };
 
