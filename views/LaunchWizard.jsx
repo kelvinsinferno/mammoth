@@ -91,16 +91,16 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
   // If reopened from a scheduled draft, jump straight to the scheduled state
   useEffect(() => {
     if (initialData?.scheduledFor && scheduledAt) {
+      // Already signed & locked — jump to the countdown view.
       setLaunchMode('schedule');
       setTxState('scheduled');
       const d = new Date(initialData.scheduledFor);
       setScheduleDate(d.toISOString().split('T')[0]);
       setScheduleTime(d.toTimeString().slice(0, 5));
       setStep(3);
-    } else if (initialData?.launchMode === 'schedule') {
-      // Draft was saved mid-scheduling (not yet signed); resume on step 3.
-      setStep(3);
     }
+    // Otherwise resume at step 1 regardless of launchMode, so the user
+    // can review all fields before signing.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
