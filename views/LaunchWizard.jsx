@@ -39,25 +39,30 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
     stepSize: 5000, stepIncrement: 0.00022, endPrice: 0.01, expMultiplier: 10,
     creatorAlloc: 70, treasuryAlloc: 20, burnAlloc: 8, protocolFee: 2,
     visibility: 'public', goPublicDate: '', goPublicTime: '',
-    // Pre-fill from draft if provided
+    // Pre-fill from draft if provided — restore every user-editable field
     ...(initialData ? {
-      name: initialData.name || '',
-      ticker: initialData.ticker || '',
-      description: initialData.description || '',
-      supplyMode: initialData.supplyMode || 'elastic',
-      initialAllocation: initialData.initialAllocation || 1000000,
-      hardCapSupply: initialData.hardCapSupply || 0,
-      curveType: initialData.curveType || 'linear',
-      startPrice: initialData.startPrice || 0.001,
-      creatorAlloc: initialData.creatorAlloc || 10,
-      treasuryAlloc: initialData.treasuryAlloc || 15,
+      name: initialData.name ?? '',
+      ticker: initialData.ticker ?? '',
+      description: initialData.description ?? '',
+      supplyMode: initialData.supplyMode ?? 'elastic',
+      initialAllocation: initialData.initialAllocation ?? 1000000,
+      hardCapSupply: initialData.hardCapSupply ?? 0,
+      curveType: initialData.curveType ?? 'linear',
+      startPrice: initialData.startPrice ?? 0.001,
+      creatorAlloc: initialData.creatorAlloc ?? 70,
+      treasuryAlloc: initialData.treasuryAlloc ?? 20,
+      burnAlloc: initialData.burnAlloc ?? 8,
+      protocolFee: initialData.protocolFee ?? 2,
+      visibility: initialData.visibility ?? 'public',
+      goPublicDate: initialData.goPublicDate ?? '',
+      goPublicTime: initialData.goPublicTime ?? '',
     } : {}),
   }));
   const [errors, setErrors] = useState({});
   const [txState, setTxState] = useState('idle');
-  const [launchMode, setLaunchMode] = useState('now'); // 'now' | 'draft' | 'schedule'
-  const [scheduleDate, setScheduleDate] = useState('');
-  const [scheduleTime, setScheduleTime] = useState('');
+  const [launchMode, setLaunchMode] = useState(initialData?.launchMode || 'now'); // 'now' | 'draft' | 'schedule'
+  const [scheduleDate, setScheduleDate] = useState(initialData?.scheduleDate || '');
+  const [scheduleTime, setScheduleTime] = useState(initialData?.scheduleTime || '');
   const [draftSaved, setDraftSaved] = useState(false);
   const [showScheduleWarning, setShowScheduleWarning] = useState(false);
   const [countdown, setCountdown] = useState(null); // seconds remaining until launch unlocks
@@ -78,6 +83,9 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       const d = new Date(initialData.scheduledFor);
       setScheduleDate(d.toISOString().split('T')[0]);
       setScheduleTime(d.toTimeString().slice(0, 5));
+      setStep(3);
+    } else if (initialData?.launchMode === 'schedule') {
+      // Draft was saved mid-scheduling (not yet signed); resume on step 3.
       setStep(3);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,7 +153,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
 
   const handleSaveDraft = () => {
     if (!formData.name?.trim()) { setErrors({ form: 'Add a token name before saving' }); return; }
-    saveDraft(formData);
+    saveDraft({ ...formData, launchMode, scheduleDate, scheduleTime });
     setDraftSaved(true);
     setTimeout(() => setDraftSaved(false), 3000);
   };
