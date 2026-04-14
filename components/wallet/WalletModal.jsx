@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 const SUPPORTED_WALLETS = [
-  { id: 'Phantom',  label: 'Phantom',  icon: '👻' },
-  { id: 'Solflare', label: 'Solflare', icon: '☀️' },
+  { id: 'Phantom',         label: 'Phantom',         icon: '👻' },
+  { id: 'Solflare',        label: 'Solflare',        icon: '☀️' },
+  { id: 'Backpack',        label: 'Backpack',        icon: '🎒' },
+  { id: 'Coinbase Wallet', label: 'Coinbase Wallet', icon: '🟦' },
+  { id: 'Ledger',          label: 'Ledger',          icon: '🔐' },
 ];
 
 export default function WalletModal({ onClose, onConnected }) {
