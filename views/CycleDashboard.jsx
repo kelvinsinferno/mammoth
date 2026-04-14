@@ -540,29 +540,6 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
     </div>
   );
 
-  // Empty state — no tokens launched
-  if (myProjects.length === 0) return (
-    <div onClick={onClose} className="cycle-dash-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
-      <div onClick={e => e.stopPropagation()} className="cycle-dash-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, padding:'40px 28px', textAlign:'center', maxWidth:400, width:'100%', animation:'slideUp 0.18s ease' }}>
-        <div style={{ fontSize:36, marginBottom:14 }}>📭</div>
-        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:8 }}>You haven&apos;t launched a token yet.</div>
-        <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:24, lineHeight:1.6 }}>Create your first token to start managing cycles and raising capital.</div>
-        <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
-          {onLaunchNew && (
-            <button onClick={() => { onClose(); onLaunchNew(); }}
-              style={{ background:'#FF9F1C', border:'none', borderRadius:6, padding:'10px 18px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#000', cursor:'pointer', letterSpacing:'0.04em' }}>
-              LAUNCH YOUR FIRST TOKEN →
-            </button>
-          )}
-          <button onClick={onClose}
-            style={{ background:'transparent', border:'1px solid #252848', borderRadius:6, padding:'10px 18px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'var(--text-dim)', cursor:'pointer', letterSpacing:'0.04em' }}>
-            CLOSE
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div onClick={onClose} className="cycle-dash-overlay" style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease', overflow:'auto' }}>
       <div onClick={e => e.stopPropagation()} className="cycle-dash-card" style={{ background:'var(--panel)', border:'1px solid #252848', borderRadius:12, width:'100%', maxWidth:600, padding:'24px 20px', animation:'slideUp 0.18s ease', maxHeight:'85vh', overflowY:'auto' }}>
@@ -583,6 +560,21 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
 
         {/* Tokens tab */}
         {activeTab === 'tokens' && <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {myProjects.length === 0 && (
+            <div style={{ background:'var(--panel-alt)', border:'1px dashed #252848', borderRadius:10, padding:'28px 20px', textAlign:'center' }}>
+              <div style={{ fontSize:32, marginBottom:10 }}>📭</div>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:6 }}>No launched tokens yet</div>
+              <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginBottom:16, lineHeight:1.6 }}>
+                {drafts.length > 0 ? 'Finish a draft or start a new token to see it here.' : 'Create your first token to start managing cycles.'}
+              </div>
+              {onLaunchNew && (
+                <button onClick={onLaunchNew}
+                  style={{ background:'#FF9F1C', border:'none', borderRadius:6, padding:'10px 18px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#000', cursor:'pointer', letterSpacing:'0.04em' }}>
+                  LAUNCH A TOKEN →
+                </button>
+              )}
+            </div>
+          )}
           {myProjects.map(p => (
             <div key={p.id} className="token-row-card" style={{ background:'var(--panel-alt)', border:'1px solid #1d2540', borderRadius:10, padding:'14px', cursor:'pointer', transition:'all 0.12s', animation:'fadeUp 0.2s ease both', animationDelay:`${myProjects.indexOf(p)*0.05}s` }}
               onClick={() => setExpandedId(expandedId===p.id?null:p.id)}>
