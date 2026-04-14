@@ -46,7 +46,7 @@ const INSTALL_URLS = {
 };
 
 export default function WalletModal({ onClose, onConnected }) {
-  const { select, connect, connecting, connected, publicKey, wallet, wallets } = useWallet();
+  const { select, connected, publicKey, wallet, wallets } = useWallet();
   const [phase, setPhase] = useState('select');
   const [chosen, setChosen] = useState(null);
   const [errMsg, setErrMsg] = useState('');
@@ -115,8 +115,12 @@ export default function WalletModal({ onClose, onConnected }) {
 
     setPhase('connecting');
     try {
+      // Sync the hook's selected wallet (so context sees the right one),
+      // but call connect() directly on the adapter instance — the hook's
+      // connect() has a stale-closure bug where clicking wallet A right
+      // after selecting wallet B opens B.
       select(name);
-      await connect();
+      await w.adapter.connect();
     } catch (err) {
       const msg = err?.message?.includes('not found') || err?.name === 'WalletNotReadyError'
         ? `${name} not installed. Install it from the browser extension store.`
