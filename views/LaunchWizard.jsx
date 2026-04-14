@@ -147,7 +147,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
     if (!formData.name?.trim()) { setErrors({ form: 'Add a token name before saving' }); return; }
     saveDraft(formData);
     setDraftSaved(true);
-    // No auto-dismiss — user acknowledges then we close the wizard.
+    setTimeout(() => setDraftSaved(false), 3000);
   };
 
   const handleSchedule = () => {
@@ -810,8 +810,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
               </div>
             )}
 
-            {/* Public Visibility section removed — scheduling is handled via the ⏰ Schedule button on step 3 */}
-            {false && (
+            {/* ── Public Visibility ── */}
             <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
               <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-dim)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:10 }}>Public Visibility</div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom: formData.visibility === 'scheduled' ? 10 : 0 }}>
@@ -840,16 +839,14 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                       <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Reveal date</label>
                       <input type="date" name="goPublicDate" value={formData.goPublicDate} onChange={handleChange}
                         min={new Date().toISOString().split('T')[0]}
-                        onClick={e => e.currentTarget.showPicker?.()}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
                         onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                         onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
                     </div>
                     <div>
                       <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Reveal time</label>
                       <input type="time" name="goPublicTime" value={formData.goPublicTime} onChange={handleChange}
-                        onClick={e => e.currentTarget.showPicker?.()}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
                         onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                         onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
                     </div>
@@ -862,7 +859,6 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                 </div>
               )}
             </div>
-            )}
           </div>
         )}
 
@@ -970,18 +966,9 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         )}
 
         {draftSaved && (
-          <div onClick={onClose} style={{ position:'fixed', inset:0, background:'var(--overlay)', zIndex:250, display:'flex', alignItems:'center', justifyContent:'center', padding:16, backdropFilter:'blur(4px)', animation:'fadeUp 0.15s ease' }}>
-            <div onClick={e => e.stopPropagation()} style={{ background:'var(--panel)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:10, width:'100%', maxWidth:340, padding:'22px 20px', animation:'slideUp 0.18s ease' }}>
-              <div style={{ fontSize:28, textAlign:'center', marginBottom:12 }}>✓</div>
-              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'#10B981', textAlign:'center', marginBottom:6 }}>Draft saved</div>
-              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)', textAlign:'center', lineHeight:1.6, marginBottom:16 }}>
-                Find it anytime in<br/>Creator Dashboard → Drafts
-              </div>
-              <button onClick={onClose}
-                style={{ width:'100%', padding:'11px 0', background:'#10B981', color:'#fff', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, cursor:'pointer', letterSpacing:'0.04em' }}>
-                OK
-              </button>
-            </div>
+          <div style={{ background:'rgba(16,185,129,0.07)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:6, padding:'10px 12px', marginBottom:12, display:'flex', alignItems:'center', gap:8 }}>
+            <span style={{ fontSize:14 }}>✓</span>
+            <span style={{ fontSize:12, color:'#10B981', fontFamily:"'IBM Plex Mono',monospace", fontWeight:600 }}>Draft saved — find it in Creator Dashboard → Drafts</span>
           </div>
         )}
 
@@ -1049,16 +1036,14 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
                       <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Date</label>
                       <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
-                        onClick={e => e.currentTarget.showPicker?.()}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
                         onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                         onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
                     </div>
                     <div>
                       <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Time</label>
                       <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                        onClick={e => e.currentTarget.showPicker?.()}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
                         onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                         onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
                     </div>
