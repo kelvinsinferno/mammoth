@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useWallet } from '@solana/wallet-adapter-react';
 import CycleDashboard from '../../views/CycleDashboard';
 import WalletModal from '../../components/wallet/WalletModal';
 import LaunchWizard from '../../views/LaunchWizard';
@@ -9,18 +10,27 @@ import { useApp } from '../../lib/AppContext';
 export default function CreatorPage() {
   const router = useRouter();
   const { myProjects, walletState, setWalletState, theme, handleLaunchCycle, handleTerminateProject, handleLaunchToken, projectsLoading } = useApp();
+  const { connected, connecting } = useWallet();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showLaunchModal, setShowLaunchModal] = useState(false);
   const [resumeDraft, setResumeDraft] = useState(null);
+  const [userClosedModal, setUserClosedModal] = useState(false);
 
-  // If not connected, prompt wallet connection
+  // Prompt wallet only after autoConnect has had a chance to rehydrate.
+  // Avoids the flash-modal-then-home-redirect race.
   useEffect(() => {
-    if (walletState.status !== 'connected') {
-      setShowWalletModal(true);
-    } else {
+    if (connected) {
       setShowWalletModal(false);
+      setUserClosedModal(false);
+      return;
     }
-  }, [walletState.status]);
+    if (connecting) return; // wait for autoConnect to settle
+    // Give the adapter one tick to restore a prior session before popping the modal
+    const t = setTimeout(() => {
+      if (!connected && !userClosedModal) setShowWalletModal(true);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [connected, connecting, userClosedModal]);
 
   return (
     <>
@@ -45,7 +55,15 @@ export default function CreatorPage() {
       )}
       {showWalletModal && (
         <WalletModal
-          onClose={() => { setShowWalletModal(false); if (walletState.status !== 'connected') router.push('/'); }}
+          onClose={() => {
+            setShowWalletModal(false);
+            // Only bounce home if the user actually rejected; if a connect
+            // is in flight or already succeeded, stay on /creator.
+            if (!connected && !connecting) {
+              setUserClosedModal(true);
+              router.push('/');
+            }
+          }}
           onConnected={(s) => { setWalletState(s); setShowWalletModal(false); }}
         />
       )}
