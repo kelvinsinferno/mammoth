@@ -54,15 +54,19 @@ export default function WalletModal({ onClose, onConnected }) {
   const mobile = useMemo(isMobile, []);
   const inWalletBrowser = useMemo(isInWalletBrowser, []);
 
-  // Group wallets: Installed first, then Loadable, then NotDetected
+  // Group wallets. Only Installed == actual extension present.
+  // Loadable means the adapter is loaded but the wallet isn't installed
+  // (calling connect() on Loadable Phantom redirects to phantom.com),
+  // so on desktop we show it as "install". On mobile, Loadable + Phantom/Solflare
+  // can open the app via universal link, so we still expose it as "Open app".
   const { installed, available } = useMemo(() => {
     const inst = [];
     const avail = [];
     for (const w of wallets || []) {
       const state = w.readyState;
-      if (state === WalletReadyState.Installed || state === WalletReadyState.Loadable) {
+      if (state === WalletReadyState.Installed) {
         inst.push(w);
-      } else if (state === WalletReadyState.NotDetected) {
+      } else if (state === WalletReadyState.Loadable || state === WalletReadyState.NotDetected) {
         avail.push(w);
       }
     }
@@ -89,23 +93,24 @@ export default function WalletModal({ onClose, onConnected }) {
     const name = w.adapter.name;
     setChosen({ label: name, icon: w.adapter.icon });
 
-    // Mobile flow: if wallet isn't detected and we're not already in a wallet browser,
-    // deep link into the wallet's in-app browser instead of showing an error.
-    if (mobile && !inWalletBrowser && w.readyState !== WalletReadyState.Installed) {
-      if (name === 'Phantom') {
-        window.location.href = phantomDeepLink();
-        return;
+    // If not actually installed, don't call connect() — it redirects to the
+    // wallet's marketing site instead of popping the extension.
+    if (w.readyState !== WalletReadyState.Installed) {
+      // Mobile: deep link into the wallet's in-app browser for wallets that
+      // support universal links.
+      if (mobile && !inWalletBrowser) {
+        if (name === 'Phantom') { window.location.href = phantomDeepLink(); return; }
+        if (name === 'Solflare') { window.location.href = solflareDeepLink(); return; }
       }
-      if (name === 'Solflare') {
-        window.location.href = solflareDeepLink();
-        return;
-      }
-      // Fallback for other wallets on mobile: open install page
+      // Desktop (or unsupported mobile deep link): open install page in new tab.
       const installUrl = INSTALL_URLS[name];
       if (installUrl) {
-        window.open(installUrl, '_blank');
-        return;
+        window.open(installUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        setErrMsg(`${name} extension not installed.`);
+        setPhase('error');
       }
+      return;
     }
 
     setPhase('connecting');
