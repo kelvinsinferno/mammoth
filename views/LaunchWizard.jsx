@@ -810,52 +810,72 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
               </div>
             )}
 
-            {/* ── Public Visibility ── */}
+            {/* ── Schedule Launch (single unified toggle) ── */}
             <div style={{ background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
-              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, fontWeight:700, color:'var(--text-dim)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:10 }}>Public Visibility</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom: formData.visibility === 'scheduled' ? 10 : 0 }}>
-                {[
-                  { key:'public', icon:'🌐', label:'Public now', desc:'Visible to everyone immediately after launch.' },
-                  { key:'scheduled', icon:'📅', label:'Schedule reveal', desc:'Hidden until your chosen date. You can change this anytime.' },
-                ].map(v => (
-                  <div key={v.key} onClick={() => handleChange({ target:{ name:'visibility', value:v.key } })}
-                    style={{ padding:'10px 12px', background:formData.visibility===v.key?'rgba(139,92,246,0.12)':'var(--panel)', border:`1px solid ${formData.visibility===v.key?'#8B5CF6':'var(--border)'}`, borderRadius:7, cursor:'pointer', transition:'all 0.12s' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:4 }}>
-                      <div style={{ width:13, height:13, borderRadius:'50%', border:formData.visibility===v.key?'4px solid #8B5CF6':'2px solid var(--border)', flexShrink:0 }}/>
-                      <span style={{ fontSize:12 }}>{v.icon}</span>
-                      <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:formData.visibility===v.key?'#A78BFA':'var(--text)' }}>{v.label}</span>
-                    </div>
-                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.6, paddingLeft:20 }}>{v.desc}</div>
-                  </div>
-                ))}
+              <button type="button"
+                onClick={() => {
+                  const turningOn = launchMode !== 'schedule';
+                  setLaunchMode(turningOn ? 'schedule' : 'now');
+                  handleChange({ target:{ name:'visibility', value: turningOn ? 'scheduled' : 'public' } });
+                }}
+                style={{ width:'100%', padding:'11px 14px', background:launchMode==='schedule'?'rgba(139,92,246,0.12)':'var(--panel)', border:`1px solid ${launchMode==='schedule'?'#8B5CF6':'var(--border)'}`, borderRadius:7, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:launchMode==='schedule'?'#A78BFA':'var(--text)', letterSpacing:'0.04em', transition:'all 0.12s' }}>
+                <span style={{ fontSize:14 }}>⏰</span>
+                <span>{launchMode==='schedule' ? 'SCHEDULE LAUNCH (ON)' : 'SCHEDULE LAUNCH'}</span>
+              </button>
+              <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.6, textAlign:'center', marginTop:6 }}>
+                {launchMode==='schedule'
+                  ? 'Signs & locks the token now; launch and reveal happen automatically at your chosen times.'
+                  : 'Off = launches immediately on sign. Toggle to set launch + reveal times.'}
               </div>
-              {formData.visibility === 'scheduled' && (
-                <div style={{ animation:'fadeUp 0.15s ease' }}>
-                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#A78BFA', marginBottom:8 }}>
-                    Your project will appear in "Coming Soon" on this date — not before.
+
+              {launchMode === 'schedule' && (
+                <div style={{ animation:'fadeUp 0.15s ease', marginTop:12 }}>
+                  {/* Launch date/time */}
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#A78BFA', fontWeight:700, marginBottom:6, letterSpacing:'0.05em' }}>LAUNCH TIME</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
+                    <div>
+                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Launch date</label>
+                      <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        onClick={e => e.currentTarget.showPicker?.()}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
+                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                    </div>
+                    <div>
+                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Launch time</label>
+                      <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
+                        onClick={e => e.currentTarget.showPicker?.()}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
+                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
+                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
+                    </div>
+                  </div>
+
+                  {/* Reveal date/time */}
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#A78BFA', fontWeight:700, marginBottom:6, letterSpacing:'0.05em' }}>REVEAL TIME</div>
+                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', marginBottom:6 }}>
+                    When your project becomes visible in "Coming Soon".
                   </div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                     <div>
                       <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Reveal date</label>
                       <input type="date" name="goPublicDate" value={formData.goPublicDate} onChange={handleChange}
                         min={new Date().toISOString().split('T')[0]}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                        onClick={e => e.currentTarget.showPicker?.()}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
                         onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                         onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
                     </div>
                     <div>
                       <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Reveal time</label>
                       <input type="time" name="goPublicTime" value={formData.goPublicTime} onChange={handleChange}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
+                        onClick={e => e.currentTarget.showPicker?.()}
+                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'8px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', cursor:'pointer', colorScheme: theme === 'light' ? 'light' : 'dark' }}
                         onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
                         onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
                     </div>
                   </div>
-                  {formData.goPublicDate && (
-                    <div style={{ marginTop:8, fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)', lineHeight:1.7 }}>
-                      You can change or remove this date anytime from your Creator Dashboard before it goes live.
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -1001,64 +1021,44 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
           {/* Step 3: launch options (not shown when already scheduled) */}
           {step === 3 && txState !== 'scheduled' && (
             <>
-              {/* Primary actions row */}
-              <div style={{ display:'flex', gap:8 }}>
-                <button onClick={() => setStep(2)} disabled={isProcessing}
-                  style={{ padding:'11px 14px', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:12, color:'var(--text-dim)', cursor:'pointer', flexShrink:0 }}>
-                  ← Back
-                </button>
-                <button onClick={handleLaunch} disabled={isProcessing}
-                  style={{ flex:1, padding:'11px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:46 }}>
-                  {isProcessing ? 'LAUNCHING...' : '🚀 LAUNCH NOW'}
-                </button>
-              </div>
-
-              {/* Secondary actions row */}
-              <div style={{ display:'flex', gap:8 }}>
-                {/* Save draft */}
-                <button onClick={handleSaveDraft}
-                  style={{ flex:1, padding:'9px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:11, color:'var(--text-dim)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:5 }}>
-                  💾 Save draft
-                </button>
-                {/* Schedule toggle */}
-                <button onClick={() => setLaunchMode(launchMode === 'schedule' ? 'now' : 'schedule')}
-                  style={{ flex:1, padding:'9px 0', background:launchMode==='schedule'?'rgba(139,92,246,0.12)':'transparent', border:`1px solid ${launchMode==='schedule'?'rgba(139,92,246,0.4)':'var(--border)'}`, borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:11, color:launchMode==='schedule'?'#A78BFA':'var(--text-dim)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:5 }}>
-                  ⏰ Schedule
-                </button>
-              </div>
-
-              {/* Schedule date/time picker — shown when schedule is active */}
-              {launchMode === 'schedule' && (
-                <div style={{ animation:'fadeUp 0.15s ease', background:'var(--panel-alt)', border:'1px solid rgba(139,92,246,0.2)', borderRadius:8, padding:'12px 14px' }}>
-                  <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#A78BFA', fontWeight:600, marginBottom:10, textTransform:'uppercase', letterSpacing:'0.05em' }}>⏰ Set launch time</div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
-                    <div>
-                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Date</label>
-                      <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
-                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
-                    </div>
-                    <div>
-                      <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', marginBottom:4 }}>Time</label>
-                      <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                        style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:6, padding:'7px 10px', color:'var(--text)', fontSize:12, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}
-                        onFocus={e => e.currentTarget.style.borderColor='#8B5CF6'}
-                        onBlur={e => e.currentTarget.style.borderColor='var(--border)'}/>
-                    </div>
+              {launchMode === 'schedule' ? (
+                <>
+                  {/* Schedule mode: all three buttons at bottom */}
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={() => setStep(2)} disabled={isProcessing}
+                      style={{ padding:'11px 14px', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:12, color:'var(--text-dim)', cursor:'pointer', flexShrink:0 }}>
+                      ← Back
+                    </button>
+                    <button onClick={handleSaveDraft} disabled={isProcessing}
+                      style={{ padding:'11px 14px', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:12, color:'var(--text-dim)', cursor:'pointer', flexShrink:0 }}>
+                      💾 Save draft
+                    </button>
+                    <button onClick={handleSchedule} disabled={isProcessing || !scheduleDate || !scheduleTime}
+                      style={{ flex:1, padding:'11px 0', background:(!scheduleDate||!scheduleTime)?'var(--border)':'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:(!scheduleDate||!scheduleTime)?'var(--text-muted)':'#fff', cursor:(!scheduleDate||!scheduleTime||isProcessing)?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:46 }}>
+                      {isProcessing ? 'SIGNING...' : '⏰ SIGN & LOCK LAUNCH'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Normal mode: Launch Now primary + Save draft secondary */}
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={() => setStep(2)} disabled={isProcessing}
+                      style={{ padding:'11px 14px', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:12, color:'var(--text-dim)', cursor:'pointer', flexShrink:0 }}>
+                      ← Back
+                    </button>
+                    <button onClick={handleLaunch} disabled={isProcessing}
+                      style={{ flex:1, padding:'11px 0', background:'linear-gradient(135deg,#7C3AED,#8B5CF6)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor:isProcessing?'not-allowed':'pointer', opacity:isProcessing?0.5:1, minHeight:46 }}>
+                      {isProcessing ? 'LAUNCHING...' : '🚀 LAUNCH NOW'}
+                    </button>
                   </div>
                   <div style={{ display:'flex', gap:8 }}>
                     <button onClick={handleSaveDraft}
-                      style={{ flex:1, padding:'9px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:11, color:'var(--text-dim)', cursor:'pointer' }}>
+                      style={{ flex:1, padding:'9px 0', background:'transparent', border:'1px solid var(--border)', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:600, fontSize:11, color:'var(--text-dim)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:5 }}>
                       💾 Save draft
                     </button>
-                    <button onClick={handleSchedule} disabled={!scheduleDate || !scheduleTime}
-                      style={{ flex:2, padding:'9px 0', background:(!scheduleDate||!scheduleTime)?'var(--border)':'rgba(139,92,246,0.18)', border:`1px solid ${(!scheduleDate||!scheduleTime)?'var(--border)':'rgba(139,92,246,0.4)'}`, borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:(!scheduleDate||!scheduleTime)?'var(--text-muted)':'#A78BFA', cursor:(!scheduleDate||!scheduleTime)?'not-allowed':'pointer' }}>
-                      ⏰ SIGN & LOCK LAUNCH
-                    </button>
                   </div>
-                </div>
+                </>
               )}
             </>
           )}
