@@ -30,7 +30,7 @@ export const metadata = {
     description: defaultDescription,
   },
   verification: {
-    google: 'C1zt_Rz0Et-81jZ1l0Qrs57NDrJf2JK1eYLSlvMuGTU',
+    google: ['C1zt_Rz0Et-81jZ1l0Qrs57NDrJf2JK1eYLSlvMuGTU', '8435fea1ad603ead'],
     other: {
       'msvalidate.01': '9EE7608E5499D8FE38F77B9FA67134DB',
     },
