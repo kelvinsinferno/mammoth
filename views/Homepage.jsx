@@ -123,10 +123,10 @@ export default function Homepage({ projects, onSelectProject, wallet, walletStat
         {/* Hero */}
         <div style={{ marginBottom:20, padding:'16px 18px', background:'var(--hero-bg)', border:'1px solid var(--hero-border)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10, boxSizing:'border-box' }}>
           <div>
-            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:3 }}>
+            <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--text)', marginBottom:3, margin:0 }}>
               For projects that aren't done yet —{' '}
               <span style={{ background:'linear-gradient(90deg,#8B5CF6,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>launch, grow, and keep going.</span>
-            </div>
+            </h1>
             <div style={{ fontSize:11, color:theme==='light'?'rgba(255,255,255,0.85)':'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>permissionless · cycle-based · no curation · no approvals</div>
           </div>
           <button onClick={onLaunch} style={{ background:theme==='light'?'#fff':'linear-gradient(135deg,#7C3AED,#8B5CF6)', color:theme==='light'?'#7c3aed':'#fff', border:'none', borderRadius:7, padding:'10px 20px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, cursor:'pointer', letterSpacing:'0.05em', whiteSpace:'nowrap', flexShrink:0, minHeight:44 }}>
