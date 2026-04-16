@@ -289,6 +289,10 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       toast.success('Token launched on-chain!');
       setTimeout(() => onLaunch?.(newProject), 1500);
     } catch(e) {
+      console.error('[mammoth LaunchWizard] raw error:', e);
+      console.error('[mammoth LaunchWizard] error.message:', e?.message);
+      console.error('[mammoth LaunchWizard] error.logs:', e?.logs);
+      console.error('[mammoth LaunchWizard] error.simulationResponse:', e?.simulationResponse);
       const userMsg = parseTransactionError(e);
       if (userMsg === null) {
         setTxState('idle');
