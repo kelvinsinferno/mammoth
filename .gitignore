@@ -10,3 +10,5 @@ build/
 out/
 
 .vercel
+scripts/.diag-keypair.json
+upgrade-authority.json
