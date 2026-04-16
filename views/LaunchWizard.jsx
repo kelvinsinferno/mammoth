@@ -218,6 +218,10 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       setScheduledAt(launchAt);
       setTxState('scheduled');
     } catch(e) {
+      console.error('[mammoth Schedule] raw error:', e);
+      console.error('[mammoth Schedule] error.message:', e?.message);
+      console.error('[mammoth Schedule] error.logs:', e?.logs);
+      console.error('[mammoth Schedule] error.simulationResponse:', e?.simulationResponse);
       const userMsg = parseTransactionError ? parseTransactionError(e) : null;
       if (userMsg === null) { setTxState('idle'); return; }
       setErrors({ form: userMsg || e?.message || 'Failed to schedule launch' });
