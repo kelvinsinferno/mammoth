@@ -291,7 +291,7 @@ function CyclePanelDetail({ cycle }) {
       </div>
       <div style={{ marginBottom:14 }}>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{cycle.sold.toLocaleString()} / {cycle.allocation.toLocaleString()} sold</span>
+          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)' }}>{(cycle.sold ?? 0).toLocaleString()} / {(cycle.allocation ?? 0).toLocaleString()} sold</span>
           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#22D3EE', fontWeight:600 }}>{pct}%</span>
         </div>
         <div style={{ height:6, background:'var(--border)', borderRadius:3, overflow:'hidden' }}>
