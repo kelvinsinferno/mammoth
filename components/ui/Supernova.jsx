@@ -230,11 +230,49 @@ export default function Supernova() {
     draw();
 
     // ── Events ──────────────────────────────────────────────────────────────
-    const isInteractive = (el) =>
-      el && (
-        ['button','a','input','textarea','select','label'].includes(el.tagName.toLowerCase()) ||
-        el.closest('button, a, input, textarea, [role="button"]')
-      );
+    // Treat anything that looks clickable/typeable/UI-chromed as interactive.
+    // Walk up the tree so an icon inside a clickable div also counts.
+    const INTERACTIVE_SELECTOR = [
+      'button',
+      'a[href]',
+      'input',
+      'textarea',
+      'select',
+      'label',
+      'summary',
+      '[role="button"]',
+      '[role="link"]',
+      '[role="tab"]',
+      '[role="menuitem"]',
+      '[role="option"]',
+      '[role="checkbox"]',
+      '[role="radio"]',
+      '[role="switch"]',
+      '[role="slider"]',
+      '[role="textbox"]',
+      '[role="combobox"]',
+      '[role="listbox"]',
+      '[role="dialog"]',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable]',
+      '[data-supernova-ignore]',
+    ].join(',');
+
+    const isInteractive = (el) => {
+      if (!el) return true;
+      if (el.closest?.(INTERACTIVE_SELECTOR)) return true;
+      // Walk ancestors; any element with cursor:pointer is a UI feature.
+      // Stops at body to keep this cheap.
+      let node = el;
+      while (node && node !== document.body && node !== document.documentElement) {
+        if (node.nodeType === 1) {
+          const cursor = window.getComputedStyle(node).cursor;
+          if (cursor === 'pointer' || cursor === 'text') return true;
+        }
+        node = node.parentNode;
+      }
+      return false;
+    };
 
     // Mouse move → cosmic dust on background only
     const onMouseMove = (e) => {
