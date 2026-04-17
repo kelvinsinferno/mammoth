@@ -2,7 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // Strip noisy console.* in production, but keep error/warn so Sentry's
+    // captureConsoleIntegration can forward them.
+    removeConsole: process.env.NODE_ENV === 'production'
+      ? { exclude: ['error', 'warn'] }
+      : false,
   },
   images: {
     remotePatterns: [
