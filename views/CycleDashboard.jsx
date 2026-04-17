@@ -345,11 +345,17 @@ function EmbedModal({ project, onClose }) {
   );
 }
 
-function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate }) {
+function CycleManagerModal({ cycle: cycleProp, project, onClose, onLaunchCycle, onTerminate }) {
+  // Projects with no active cycle pass cycle=null. Substitute a zero-state
+  // placeholder so the rest of the render reads safe numeric fields. Actions
+  // that need a real cycle are gated on `hasCycle`.
+  const hasCycle = !!cycleProp;
+  const cycle = cycleProp || { id: 0, status: 'NONE', allocation: 0, sold: 0, currentPrice: 0, stepSize: 0, stepIncrement: 0, rightsWindowEnd: null };
+
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
   const [action, setAction] = useState(null);
-  const [params, setParams] = useState({ cycleAllocation: cycle?.allocation ?? 1_000_000, stepSize: cycle?.stepSize || 5000 });
+  const [params, setParams] = useState({ cycleAllocation: cycle.allocation || 1_000_000, stepSize: cycle.stepSize || 5000 });
   const [submitting, setSubmitting] = useState(false);
 
   const handleLaunch = async () => {
@@ -422,7 +428,7 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--text)' }}>{action?'Settings':'Manage cycle'}</div>
-            <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:1 }}>{project.name} · Cycle #{cycle.id}</div>
+            <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace", marginTop:1 }}>{project.name} · {hasCycle ? `Cycle #${cycle.id}` : 'No active cycle'}</div>
           </div>
           <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:16, lineHeight:1 }}>✕</button>
         </div>

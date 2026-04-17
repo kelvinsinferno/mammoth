@@ -425,8 +425,8 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const [slippage, setSlippage] = useState(5);
   const [showSlippage, setShowSlippage] = useState(false);
   // Dynamic presets — 5%, 10%, 25%, 50% of remaining cycle value in SOL
-  const remainingTokens = cycle.allocation - cycle.sold;
-  const cycleRemainingSOL = remainingTokens * cycle.currentPrice;
+  const remainingTokens = (cycle?.allocation ?? 0) - (cycle?.sold ?? 0);
+  const cycleRemainingSOL = remainingTokens * (cycle?.currentPrice ?? 0);
   const PRESETS = [0.05, 0.10, 0.25, 0.50].map(pct => {
     const raw = cycleRemainingSOL * pct;
     if (raw <= 0) return 0.0001;
