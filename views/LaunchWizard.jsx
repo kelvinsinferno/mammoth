@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { deployProject } from '../lib/curves';
 import { parseTransactionError } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
@@ -218,6 +219,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       setScheduledAt(launchAt);
       setTxState('scheduled');
     } catch(e) {
+      Sentry.captureException(e, { tags: { flow: 'launch-schedule' }, extra: { logs: e?.logs, simulationResponse: e?.simulationResponse } });
       console.error('[mammoth Schedule] raw error:', e);
       console.error('[mammoth Schedule] error.message:', e?.message);
       console.error('[mammoth Schedule] error.logs:', e?.logs);
@@ -293,6 +295,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       toast.success('Token launched on-chain!');
       setTimeout(() => onLaunch?.(newProject), 1500);
     } catch(e) {
+      Sentry.captureException(e, { tags: { flow: 'launch-now' }, extra: { logs: e?.logs, simulationResponse: e?.simulationResponse } });
       console.error('[mammoth LaunchWizard] raw error:', e);
       console.error('[mammoth LaunchWizard] error.message:', e?.message);
       console.error('[mammoth LaunchWizard] error.logs:', e?.logs);

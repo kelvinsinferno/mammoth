@@ -29,8 +29,14 @@ Sentry.init({
     return event;
   },
 
-  // Browser-specific: replay sessions on errors only (saves quota)
-  integrations: [],
+  // Session replay: capture the user's session around any error so we can see
+  // exactly what they clicked. Quota-friendly (only records on errors).
+  integrations: [
+    Sentry.replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    }),
+  ],
   replaysSessionSampleRate: 0,
-  replaysOnErrorSampleRate: 0, // disabled to save quota; enable later if useful
+  replaysOnErrorSampleRate: 1.0,
 });
