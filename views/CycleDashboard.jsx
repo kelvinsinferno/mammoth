@@ -582,18 +582,24 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                 <div>
                   <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:3 }}>{p.name} <span style={{ fontSize:11, color:'var(--text-dim)' }}>/ ${p.ticker}</span></div>
                   <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
-                    <span style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>
-                      Cycle #{p.cycleData.id} · {fmtTokens(p.cycleData.sold)} / {fmtTokens(p.cycleData.allocation)} sold
-                    </span>
-                    {(p.cycleData.status==='RIGHTS_WINDOW'||p.cycleData.status==='rightsWindow') && (() => {
-                      const expired = p.cycleData.rightsWindowEnd && Math.floor(Date.now()/1000) >= p.cycleData.rightsWindowEnd;
-                      return (
-                        <span style={{ fontSize:9, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, padding:'2px 6px', borderRadius:3, background: expired ? 'rgba(255,159,28,0.15)' : 'rgba(34,211,238,0.1)', color: expired ? '#FF9F1C' : '#22D3EE', border: expired ? '1px solid rgba(255,159,28,0.3)' : '1px solid rgba(34,211,238,0.25)' }}>
-                          {expired ? '⚡ READY TO ACTIVATE' : '🛡 RIGHTS WINDOW'}
+                    {p.cycleData ? (
+                      <>
+                        <span style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>
+                          Cycle #{p.cycleData.id} · {fmtTokens(p.cycleData.sold)} / {fmtTokens(p.cycleData.allocation)} sold
                         </span>
-                      );
-                    })()}
-                    {p.cycleData.status==='ACTIVE' && <span style={{ fontSize:9, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, padding:'2px 6px', borderRadius:3, background:'rgba(139,92,246,0.13)', color:'#22D3EE', border:'1px solid rgba(139,92,246,0.28)' }}>● OPEN</span>}
+                        {(p.cycleData.status==='RIGHTS_WINDOW'||p.cycleData.status==='rightsWindow') && (() => {
+                          const expired = p.cycleData.rightsWindowEnd && Math.floor(Date.now()/1000) >= p.cycleData.rightsWindowEnd;
+                          return (
+                            <span style={{ fontSize:9, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, padding:'2px 6px', borderRadius:3, background: expired ? 'rgba(255,159,28,0.15)' : 'rgba(34,211,238,0.1)', color: expired ? '#FF9F1C' : '#22D3EE', border: expired ? '1px solid rgba(255,159,28,0.3)' : '1px solid rgba(34,211,238,0.25)' }}>
+                              {expired ? '⚡ READY TO ACTIVATE' : '🛡 RIGHTS WINDOW'}
+                            </span>
+                          );
+                        })()}
+                        {p.cycleData.status==='ACTIVE' && <span style={{ fontSize:9, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, padding:'2px 6px', borderRadius:3, background:'rgba(139,92,246,0.13)', color:'#22D3EE', border:'1px solid rgba(139,92,246,0.28)' }}>● OPEN</span>}
+                      </>
+                    ) : (
+                      <span style={{ fontSize:11, color:'var(--text-muted)', fontFamily:"'IBM Plex Mono',monospace" }}>No active cycle · launch one to begin</span>
+                    )}
                   </div>
                 </div>
                 <span style={{ fontSize:14, opacity:expandedId===p.id?0.6:1 }}>{expandedId===p.id?'▼':'▶'}</span>
