@@ -210,6 +210,15 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
             reserveBps: Math.floor(formData.treasuryAlloc * 100),
             sinkBps: Math.floor((100 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
             launchAt: launchAtUnix,
+            // Cycle params — opens first cycle at the scheduled launch time
+            curveType: formData.curveType,
+            startPrice: Number(formData.startPrice),
+            endPrice: Number(formData.endPrice) || 0,
+            stepSize: Number(formData.stepSize) || 0,
+            stepIncrement: Number(formData.stepIncrement) || 0,
+            expMultiplier: Number(formData.expMultiplier) || 0,
+            rightsRequired: !!formData.rightsRequired,
+            rightsWindowHours: Number(formData.rightsWindowHours) || 24,
           },
         });
       } else {
@@ -258,6 +267,15 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
             creatorBps: Math.floor(formData.creatorAlloc * 100),
             reserveBps: Math.floor(formData.treasuryAlloc * 100),
             sinkBps: Math.floor((100 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
+            // Cycle params — opens first cycle in the same launch flow
+            curveType: formData.curveType,
+            startPrice: Number(formData.startPrice),
+            endPrice: Number(formData.endPrice) || 0,
+            stepSize: Number(formData.stepSize) || 0,
+            stepIncrement: Number(formData.stepIncrement) || 0,
+            expMultiplier: Number(formData.expMultiplier) || 0,
+            rightsRequired: !!formData.rightsRequired,
+            rightsWindowHours: Number(formData.rightsWindowHours) || 24,
           },
         });
       } else {
@@ -292,7 +310,13 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         sparkline: Array(12).fill(0).map(() => formData.startPrice * (0.95 + Math.random()*0.1)),
       };
       setTxState('success');
-      toast.success('Token launched on-chain!');
+      if (deployResult?.cycleError) {
+        toast.success('Project created — cycle failed to open, you can retry from the dashboard.');
+      } else if (deployResult?.cycleSignature) {
+        toast.success('Token launched + first cycle open!');
+      } else {
+        toast.success('Token launched on-chain!');
+      }
       setTimeout(() => onLaunch?.(newProject), 1500);
     } catch(e) {
       Sentry.captureException(e, { tags: { flow: 'launch-now' }, extra: { logs: e?.logs, simulationResponse: e?.simulationResponse } });
