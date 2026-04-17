@@ -255,6 +255,26 @@ export default function Supernova() {
       return false;
     };
 
+    const hasVisibleBorder = (style) => (
+      (style.borderTopStyle !== 'none' && parseFloat(style.borderTopWidth) > 0) ||
+      (style.borderRightStyle !== 'none' && parseFloat(style.borderRightWidth) > 0) ||
+      (style.borderBottomStyle !== 'none' && parseFloat(style.borderBottomWidth) > 0) ||
+      (style.borderLeftStyle !== 'none' && parseFloat(style.borderLeftWidth) > 0)
+    );
+
+    // A node counts as a "card" if the browser drew it as a distinct shape:
+    // border-radius, visible border, or box-shadow. Raw layout wrappers and
+    // flex/grid containers have none of these and count as background.
+    const isCard = (style) => {
+      if (parseFloat(style.borderTopLeftRadius) > 0) return true;
+      if (parseFloat(style.borderTopRightRadius) > 0) return true;
+      if (parseFloat(style.borderBottomLeftRadius) > 0) return true;
+      if (parseFloat(style.borderBottomRightRadius) > 0) return true;
+      if (hasVisibleBorder(style)) return true;
+      if (style.boxShadow && style.boxShadow !== 'none') return true;
+      return false;
+    };
+
     const isBackground = (el) => {
       if (!el) return false;
       if (el === document.body || el === document.documentElement) return true;
@@ -266,13 +286,7 @@ export default function Supernova() {
           if (hasDirectText(node)) return false;
           const style = window.getComputedStyle(node);
           if (style.cursor === 'pointer' || style.cursor === 'text') return false;
-          if (!TRANSPARENT.has(style.backgroundColor)) return false;
-          if (style.backgroundImage && style.backgroundImage !== 'none') return false;
-          if (style.borderTopStyle !== 'none' && parseFloat(style.borderTopWidth) > 0) return false;
-          if (style.borderRightStyle !== 'none' && parseFloat(style.borderRightWidth) > 0) return false;
-          if (style.borderBottomStyle !== 'none' && parseFloat(style.borderBottomWidth) > 0) return false;
-          if (style.borderLeftStyle !== 'none' && parseFloat(style.borderLeftWidth) > 0) return false;
-          if (parseFloat(style.boxShadow) || (style.boxShadow && style.boxShadow !== 'none')) return false;
+          if (isCard(style)) return false;
         }
         node = node.parentNode;
       }
