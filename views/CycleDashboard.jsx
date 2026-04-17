@@ -2,13 +2,113 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllPositions } from './ProjectDetail';
-import { fmtTokens } from '../lib/utils';
+import { fmtTokens, saveProjectMeta } from '../lib/utils';
 import { closeCycleOnChain } from '../lib/curves';
 import { parseTransactionError, activateCycle } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
 import { SkeletonList } from '../components/ui/Skeleton';
 import ConfigureAgentModal from '../components/modals/ConfigureAgentModal';
+
+const LINK_FIELDS = [
+  ['website',   'Website'],
+  ['twitter',   'Twitter / X'],
+  ['telegram',  'Telegram'],
+  ['discord',   'Discord'],
+  ['github',    'GitHub'],
+  ['farcaster', 'Farcaster'],
+  ['youtube',   'YouTube'],
+  ['docs',      'Docs'],
+];
+
+function MetadataEditor({ project: p }) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    name: p.name || '',
+    ticker: p.ticker || '',
+    description: p.description || '',
+    image: p.image || p.imagePreview || '',
+    website: p.website || '', twitter: p.twitter || '', telegram: p.telegram || '',
+    discord: p.discord || '', github: p.github || '', farcaster: p.farcaster || '',
+    youtube: p.youtube || '', docs: p.docs || '',
+  });
+  const update = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const onFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => update('image', reader.result);
+    reader.readAsDataURL(file);
+  };
+  const save = (e) => {
+    e.stopPropagation();
+    Object.assign(p, form, { imagePreview: form.image });
+    saveProjectMeta(p.mint || p.id, { ...form, imagePreview: form.image });
+    setOpen(false);
+  };
+  return (
+    <div style={{ marginBottom:10, background:'var(--panel-alt)', border:'1px solid var(--border)', borderRadius:7, padding:'10px 12px' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: open ? 10 : 0 }}>
+        <div>
+          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-dim)', fontWeight:600, marginBottom:2 }}>✏️ Project details</div>
+          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>Image, description, links — editable any time</div>
+        </div>
+        <button onClick={e => { e.stopPropagation(); setOpen(v => !v); }}
+          style={{ background:'none', border:'1px solid var(--border)', borderRadius:4, padding:'3px 9px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', cursor:'pointer' }}>
+          {open ? 'CANCEL' : 'EDIT'}
+        </button>
+      </div>
+      {open && (
+        <div style={{ animation:'fadeUp 0.12s ease' }} onClick={e => e.stopPropagation()}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
+            <div>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', marginBottom:3 }}>Name</label>
+              <input type="text" value={form.name} onChange={e => update('name', e.target.value)}
+                style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'6px 8px', color:'var(--text)', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}/>
+            </div>
+            <div>
+              <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', marginBottom:3 }}>Ticker</label>
+              <input type="text" value={form.ticker} onChange={e => update('ticker', e.target.value.toUpperCase())}
+                style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'6px 8px', color:'var(--text)', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}/>
+            </div>
+          </div>
+          <div style={{ marginBottom:8 }}>
+            <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', marginBottom:3 }}>Description</label>
+            <textarea value={form.description} onChange={e => update('description', e.target.value)} rows={3}
+              style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'6px 8px', color:'var(--text)', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box', resize:'vertical' }}/>
+          </div>
+          <div style={{ marginBottom:8 }}>
+            <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', marginBottom:3 }}>Image</label>
+            <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+              {form.image && <img src={form.image} alt="" style={{ width:36, height:36, borderRadius:5, objectFit:'cover', border:'1px solid var(--border)' }}/>}
+              <input type="file" accept="image/*" onChange={onFile}
+                style={{ flex:1, fontSize:10, color:'var(--text-dim)', fontFamily:"'IBM Plex Mono',monospace" }}/>
+              {form.image && (
+                <button onClick={e => { e.stopPropagation(); update('image', ''); }}
+                  style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:4, padding:'4px 8px', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'#F43F5E', cursor:'pointer' }}>
+                  CLEAR
+                </button>
+              )}
+            </div>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
+            {LINK_FIELDS.map(([k, label]) => (
+              <div key={k}>
+                <label style={{ display:'block', fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-dim)', marginBottom:3 }}>{label}</label>
+                <input type="url" value={form[k]} onChange={e => update(k, e.target.value)} placeholder="https://"
+                  style={{ width:'100%', background:'var(--panel)', border:'1px solid var(--border)', borderRadius:5, padding:'6px 8px', color:'var(--text)', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", outline:'none', boxSizing:'border-box' }}/>
+              </div>
+            ))}
+          </div>
+          <button onClick={save}
+            style={{ width:'100%', padding:'8px 0', background:'rgba(139,92,246,0.15)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:5, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:10, color:'#A78BFA', cursor:'pointer' }}>
+            SAVE DETAILS
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function RevealEditor({ project: p }) {
   const isScheduled = p.status === 'COMING_SOON' && p.goPublicAt;
@@ -52,13 +152,18 @@ function RevealEditor({ project: p }) {
           <div style={{ display:'flex', gap:6 }}>
             <button onClick={e => { e.stopPropagation();
                 const dt = revealDate ? new Date(`${revealDate}T${revealTime||'00:00'}`).toISOString() : null;
-                p.goPublicAt = dt; p.status = dt && new Date(dt) > new Date() ? 'COMING_SOON' : 'BETWEEN';
+                const status = dt && new Date(dt) > new Date() ? 'COMING_SOON' : 'BETWEEN';
+                p.goPublicAt = dt; p.status = status;
+                saveProjectMeta(p.mint || p.id, { goPublicAt: dt, status });
                 setEditingReveal(false); }}
               style={{ flex:1, padding:'7px 0', background:'rgba(139,92,246,0.15)', border:'1px solid rgba(139,92,246,0.3)', borderRadius:5, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:10, color:'#A78BFA', cursor:'pointer' }}>
               SAVE DATE
             </button>
             {p.goPublicAt && (
-              <button onClick={e => { e.stopPropagation(); p.goPublicAt = null; p.status = 'BETWEEN'; setEditingReveal(false); }}
+              <button onClick={e => { e.stopPropagation();
+                  p.goPublicAt = null; p.status = 'BETWEEN';
+                  saveProjectMeta(p.mint || p.id, { goPublicAt: null, status: 'BETWEEN' });
+                  setEditingReveal(false); }}
                 style={{ padding:'7px 12px', background:'transparent', border:'1px solid var(--border)', borderRadius:5, fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'#F43F5E', cursor:'pointer' }}>
                 MAKE PUBLIC NOW
               </button>
@@ -702,6 +807,8 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
                       </div>
                     ))}
                   </div>
+                  {/* ── Project details editor (image, description, links) ── */}
+                  <MetadataEditor project={p} />
                   {/* ── Visibility / reveal date editor ── */}
                   <RevealEditor project={p} />
 

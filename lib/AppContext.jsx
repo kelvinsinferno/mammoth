@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { MOCK_PROJECTS } from './data';
+import { applyProjectMeta, saveProjectMeta } from './utils';
 import {
   getProgram,
   fetchAllProjects,
@@ -199,7 +200,8 @@ export function AppProvider({ children }) {
         if (account.currentCycle > 0) {
           cycleAccount = await fetchActiveCycle(program, projPda, account.currentCycle - 1);
         }
-        return mapOnChainProject(account, mintAddress, cycleAccount);
+        const base = mapOnChainProject(account, mintAddress, cycleAccount);
+        return applyProjectMeta(base);
       }));
 
       setProjects(prev => {
@@ -243,6 +245,8 @@ export function AppProvider({ children }) {
   // ─── Handlers (local state for mock / optimistic updates) ────────────────
 
   const handleLaunchToken = (newProject) => {
+    // Persist the editable metadata so it survives on-chain reloads / refreshes
+    saveProjectMeta(newProject.mint || newProject.id, newProject);
     const projectWithData = {
       ...newProject,
       chartData: Array.from({ length: 30 }, (_, i) => ({
