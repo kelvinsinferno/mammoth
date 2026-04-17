@@ -207,7 +207,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
             publicAllocationBps: Math.floor((100 - formData.creatorAlloc - formData.protocolFee) * 100),
             creatorBps: Math.floor(formData.creatorAlloc * 100),
             reserveBps: Math.floor(formData.treasuryAlloc * 100),
-            sinkBps: Math.floor((98 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
+            sinkBps: Math.floor((100 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
             launchAt: launchAtUnix,
           },
         });
@@ -255,7 +255,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
             publicAllocationBps: Math.floor((100 - formData.creatorAlloc - formData.protocolFee) * 100),
             creatorBps: Math.floor(formData.creatorAlloc * 100),
             reserveBps: Math.floor(formData.treasuryAlloc * 100),
-            sinkBps: Math.floor((98 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
+            sinkBps: Math.floor((100 - formData.creatorAlloc - formData.treasuryAlloc) * 100),
           },
         });
       } else {
