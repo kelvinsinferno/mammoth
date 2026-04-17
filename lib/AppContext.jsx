@@ -247,19 +247,23 @@ export function AppProvider({ children }) {
   const handleLaunchToken = (newProject) => {
     // Persist the editable metadata so it survives on-chain reloads / refreshes
     saveProjectMeta(newProject.mint || newProject.id, newProject);
+    const isScheduled = newProject.status === 'COMING_SOON';
     const projectWithData = {
       ...newProject,
       chartData: Array.from({ length: 30 }, (_, i) => ({
         t: Date.now() - (29 - i) * 24 * 60 * 60 * 1000,
         p: newProject.price * (0.95 + Math.random() * 0.15 * (i / 30)),
       })),
-      cycleData: {
+      // For scheduled launches the cycle isn't open yet — leave cycleData null
+      // until the real on-chain account shows up, so the UI reflects the
+      // actual pre-launch state instead of faking an ACTIVE cycle.
+      cycleData: isScheduled ? null : {
         id: 1, status: 'ACTIVE', sold: 0, allocation: 1000000,
         currentPrice: newProject.price, stepSize: 5000, stepIncrement: 0.00022,
         nextStepIn: 5000, userRights: 0, userRightsUsed: 0,
         treasuryRouting: { creator: 40, reserve: 30, sink: 20 },
       },
-      cycleHistory: [{
+      cycleHistory: isScheduled ? [] : [{
         id: 1, status: 'ACTIVE',
         allocation: newProject.totalSupply ? Math.floor(newProject.totalSupply * 0.6) : 1000000,
         raised: '0 SOL',

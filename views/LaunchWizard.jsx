@@ -225,6 +225,36 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         deployResult = { mint: 'SCHEDULED_' + Date.now(), mock: true };
       }
       saveDraft({ id: draftId ?? undefined, ...formData, launchMode, scheduleDate, scheduleTime, scheduledFor: launchAt.toISOString(), mint: deployResult.mint, deployed: true });
+
+      // Register the scheduled project so it appears in Coming Soon + Creator
+      // Dashboard immediately. goPublicAt gates visibility; status flips to
+      // BETWEEN once launchAt passes and the cycle goes live on-chain.
+      const goPublicAt = launchAt.toISOString();
+      const newProject = {
+        id: deployResult.mint,
+        mint: deployResult.mint,
+        name: formData.name,
+        ticker: formData.ticker.toUpperCase(),
+        description: formData.description,
+        website: formData.website, twitter: formData.twitter, telegram: formData.telegram,
+        discord: formData.discord, github: formData.github, farcaster: formData.farcaster,
+        youtube: formData.youtube, docs: formData.docs,
+        creator: walletState.short || 'anon',
+        image: formData.imagePreview,
+        supplyMode: formData.supplyMode,
+        totalSupply: formData.supplyMode === 'fixed' ? formData.hardCapSupply : formData.initialAllocation,
+        status: 'COMING_SOON',
+        goPublicAt,
+        scheduledLaunchAt: goPublicAt,
+        price: formData.startPrice,
+        change: 0,
+        volume: 0,
+        raised: '0 SOL',
+        progress: 0,
+        sparkline: Array(12).fill(0).map(() => formData.startPrice * (0.95 + Math.random()*0.1)),
+      };
+      onLaunch?.(newProject);
+
       setScheduledAt(launchAt);
       setTxState('scheduled');
     } catch(e) {
