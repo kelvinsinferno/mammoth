@@ -439,16 +439,17 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   // Mock projects have a numeric id — must be declared first, used below
   const isMockProject = mintAddress && /^\d+$/.test(String(mintAddress));
 
-  const quote = solNum > 0 ? computeStepCurve({ solIn:solNum, sold:cycle.sold, allocation:cycle.allocation, startPrice:cycle.currentPrice, stepSize:cycle.stepSize||5000, stepIncrement:cycle.stepIncrement||0.00022, feeBps:200 }) : null;
+  const quote = solNum > 0 && cycle ? computeStepCurve({ solIn:solNum, sold:cycle.sold ?? 0, allocation:cycle.allocation ?? 0, startPrice:cycle.currentPrice ?? 0, stepSize:cycle.stepSize||5000, stepIncrement:cycle.stepIncrement||0.00022, feeBps:200 }) : null;
   const tokensOut = quote?.tokensOut ?? 0;
-  const exceedsRights = walletConnected && cycle.userRights > 0 && tokensOut > (cycle.userRights - (cycle.userRightsUsed||0));
+  const exceedsRights = walletConnected && (cycle?.userRights ?? 0) > 0 && tokensOut > ((cycle?.userRights ?? 0) - (cycle?.userRightsUsed||0));
   const exceedsAllocation = quote ? quote.remainingAfter < 0 : false;
   // Skip slippage check on mock/demo projects — only enforce on real on-chain trades
-  const priceImpactPct = quote ? ((quote.effectivePrice - cycle.currentPrice) / cycle.currentPrice * 100) : 0;
+  const currentPrice = cycle?.currentPrice ?? 0;
+  const priceImpactPct = quote && currentPrice > 0 ? ((quote.effectivePrice - currentPrice) / currentPrice * 100) : 0;
   const slippageOk = isMockProject ? true : (quote ? priceImpactPct <= slippage : true);
   const hasError = exceedsRights || exceedsAllocation || (!slippageOk && solNum > 0);
 
-  const validationMsg = exceedsRights ? `Exceeds your rights allocation (${(cycle.userRights||0).toLocaleString()} tokens)`
+  const validationMsg = exceedsRights ? `Exceeds your rights allocation (${(cycle?.userRights||0).toLocaleString()} tokens)`
     : exceedsAllocation ? 'Amount exceeds remaining cycle allocation'
     : !slippageOk && solNum > 0 ? `Price impact too high (${priceImpactPct.toFixed(1)}%) — tap ⚙ to raise slippage tolerance`
     : null;
