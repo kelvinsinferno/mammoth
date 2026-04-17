@@ -519,7 +519,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const handleReset = () => { setTxState('idle'); setSol(''); setReceipt(null); setErrMsg(''); };
   const isProcessing = txState === 'awaiting' || txState === 'loading';
 
-  if (cycle.status !== 'ACTIVE') {
+  if (!cycle || cycle.status !== 'ACTIVE') {
     return <JupiterPanel mintAddress={mintAddress} ticker={ticker} />;
   }
 
