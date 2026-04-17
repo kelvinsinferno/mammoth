@@ -1019,17 +1019,24 @@ export default function ProjectDetail({ project: p, onBack, wallet, walletState,
             </div>
           )}
 
-          {tab==='Treasury' && (
-            <div>
-              <div style={{ marginBottom:16, fontSize:13, color:'var(--text-dim)', fontFamily:"'IBM Plex Mono',monospace" }}>Proceeds routing — on-chain, deterministic</div>
-              {[['Creator treasury',p.cycleData.treasuryRouting.creator+'%','#10B981'],['Reserve (SOL)',p.cycleData.treasuryRouting.reserve+'%','var(--text-dim)'],['Sink / burn',p.cycleData.treasuryRouting.sink+'%','var(--text-muted)'],['Protocol fee','2% (fixed)','#6D28D9']].map(([k,v,c],i) => (
-                <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 0', borderBottom:'1px solid #1a2438' }}>
-                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-secondary)' }}>{k}</span>
-                  <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:13, color:c, fontWeight:700 }}>{v}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          {tab==='Treasury' && (() => {
+            const routing = p.cycleData?.treasuryRouting || {
+              creator: (p.creatorBps ?? 0) / 100,
+              reserve: (p.reserveBps ?? 0) / 100,
+              sink: (p.sinkBps ?? 0) / 100,
+            };
+            return (
+              <div>
+                <div style={{ marginBottom:16, fontSize:13, color:'var(--text-dim)', fontFamily:"'IBM Plex Mono',monospace" }}>Proceeds routing — on-chain, deterministic</div>
+                {[['Creator treasury',routing.creator+'%','#10B981'],['Reserve (SOL)',routing.reserve+'%','var(--text-dim)'],['Sink / burn',routing.sink+'%','var(--text-muted)'],['Protocol fee','2% (fixed)','#6D28D9']].map(([k,v,c],i) => (
+                  <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 0', borderBottom:'1px solid #1a2438' }}>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:'var(--text-secondary)' }}>{k}</span>
+                    <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:13, color:c, fontWeight:700 }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

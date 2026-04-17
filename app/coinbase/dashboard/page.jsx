@@ -82,11 +82,17 @@ export default function CoinbaseDashboard() {
                         {p.name} <span style={{ fontSize:11, color:'var(--text-dim)' }}>/ ${p.ticker}</span>
                       </div>
                       <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
-                        <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>Cycle #{p.cycleData.id}</span>
-                        {cycleOpen
-                          ? <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, fontWeight:700, color:'#22D3EE', background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.25)', borderRadius:3, padding:'1px 6px' }}>● OPEN</span>
-                          : <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'var(--text-muted)' }}>BETWEEN</span>
-                        }
+                        {p.cycleData ? (
+                          <>
+                            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>Cycle #{p.cycleData.id}</span>
+                            {cycleOpen
+                              ? <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, fontWeight:700, color:'#22D3EE', background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.25)', borderRadius:3, padding:'1px 6px' }}>● OPEN</span>
+                              : <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:8, color:'var(--text-muted)' }}>BETWEEN</span>
+                            }
+                          </>
+                        ) : (
+                          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)' }}>No active cycle</span>
+                        )}
                       </div>
                     </div>
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -106,7 +112,9 @@ export default function CoinbaseDashboard() {
                         {[
                           { k:'24h volume',  v:`${p.volume} SOL`,  c:'var(--text-dim)' },
                           { k:'Total raised', v:p.raised,          c:'var(--text-dim)' },
-                          { k:'Cycle sold',  v:`${Math.round((p.cycleData.sold/p.cycleData.allocation)*100)}%`, c:'#A78BFA' },
+                          p.cycleData && p.cycleData.allocation
+                            ? { k:'Cycle sold', v:`${Math.round((p.cycleData.sold/p.cycleData.allocation)*100)}%`, c:'#A78BFA' }
+                            : { k:'Cycle sold', v:'—', c:'var(--text-muted)' },
                           { k:'Current price', v:`${p.price?.toFixed(5)} SOL`, c:'#22D3EE' },
                         ].map(({ k,v,c }) => (
                           <div key={k} style={{ background:'var(--panel)', border:'1px solid #1a2438', borderRadius:6, padding:'8px 10px' }}>
@@ -117,15 +125,17 @@ export default function CoinbaseDashboard() {
                       </div>
 
                       {/* Progress bar */}
-                      <div style={{ marginBottom:12 }}>
-                        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>{p.cycleData.sold?.toLocaleString()} / {p.cycleData.allocation?.toLocaleString()} sold</span>
-                          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'#22D3EE' }}>{Math.round((p.cycleData.sold/p.cycleData.allocation)*100)}%</span>
+                      {p.cycleData && p.cycleData.allocation > 0 && (
+                        <div style={{ marginBottom:12 }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>{p.cycleData.sold?.toLocaleString()} / {p.cycleData.allocation?.toLocaleString()} sold</span>
+                            <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'#22D3EE' }}>{Math.round((p.cycleData.sold/p.cycleData.allocation)*100)}%</span>
+                          </div>
+                          <div style={{ height:4, background:'var(--border)', borderRadius:2, overflow:'hidden' }}>
+                            <div style={{ height:'100%', width:`${Math.round((p.cycleData.sold/p.cycleData.allocation)*100)}%`, background:'linear-gradient(90deg,#7C3AED,#8B5CF6,#22D3EE)', borderRadius:2 }}/>
+                          </div>
                         </div>
-                        <div style={{ height:4, background:'var(--border)', borderRadius:2, overflow:'hidden' }}>
-                          <div style={{ height:'100%', width:`${Math.round((p.cycleData.sold/p.cycleData.allocation)*100)}%`, background:'linear-gradient(90deg,#7C3AED,#8B5CF6,#22D3EE)', borderRadius:2 }}/>
-                        </div>
-                      </div>
+                      )}
 
                       {/* Share links */}
                       <div style={{ background:'rgba(139,92,246,0.05)', border:'1px solid rgba(139,92,246,0.15)', borderRadius:8, padding:'10px 12px', marginBottom:10 }}>
