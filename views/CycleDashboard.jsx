@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { getAllPositions } from './ProjectDetail';
 import { fmtTokens } from '../lib/utils';
 import { closeCycleOnChain } from '../lib/curves';
@@ -564,6 +565,8 @@ function CycleManagerModal({ cycle: cycleProp, project, onClose, onLaunchCycle, 
 
 export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme, loading, onLaunchNew, onResumeDraft }) {
   const [expandedId, setExpandedId] = useState(null);
+  const router = useRouter();
+  const goToToken = (p) => router.push(`/token/${p.mint || p.id}`);
   const [manageModal, setManageModal] = useState(null);
   const [embedModal, setEmbedModal] = useState(null);
   const [tgModal, setTgModal] = useState(null);
@@ -704,11 +707,11 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
 
 
                   <div style={{ display:'flex', gap:6 }}>
-                    <button onClick={e => { e.stopPropagation(); setManageModal(p); }}
+                    <button onClick={e => { e.stopPropagation(); goToToken(p); }}
                       style={{ flex:1, padding:'10px 0', background:'rgba(139,92,246,0.15)', border:'1px solid rgba(139,92,246,0.28)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:12, color:'#22D3EE', cursor:'pointer', letterSpacing:'0.04em', transition:'all 0.12s' }}
                       onMouseEnter={e => e.currentTarget.style.borderColor='#8B5CF6'}
                       onMouseLeave={e => e.currentTarget.style.borderColor='rgba(139,92,246,0.28)'}>
-                      MANAGE CYCLES →
+                      VIEW PROJECT →
                     </button>
                     <button onClick={e => { e.stopPropagation(); setEmbedModal(p); }}
                       style={{ padding:'10px 12px', background:'transparent', border:'1px solid var(--border)', borderRadius:6, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color:'var(--text-dim)', cursor:'pointer', transition:'all 0.12s', flexShrink:0 }}
