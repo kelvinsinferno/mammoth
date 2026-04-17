@@ -230,59 +230,64 @@ export default function Supernova() {
     draw();
 
     // ── Events ──────────────────────────────────────────────────────────────
-    // Treat anything that looks clickable/typeable/UI-chromed as interactive.
-    // Walk up the tree so an icon inside a clickable div also counts.
+    // Fire only on true page background. A click counts as background when:
+    //   - the target isn't inside an interactive element, and
+    //   - no ancestor up to <body> has a non-transparent background, a visible
+    //     border, or a pointer/text cursor (i.e. nothing in the chain is a
+    //     card, panel, heading, or styled box).
     const INTERACTIVE_SELECTOR = [
-      'button',
-      'a[href]',
-      'input',
-      'textarea',
-      'select',
-      'label',
-      'summary',
-      '[role="button"]',
-      '[role="link"]',
-      '[role="tab"]',
-      '[role="menuitem"]',
-      '[role="option"]',
-      '[role="checkbox"]',
-      '[role="radio"]',
-      '[role="switch"]',
-      '[role="slider"]',
-      '[role="textbox"]',
-      '[role="combobox"]',
-      '[role="listbox"]',
+      'button', 'a[href]', 'input', 'textarea', 'select', 'label', 'summary',
+      'img', 'svg', 'canvas', 'video', 'iframe', 'picture',
+      '[role="button"]', '[role="link"]', '[role="tab"]', '[role="menuitem"]',
+      '[role="option"]', '[role="checkbox"]', '[role="radio"]', '[role="switch"]',
+      '[role="slider"]', '[role="textbox"]', '[role="combobox"]', '[role="listbox"]',
       '[role="dialog"]',
-      '[tabindex]:not([tabindex="-1"])',
-      '[contenteditable]',
+      '[tabindex]:not([tabindex="-1"])', '[contenteditable]',
       '[data-supernova-ignore]',
     ].join(',');
 
-    const isInteractive = (el) => {
-      if (!el) return true;
-      if (el.closest?.(INTERACTIVE_SELECTOR)) return true;
-      // Walk ancestors; any element with cursor:pointer is a UI feature.
-      // Stops at body to keep this cheap.
-      let node = el;
-      while (node && node !== document.body && node !== document.documentElement) {
-        if (node.nodeType === 1) {
-          const cursor = window.getComputedStyle(node).cursor;
-          if (cursor === 'pointer' || cursor === 'text') return true;
-        }
-        node = node.parentNode;
+    const TRANSPARENT = new Set(['rgba(0, 0, 0, 0)', 'transparent', '']);
+
+    const hasDirectText = (el) => {
+      for (const node of el.childNodes) {
+        if (node.nodeType === 3 && node.textContent.trim()) return true;
       }
       return false;
     };
 
+    const isBackground = (el) => {
+      if (!el) return false;
+      if (el === document.body || el === document.documentElement) return true;
+      if (el.closest?.(INTERACTIVE_SELECTOR)) return false;
+
+      let node = el;
+      while (node && node !== document.body && node !== document.documentElement) {
+        if (node.nodeType === 1) {
+          if (hasDirectText(node)) return false;
+          const style = window.getComputedStyle(node);
+          if (style.cursor === 'pointer' || style.cursor === 'text') return false;
+          if (!TRANSPARENT.has(style.backgroundColor)) return false;
+          if (style.backgroundImage && style.backgroundImage !== 'none') return false;
+          if (style.borderTopStyle !== 'none' && parseFloat(style.borderTopWidth) > 0) return false;
+          if (style.borderRightStyle !== 'none' && parseFloat(style.borderRightWidth) > 0) return false;
+          if (style.borderBottomStyle !== 'none' && parseFloat(style.borderBottomWidth) > 0) return false;
+          if (style.borderLeftStyle !== 'none' && parseFloat(style.borderLeftWidth) > 0) return false;
+          if (parseFloat(style.boxShadow) || (style.boxShadow && style.boxShadow !== 'none')) return false;
+        }
+        node = node.parentNode;
+      }
+      return true;
+    };
+
     // Mouse move → cosmic dust on background only
     const onMouseMove = (e) => {
-      if (isInteractive(e.target)) return;
+      if (!isBackground(e.target)) return;
       spawnDust(e.clientX, e.clientY);
     };
 
     // Click → full supernova on background only
     const onClick = (e) => {
-      if (isInteractive(e.target)) return;
+      if (!isBackground(e.target)) return;
       spawnSupernova(e.clientX, e.clientY);
     };
 
