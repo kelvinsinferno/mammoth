@@ -349,7 +349,7 @@ function CycleManagerModal({ cycle, project, onClose, onLaunchCycle, onTerminate
   const { connection, getWalletAdapter } = useApp();
   const toast = useToast();
   const [action, setAction] = useState(null);
-  const [params, setParams] = useState({ cycleAllocation:cycle.allocation, stepSize:cycle.stepSize||5000 });
+  const [params, setParams] = useState({ cycleAllocation: cycle?.allocation ?? 1_000_000, stepSize: cycle?.stepSize || 5000 });
   const [submitting, setSubmitting] = useState(false);
 
   const handleLaunch = async () => {
