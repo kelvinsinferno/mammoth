@@ -33,5 +33,6 @@ module.exports = withSentryConfig(nextConfig, {
   hideSourceMaps: true,
   disableLogger: true,
   telemetry: false,
+  tunnelRoute: '/monitoring',
   // Source map upload only runs when SENTRY_AUTH_TOKEN is present in the build env.
 });
