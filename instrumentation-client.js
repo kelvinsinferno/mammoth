@@ -24,9 +24,12 @@ Sentry.init({
       maskAllText: false,
       blockAllMedia: false,
     }),
+    Sentry.captureConsoleIntegration({ levels: ['error', 'warn'] }),
+    Sentry.extraErrorDataIntegration({ depth: 6 }),
   ],
-  replaysSessionSampleRate: 0,
+  replaysSessionSampleRate: 1.0,
   replaysOnErrorSampleRate: 1.0,
+  attachStacktrace: true,
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
