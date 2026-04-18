@@ -230,6 +230,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       // Dashboard immediately. goPublicAt gates visibility; status flips to
       // BETWEEN once launchAt passes and the cycle goes live on-chain.
       const goPublicAt = launchAt.toISOString();
+      const totalSupplyNum = formData.supplyMode === 'fixed' ? formData.hardCapSupply : formData.initialAllocation;
       const newProject = {
         id: deployResult.mint,
         mint: deployResult.mint,
@@ -242,16 +243,28 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         creator: walletState.short || 'anon',
         image: formData.imagePreview,
         supplyMode: formData.supplyMode,
-        totalSupply: formData.supplyMode === 'fixed' ? formData.hardCapSupply : formData.initialAllocation,
+        totalSupply: totalSupplyNum,
         status: 'COMING_SOON',
         goPublicAt,
-        scheduledLaunchAt: goPublicAt,
+        scheduledLaunchAt: launchAtUnix,
         price: formData.startPrice,
         change: 0,
         volume: 0,
         raised: '0 SOL',
         progress: 0,
         sparkline: Array(12).fill(0).map(() => formData.startPrice * (0.95 + Math.random()*0.1)),
+        // Cycle params — persisted so a failed openCycle can be retried from
+        // the dashboard's "Open Cycle" button without re-entering them.
+        curveType: formData.curveType,
+        startPrice: Number(formData.startPrice),
+        endPrice: Number(formData.endPrice) || 0,
+        stepSize: Number(formData.stepSize) || 0,
+        stepIncrement: Number(formData.stepIncrement) || 0,
+        expMultiplier: Number(formData.expMultiplier) || 0,
+        publicAllocationBps: Math.floor((100 - formData.creatorAlloc - formData.protocolFee) * 100),
+        rightsRequired: !!formData.rightsRequired,
+        rightsWindowHours: Number(formData.rightsWindowHours) || 24,
+        cyclePending: !deployResult.cycleSignature,
       };
       onLaunch?.(newProject);
 
@@ -317,6 +330,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
       const goPublicAt = formData.visibility === 'scheduled' && formData.goPublicDate
         ? new Date(`${formData.goPublicDate}T${formData.goPublicTime || '00:00'}`).toISOString()
         : null;
+      const totalSupplyNum = formData.supplyMode === 'fixed' ? formData.hardCapSupply : formData.initialAllocation;
       const newProject = {
         id: deployResult.mint,
         mint: deployResult.mint,
@@ -329,7 +343,7 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         creator: walletState.short || 'anon',
         image: formData.imagePreview,
         supplyMode: formData.supplyMode,
-        totalSupply: formData.supplyMode === 'fixed' ? formData.hardCapSupply : formData.initialAllocation,
+        totalSupply: totalSupplyNum,
         status: goPublicAt && new Date(goPublicAt) > new Date() ? 'COMING_SOON' : 'BETWEEN',
         goPublicAt,
         price: formData.startPrice,
@@ -338,6 +352,18 @@ export default function LaunchWizard({ onClose, onLaunch, walletState, theme, in
         raised: '0 SOL',
         progress: 0,
         sparkline: Array(12).fill(0).map(() => formData.startPrice * (0.95 + Math.random()*0.1)),
+        // Cycle params — persisted so a failed openCycle can be retried from
+        // the dashboard's "Open Cycle" button without re-entering them.
+        curveType: formData.curveType,
+        startPrice: Number(formData.startPrice),
+        endPrice: Number(formData.endPrice) || 0,
+        stepSize: Number(formData.stepSize) || 0,
+        stepIncrement: Number(formData.stepIncrement) || 0,
+        expMultiplier: Number(formData.expMultiplier) || 0,
+        publicAllocationBps: Math.floor((100 - formData.creatorAlloc - formData.protocolFee) * 100),
+        rightsRequired: !!formData.rightsRequired,
+        rightsWindowHours: Number(formData.rightsWindowHours) || 24,
+        cyclePending: !deployResult.cycleSignature,
       };
       setTxState('success');
       if (deployResult?.cycleError) {

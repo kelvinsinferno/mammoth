@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllPositions } from './ProjectDetail';
-import { fmtTokens, saveProjectMeta } from '../lib/utils';
-import { closeCycleOnChain } from '../lib/curves';
+import { fmtTokens, saveProjectMeta, loadProjectMeta } from '../lib/utils';
+import { closeCycleOnChain, openCycleOnChain } from '../lib/curves';
 import { parseTransactionError, activateCycle } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
@@ -669,10 +669,58 @@ function CycleManagerModal({ cycle: cycleProp, project, onClose, onLaunchCycle, 
 }
 
 export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onTerminateProject, theme, loading, onLaunchNew, onResumeDraft }) {
+  const { connection, getWalletAdapter, loadOnChainProjects } = useApp();
+  const toast = useToast();
   const [expandedId, setExpandedId] = useState(null);
   const router = useRouter();
   const goToToken = (p) => router.push(`/token/${p.mint || p.id}`);
   const [manageModal, setManageModal] = useState(null);
+  const [openingCycleFor, setOpeningCycleFor] = useState(null);
+
+  const handleOpenFirstCycle = async (e, p) => {
+    e.stopPropagation();
+    const mint = p.mint || p.id;
+    const walletAdapter = getWalletAdapter?.();
+    if (!walletAdapter) { toast.error('Connect your wallet first'); return; }
+
+    // Pull cycle params saved at launch time. Fall back to project fields
+    // (handleLaunchToken persisted them onto myProjects for this session).
+    const saved = loadProjectMeta(mint) || {};
+    const params = {
+      curveType: saved.curveType ?? p.curveType ?? 'linear',
+      startPrice: Number(saved.startPrice ?? p.startPrice ?? p.price ?? 0.001),
+      endPrice: Number(saved.endPrice ?? p.endPrice ?? 0) || 0,
+      stepSize: Number(saved.stepSize ?? p.stepSize ?? 0) || 0,
+      stepIncrement: Number(saved.stepIncrement ?? p.stepIncrement ?? 0) || 0,
+      expMultiplier: Number(saved.expMultiplier ?? p.expMultiplier ?? 0) || 0,
+      rightsRequired: !!(saved.rightsRequired ?? p.rightsRequired),
+      rightsWindowHours: Number(saved.rightsWindowHours ?? p.rightsWindowHours ?? 24),
+      supplyCap: Math.floor(
+        Number(saved.totalSupply ?? p.totalSupply ?? 1_000_000_000)
+        * ((saved.publicAllocationBps ?? p.publicAllocationBps ?? 6000) / 10000)
+      ),
+      activatesAt: saved.scheduledLaunchAt ?? p.scheduledLaunchAt ?? null,
+    };
+
+    if (!params.startPrice || params.startPrice <= 0) {
+      toast.error('Missing cycle parameters — relaunch from the wizard');
+      return;
+    }
+
+    setOpeningCycleFor(mint);
+    try {
+      await openCycleOnChain({ connection, walletAdapter, mintAddress: mint, params });
+      saveProjectMeta(mint, { cyclePending: false });
+      toast.success(params.activatesAt ? 'Cycle scheduled on-chain' : 'Cycle is now open');
+      setTimeout(() => loadOnChainProjects?.(), 3000);
+    } catch (err) {
+      console.error('[mammoth openFirstCycle] failed:', err);
+      toast.error(err?.message?.slice(0, 120) || 'Failed to open cycle');
+    } finally {
+      setOpeningCycleFor(null);
+    }
+  };
+
   const [embedModal, setEmbedModal] = useState(null);
   const [tgModal, setTgModal] = useState(null);
   const [agentModal, setAgentModal] = useState(null);
@@ -782,18 +830,24 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
               {expandedId === p.id && (
                 <div style={{ marginTop:12, paddingTop:12, borderTop:'1px solid #1a2438', animation:'slideDown 0.15s ease' }}>
                   {/* No active cycle state */}
-                  {(!p.cycleData || p.cycleData.status !== 'ACTIVE') && (
-                    <div style={{ background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.18)', borderRadius:7, padding:'12px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
-                      <div>
-                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', fontWeight:600 }}>No active cycle</div>
-                        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>Open a new cycle to start raising.</div>
+                  {(!p.cycleData || p.cycleData.status !== 'ACTIVE') && (() => {
+                    const busy = openingCycleFor === (p.mint || p.id);
+                    return (
+                      <div style={{ background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.18)', borderRadius:7, padding:'12px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
+                        <div>
+                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', fontWeight:600 }}>No active cycle</div>
+                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>
+                            {p.cyclePending ? 'First cycle tx didn\'t land. Retry in one click:' : 'Open a new cycle to start raising.'}
+                          </div>
+                        </div>
+                        <button onClick={e => handleOpenFirstCycle(e, p)}
+                          disabled={busy}
+                          style={{ background: busy ? 'var(--panel-alt)' : '#FF9F1C', border: busy ? '1px solid var(--border)' : 'none', borderRadius:5, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color: busy ? 'var(--text-muted)' : '#000', cursor: busy ? 'not-allowed' : 'pointer', letterSpacing:'0.04em', whiteSpace:'nowrap', minHeight:28, opacity: busy ? 0.7 : 1 }}>
+                          {busy ? 'OPENING...' : 'LAUNCH CYCLE →'}
+                        </button>
                       </div>
-                      <button onClick={e => { e.stopPropagation(); setManageModal(p); }}
-                        style={{ background:'#FF9F1C', border:'none', borderRadius:5, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color:'#000', cursor:'pointer', letterSpacing:'0.04em', whiteSpace:'nowrap' }}>
-                        OPEN CYCLE →
-                      </button>
-                    </div>
-                  )}
+                    );
+                  })()}
                   <div className="creator-project-stats" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
                     {[
                       { k:'Current price', v:`${p.price.toFixed(5)} SOL`, c:'#22D3EE' },
