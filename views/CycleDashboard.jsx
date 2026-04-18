@@ -829,24 +829,68 @@ export default function CycleDashboard({ myProjects, onClose, onLaunchCycle, onT
 
               {expandedId === p.id && (
                 <div style={{ marginTop:12, paddingTop:12, borderTop:'1px solid #1a2438', animation:'slideDown 0.15s ease' }}>
-                  {/* No active cycle state */}
-                  {(!p.cycleData || p.cycleData.status !== 'ACTIVE') && (() => {
+                  {/* Cycle status banner — behavior depends on whether a cycle
+                      exists on-chain and what state it's in */}
+                  {(() => {
                     const busy = openingCycleFor === (p.mint || p.id);
-                    return (
-                      <div style={{ background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.18)', borderRadius:7, padding:'12px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
-                        <div>
-                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', fontWeight:600 }}>No active cycle</div>
-                          <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>
-                            {p.cyclePending ? 'First cycle tx didn\'t land. Retry in one click:' : 'Open a new cycle to start raising.'}
+                    const cd = p.cycleData;
+                    const hasScheduledCycle = cd && (cd.status === 'RIGHTS_WINDOW' || cd.status === 'rightsWindow');
+                    const hasActiveCycle = cd && cd.status === 'ACTIVE';
+                    const hasEndedCycle = cd && (cd.status === 'CLOSED' || cd.status === 'TERMINATED' || cd.status === 'ENDED');
+                    const needsFirstCycle = !cd; // no cycle on-chain yet
+
+                    if (hasActiveCycle) return null; // active cycle = no banner here
+
+                    if (hasScheduledCycle) {
+                      const activatesAt = cd.activatesAt;
+                      const rightsWindowEnd = cd.rightsWindowEnd;
+                      const windowOpensAt = activatesAt ?? (rightsWindowEnd ? rightsWindowEnd - 60 : null);
+                      const fmt = (unix) => unix ? new Date(unix * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+                      return (
+                        <div style={{ background:'rgba(34,211,238,0.06)', border:'1px solid rgba(34,211,238,0.2)', borderRadius:7, padding:'12px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
+                          <div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'#22D3EE', fontWeight:600 }}>🛡 Cycle scheduled</div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>
+                              Public buying opens {fmt(windowOpensAt)} — on-chain, no second signature needed
+                            </div>
                           </div>
                         </div>
-                        <button onClick={e => handleOpenFirstCycle(e, p)}
-                          disabled={busy}
-                          style={{ background: busy ? 'var(--panel-alt)' : '#FF9F1C', border: busy ? '1px solid var(--border)' : 'none', borderRadius:5, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color: busy ? 'var(--text-muted)' : '#000', cursor: busy ? 'not-allowed' : 'pointer', letterSpacing:'0.04em', whiteSpace:'nowrap', minHeight:28, opacity: busy ? 0.7 : 1 }}>
-                          {busy ? 'OPENING...' : 'LAUNCH CYCLE →'}
-                        </button>
-                      </div>
-                    );
+                      );
+                    }
+
+                    if (hasEndedCycle) {
+                      return (
+                        <div style={{ background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.18)', borderRadius:7, padding:'12px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
+                          <div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', fontWeight:600 }}>Cycle #{cd.id} ended</div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>Open a new cycle with fresh allocation, curve, and schedule.</div>
+                          </div>
+                          <button onClick={e => { e.stopPropagation(); router.push(`/creator/cycle/new?mint=${p.mint || p.id}`); }}
+                            style={{ background:'#FF9F1C', border:'none', borderRadius:5, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color:'#000', cursor:'pointer', letterSpacing:'0.04em', whiteSpace:'nowrap', minHeight:28 }}>
+                            OPEN NEW CYCLE →
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    if (needsFirstCycle) {
+                      return (
+                        <div style={{ background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.18)', borderRadius:7, padding:'12px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
+                          <div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-dim)', fontWeight:600 }}>No active cycle</div>
+                            <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:'var(--text-muted)', marginTop:2 }}>
+                              {p.cyclePending ? 'First cycle tx didn\'t land. Retry in one click:' : 'Open a new cycle to start raising.'}
+                            </div>
+                          </div>
+                          <button onClick={e => handleOpenFirstCycle(e, p)}
+                            disabled={busy}
+                            style={{ background: busy ? 'var(--panel-alt)' : '#FF9F1C', border: busy ? '1px solid var(--border)' : 'none', borderRadius:5, padding:'6px 14px', fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:11, color: busy ? 'var(--text-muted)' : '#000', cursor: busy ? 'not-allowed' : 'pointer', letterSpacing:'0.04em', whiteSpace:'nowrap', minHeight:28, opacity: busy ? 0.7 : 1 }}>
+                            {busy ? 'OPENING...' : 'LAUNCH CYCLE →'}
+                          </button>
+                        </div>
+                      );
+                    }
+                    return null;
                   })()}
                   <div className="creator-project-stats" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
                     {[

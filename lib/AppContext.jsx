@@ -32,24 +32,32 @@ function mapOnChainProject(projectAccount, mintAddress, cycleAccount) {
   let progress = 0;
   let currentPrice = 0;
 
-  if (cycle && cycle.status?.active !== undefined) {
+  if (cycle) {
+    const cycleStatusLabel =
+      cycle.status?.active !== undefined ? 'ACTIVE'
+      : cycle.status?.rightsWindow !== undefined ? 'RIGHTS_WINDOW'
+      : cycle.status?.closed !== undefined ? 'CLOSED'
+      : cycle.status?.terminated !== undefined ? 'TERMINATED'
+      : 'UNKNOWN';
+
     const supplyCap = Number(cycle.supplyCap);
     const minted = Number(cycle.minted);
     const baseP = lamportsToSol(cycle.basePrice);
     const stepSz = Number(cycle.stepSize);
     const stepIncrSol = lamportsToSol(cycle.stepIncrement);
 
-    currentPrice = computeCurrentPrice(cycle);
+    currentPrice = cycleStatusLabel === 'ACTIVE' ? computeCurrentPrice(cycle) : baseP;
     const stepIndex = stepSz > 0 ? Math.floor(minted / stepSz) : 0;
     const nextStepIn = stepSz > 0 ? stepSz - (minted % stepSz) : null;
     const nextStepPrice = stepSz > 0 ? baseP + (stepIndex + 1) * stepIncrSol : null;
     const rightsWindowEnd = Number(cycle.rightsWindowEnd);
     const now = Math.floor(Date.now() / 1000);
     const rightsActive = rightsWindowEnd > now;
+    const activatesAt = cycle.activatesAt != null ? Number(cycle.activatesAt) : null;
 
     cycleData = {
       id: currentCycle,
-      status: 'ACTIVE',
+      status: cycleStatusLabel,
       allocation: supplyCap,
       sold: minted,
       curveType: cycle.curveType?.step !== undefined ? 'Step'
@@ -65,6 +73,7 @@ function mapOnChainProject(projectAccount, mintAddress, cycleAccount) {
       solRaised: lamportsToSol(cycle.solRaised),
       rightsWindowEnd,
       rightsActive,
+      activatesAt,
       treasuryRouting: {
         creator: proj.creatorBps / 100,
         reserve: proj.reserveBps / 100,
@@ -73,7 +82,9 @@ function mapOnChainProject(projectAccount, mintAddress, cycleAccount) {
     };
 
     progress = supplyCap > 0 ? Math.round(minted / supplyCap * 100) : 0;
-    status = 'ACTIVE';
+    status = cycleStatusLabel === 'ACTIVE' ? 'ACTIVE'
+      : cycleStatusLabel === 'RIGHTS_WINDOW' ? 'COMING_SOON'
+      : 'BETWEEN';
   }
 
   return {
