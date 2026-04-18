@@ -1,4 +1,7 @@
 'use client';
+// useSearchParams requires this page to be dynamic (not statically prerendered).
+export const dynamic = 'force-dynamic';
+
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '../../../../lib/AppContext';
