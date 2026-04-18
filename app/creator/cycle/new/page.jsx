@@ -1,9 +1,6 @@
 'use client';
-// useSearchParams requires this page to be dynamic (not statically prerendered).
-export const dynamic = 'force-dynamic';
-
 import { useState, useMemo, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../../../lib/AppContext';
 import OpenCycleConfirm from '../../../../components/modals/OpenCycleConfirm';
 
@@ -223,7 +220,6 @@ const DEFAULT_FORM = {
 
 export default function NewCyclePage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { myProjects, walletState } = useApp();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [submitting, setSubmitting] = useState(false);
@@ -232,16 +228,19 @@ export default function NewCyclePage() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   // Pre-fill projectId from ?mint=... so the "Open New Cycle →" button on the
-  // dashboard lands here with the right project already selected. Waits until
-  // myProjects loads so the dropdown match is valid.
+  // dashboard lands here with the right project already selected. Read
+  // window.location.search directly so the page stays static-prerenderable
+  // (useSearchParams forces dynamic and broke the build).
   useEffect(() => {
-    const mint = searchParams?.get('mint');
-    if (!mint || form.projectId) return;
+    if (typeof window === 'undefined' || form.projectId) return;
+    const params = new URLSearchParams(window.location.search);
+    const mint = params.get('mint');
+    if (!mint) return;
     const match = myProjects?.find(p => (p.mint || p.id) === mint);
     if (match) {
       setForm(f => ({ ...f, projectId: match.mint || match.id }));
     }
-  }, [searchParams, myProjects, form.projectId]);
+  }, [myProjects, form.projectId]);
 
   const set = (key) => (e) => {
     const val = e.target.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
