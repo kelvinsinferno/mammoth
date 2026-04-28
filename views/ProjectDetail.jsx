@@ -42,6 +42,7 @@ export function getAllPositions() {
     return { mintAddress, ticker: lastBuy.ticker, name: lastBuy.name, totalTokens, totalSol, avgPrice, lastBuy, buyCount: buys.length, cycleStatus: lastBuy.cycleStatus };
   });
 }
+import { PublicKey } from '@solana/web3.js';
 import { computeStepCurve, executeBuyTokens, executeExerciseRights } from '../lib/curves';
 import { parseTransactionError, activateCycle, getProgram } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
@@ -537,11 +538,13 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
     setActivating(true);
     try {
       const program = getProgram(connection, walletAdapter);
+      // getProjectStatePDA calls .toBuffer() — must pass PublicKey, not string.
+      const mintPubkey = new PublicKey(mintAddress);
       // mapOnChainProject sets cycleData.id = project.current_cycle (the count
       // after open_cycle increments it). The active cycle's PDA index is one
       // less. activate_cycle's PDA seed must match cycle_state.cycle_index.
       const cycleIndex = Math.max(0, (cycle?.id ?? 1) - 1);
-      await activateCycle(program, mintAddress, cycleIndex);
+      await activateCycle(program, mintPubkey, cycleIndex);
       toast.success(`${ticker} is live — public buying open!`);
       await loadOnChainProjects?.();
     } catch (e) {
