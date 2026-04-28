@@ -43,7 +43,7 @@ export function getAllPositions() {
   });
 }
 import { computeStepCurve, executeBuyTokens, executeExerciseRights } from '../lib/curves';
-import { parseTransactionError } from '../lib/anchorClient';
+import { parseTransactionError, activateCycle, getProgram } from '../lib/anchorClient';
 import { useApp } from '../lib/AppContext';
 import { useToast } from '../components/ui/Toast';
 import TokenLogo, { getTokenPalette } from '../components/ui/TokenLogo';
@@ -416,7 +416,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
     const t = setInterval(() => csForce(n => n + 1), 1000);
     return () => clearInterval(t);
   }, [comingSoon]);
-  const { connection, getWalletAdapter } = useApp();
+  const { connection, getWalletAdapter, loadOnChainProjects } = useApp();
   const toast = useToast();
   const [txState, setTxState] = useState('idle');
   const [sol, setSol] = useState('');
@@ -424,6 +424,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const [errMsg, setErrMsg] = useState('');
   const [slippage, setSlippage] = useState(5);
   const [showSlippage, setShowSlippage] = useState(false);
+  const [activating, setActivating] = useState(false);
   // Dynamic presets — 5%, 10%, 25%, 50% of remaining cycle value in SOL
   const remainingTokens = (cycle?.allocation ?? 0) - (cycle?.sold ?? 0);
   const cycleRemainingSOL = remainingTokens * (cycle?.currentPrice ?? 0);
@@ -519,7 +520,36 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   const handleReset = () => { setTxState('idle'); setSol(''); setReceipt(null); setErrMsg(''); };
   const isProcessing = txState === 'awaiting' || txState === 'loading';
 
-  if (!cycle || cycle.status !== 'ACTIVE') {
+  // ── Phase detection for non-ACTIVE cycles ────────────────────────────────────
+  // Pre-launch: countdown still ticking. Pending-activation: countdown expired
+  // but on-chain cycle is still RIGHTS_WINDOW (needs activate_cycle to flip to ACTIVE).
+  const countdownActive = comingSoon && goPublicAt && new Date(goPublicAt) > new Date();
+  const needsActivation =
+    cycle?.status === 'RIGHTS_WINDOW' &&
+    (!goPublicAt || new Date(goPublicAt) <= new Date());
+
+  const handleActivate = async () => {
+    const walletAdapter = getWalletAdapter?.();
+    if (!walletAdapter) { onConnect?.(); return; }
+    setActivating(true);
+    try {
+      const program = getProgram(connection, walletAdapter);
+      // mapOnChainProject sets cycleData.id = project.current_cycle (the count
+      // after open_cycle increments it). The active cycle's PDA index is one
+      // less. activate_cycle's PDA seed must match cycle_state.cycle_index.
+      const cycleIndex = Math.max(0, (cycle?.id ?? 1) - 1);
+      await activateCycle(program, mintAddress, cycleIndex);
+      toast.success(`${ticker} is live — public buying open!`);
+      await loadOnChainProjects?.();
+    } catch (e) {
+      const userMsg = parseTransactionError(e);
+      toast.error(userMsg || 'Failed to activate cycle');
+    } finally {
+      setActivating(false);
+    }
+  };
+
+  if (cycle?.status !== 'ACTIVE' && !countdownActive && !needsActivation) {
     return <JupiterPanel mintAddress={mintAddress} ticker={ticker} />;
   }
 
@@ -555,7 +585,7 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
   );
 
   // Coming soon locked state — countdown only, rest of panel header stays
-  if (comingSoon && goPublicAt) {
+  if (countdownActive) {
     const diff = Math.max(0, new Date(goPublicAt) - Date.now());
     const days = Math.floor(diff / 86400000);
     const hrs  = Math.floor((diff % 86400000) / 3600000);
@@ -581,6 +611,29 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
         </div>
         <button disabled style={{ width:'100%', padding:'13px 0', background:'var(--border)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'var(--text-muted)', cursor:'not-allowed', letterSpacing:'0.04em' }}>
           🔒 BUYING LOCKED
+        </button>
+      </div>
+    );
+  }
+
+  // Pending activation — countdown ended but on-chain cycle still in
+  // RIGHTS_WINDOW. activate_cycle is permissionless, so any visitor with a
+  // wallet can flip it to Active.
+  if (needsActivation) {
+    return (
+      <div style={{ background:'var(--panel)', border:'1px solid rgba(139,92,246,0.35)', borderRadius:10, padding:'18px 16px' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+          <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)' }}>Buy ${ticker}</span>
+          <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, fontWeight:700, color:'#22D3EE', background:'rgba(34,211,238,0.12)', border:'1px solid rgba(34,211,238,0.3)', borderRadius:3, padding:'2px 8px' }}>READY TO LAUNCH</span>
+        </div>
+        <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:'var(--text-muted)', lineHeight:1.6, marginBottom:14, textAlign:'center' }}>
+          Launch time has passed. One on-chain confirmation flips the cycle live and opens public buying.
+        </div>
+        <button
+          onClick={handleActivate}
+          disabled={activating}
+          style={{ width:'100%', padding:'13px 0', background: activating ? 'var(--border)' : 'linear-gradient(90deg,#7C3AED,#22D3EE)', border:'none', borderRadius:7, fontFamily:"'IBM Plex Mono',monospace", fontWeight:700, fontSize:13, color:'#fff', cursor: activating ? 'wait' : 'pointer', letterSpacing:'0.04em' }}>
+          {activating ? 'ACTIVATING...' : (walletConnected ? '⚡ GO LIVE' : 'CONNECT WALLET TO ACTIVATE')}
         </button>
       </div>
     );

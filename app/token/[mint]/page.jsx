@@ -15,7 +15,12 @@ export default function TokenPage() {
   const [showCycleDashboard, setShowCycleDashboard] = useState(false);
 
   // Find project by id (mint pubkey once on-chain; id for now)
-  const project = projects.find(p => String(p.id) === String(mint));
+  const rawProject = projects.find(p => String(p.id) === String(mint));
+  // Once goPublicAt has passed, COMING_SOON projects shouldn't render the
+  // countdown chart any more. Mirrors the re-derivation in views/Homepage.jsx.
+  const project = rawProject && rawProject.goPublicAt && new Date(rawProject.goPublicAt) <= new Date() && rawProject.status === 'COMING_SOON'
+    ? { ...rawProject, status: 'BETWEEN' }
+    : rawProject;
 
   // Still loading — show skeleton layout
   if (projectsLoading && !project) {

@@ -487,7 +487,11 @@ function CycleManagerModal({ cycle: cycleProp, project, onClose, onLaunchCycle, 
       if (walletAdapter && isRealMint) {
         const { getProgram } = await import('../lib/anchorClient');
         const program = getProgram(walletAdapter, connection);
-        await activateCycle(program, mintAddress, cycle.id);
+        // cycle.id mirrors project.current_cycle (incremented by open_cycle),
+        // but activate_cycle's PDA seed matches cycle_state.cycle_index which
+        // is one less. Off-by-one here meant activation always failed.
+        const cycleIndex = Math.max(0, (cycle?.id ?? 1) - 1);
+        await activateCycle(program, mintAddress, cycleIndex);
         toast.success('Cycle activated — public buying is now open!');
       } else {
         await new Promise(r => setTimeout(r, 800));
