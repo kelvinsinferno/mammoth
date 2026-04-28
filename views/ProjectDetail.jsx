@@ -522,11 +522,14 @@ function BuyPanel({ cycle, price, ticker, mintAddress, walletConnected, walletBa
 
   // ── Phase detection for non-ACTIVE cycles ────────────────────────────────────
   // Pre-launch: countdown still ticking. Pending-activation: countdown expired
-  // but on-chain cycle is still RIGHTS_WINDOW (needs activate_cycle to flip to ACTIVE).
+  // but cycle isn't ACTIVE yet — typically RIGHTS_WINDOW awaiting activate_cycle.
+  // Be permissive: any non-ACTIVE / non-ended cycle past goPublicAt gets the
+  // GO LIVE button. The on-chain call surfaces a real error if it can't run
+  // (e.g. cycle never opened), instead of silently falling through to Jupiter.
   const countdownActive = comingSoon && goPublicAt && new Date(goPublicAt) > new Date();
-  const needsActivation =
-    cycle?.status === 'RIGHTS_WINDOW' &&
-    (!goPublicAt || new Date(goPublicAt) <= new Date());
+  const launchTimePast = goPublicAt && new Date(goPublicAt) <= new Date();
+  const cycleEnded = cycle?.status === 'CLOSED' || cycle?.status === 'TERMINATED';
+  const needsActivation = launchTimePast && cycle?.status !== 'ACTIVE' && !cycleEnded;
 
   const handleActivate = async () => {
     const walletAdapter = getWalletAdapter?.();
